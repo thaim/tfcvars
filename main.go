@@ -20,6 +20,7 @@ func main() {
 			},
 			{
 				Name: "pull",
+				Action: pull,
 			},
 			{
 				Name: "push",
