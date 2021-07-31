@@ -11,6 +11,13 @@ func main() {
 	app := &cli.App{
 		Name: "terravars",
 		Usage: "synchronize terraform cloud variables",
+		Flags: []cli.Flag {
+			&cli.StringFlag{
+				Name: "tfetoken",
+				Usage: "The token used to authenticate with Terraform Cloud",
+				EnvVars: []string{"TFE_TOKEN"},
+			},
+		},
 		Commands: []*cli.Command{
 			{
 				Name: "help",
