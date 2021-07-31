@@ -25,14 +25,14 @@ func main() {
 			&cli.StringFlag{
 				Name: "organization",
 				Aliases: []string{"o"},
-				Usage: "The token used to authenticate with Terraform Cloud",
+				Usage: "Terraform Cloud organization name to deal with",
 				EnvVars: []string{"TERRAVARS_ORGANIZATION"},
 				Destination: &organization,
 			},
 			&cli.StringFlag{
 				Name: "workspace",
 				Aliases: []string{"w"},
-				Usage: "The token used to authenticate with Terraform Cloud",
+				Usage: "Terraform Cloud workspace name to deal with",
 				EnvVars: []string{"TERRAVARS_WORKSPACE"},
 				Destination: &workspace_name,
 			},
