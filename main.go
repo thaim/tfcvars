@@ -9,7 +9,7 @@ import (
 
 var (
 	organization string
-	workspace_name string
+	workspaceName string
 )
 
 func main() {
@@ -34,7 +34,7 @@ func main() {
 				Aliases: []string{"w"},
 				Usage: "Terraform Cloud workspace name to deal with",
 				EnvVars: []string{"TERRAVARS_WORKSPACE"},
-				Destination: &workspace_name,
+				Destination: &workspaceName,
 			},
 		},
 		Commands: []*cli.Command{

@@ -23,7 +23,7 @@ func pull(c *cli.Context) error {
 		return err
 	}
 
-	w, err := tfeClient.Workspaces.Read(ctx, organization, workspace_name)
+	w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
 	if err != nil {
 		log.Fatal(err)
 		return err
