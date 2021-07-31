@@ -7,6 +7,11 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+var (
+	organization string
+	workspace_name string
+)
+
 func main() {
 	app := &cli.App{
 		Name: "terravars",
@@ -16,6 +21,20 @@ func main() {
 				Name: "tfetoken",
 				Usage: "The token used to authenticate with Terraform Cloud",
 				EnvVars: []string{"TFE_TOKEN"},
+			},
+			&cli.StringFlag{
+				Name: "organization",
+				Aliases: []string{"o"},
+				Usage: "The token used to authenticate with Terraform Cloud",
+				EnvVars: []string{"TERRAVARS_ORGANIZATION"},
+				Destination: &organization,
+			},
+			&cli.StringFlag{
+				Name: "workspace",
+				Aliases: []string{"w"},
+				Usage: "The token used to authenticate with Terraform Cloud",
+				EnvVars: []string{"TERRAVARS_WORKSPACE"},
+				Destination: &workspace_name,
 			},
 		},
 		Commands: []*cli.Command{
