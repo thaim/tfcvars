@@ -51,9 +51,6 @@ func main() {
 			{
 				Name: "push",
 			},
-			{
-				Name: "login",
-			},
 		},
 	}
 
