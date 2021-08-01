@@ -14,10 +14,7 @@ func pull(c *cli.Context) error {
 	ctx := context.Background()
 	log.Println("pull command")
 
-	config := &tfe.Config{
-		Token: c.String("tfetoken"),
-	}
-	tfeClient, err := tfe.NewClient(config)
+	tfeClient, err := buildClient(c)
 	if err != nil {
 		log.Fatal(err)
 		return err
