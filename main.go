@@ -42,6 +42,10 @@ func main() {
 				Name: "help",
 			},
 			{
+				Name: "show",
+				Action: show,
+			},
+			{
 				Name: "diff",
 			},
 			{
