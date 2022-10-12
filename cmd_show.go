@@ -10,7 +10,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func show(c *cli.Context) error {
+// Show display variable list
+func Show(c *cli.Context) error {
 	ctx := context.Background()
 	log.Println("show command")
 
@@ -20,6 +21,10 @@ func show(c *cli.Context) error {
 		return err
 	}
 
+	return show(ctx, tfeClient)
+}
+
+func show(ctx context.Context, tfeClient *tfe.Client) error {
 	w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
 	if err != nil {
 		log.Fatal(err)

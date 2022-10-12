@@ -43,7 +43,7 @@ func main() {
 			},
 			{
 				Name: "show",
-				Action: show,
+				Action: Show,
 			},
 			{
 				Name: "diff",
