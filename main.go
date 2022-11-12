@@ -44,6 +44,9 @@ func main() {
 			{
 				Name: "show",
 				Action: Show,
+				Flags: []cli.Flag{
+					&cli.BoolFlag{Name: "local", Usage: "show local variables"},
+				},
 			},
 			{
 				Name: "diff",
