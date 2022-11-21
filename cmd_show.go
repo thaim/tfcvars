@@ -10,6 +10,18 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+type ShowOption struct {
+	local bool
+}
+
+func NewShowOption(c *cli.Context) *ShowOption {
+	var opt = &ShowOption{}
+
+	opt.local = c.Bool("local")
+
+	return opt
+}
+
 // Show display variable list
 func Show(c *cli.Context) error {
 	ctx := context.Background()
@@ -20,21 +32,32 @@ func Show(c *cli.Context) error {
 		log.Fatal(err)
 		return err
 	}
+	showOpt := NewShowOption(c)
 
-	return show(ctx, tfeClient)
+	return show(ctx, tfeClient, showOpt)
 }
 
-func show(ctx context.Context, tfeClient *tfe.Client) error {
-	w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
-	if err != nil {
-		log.Fatal(err)
-		return err
+func show(ctx context.Context, tfeClient *tfe.Client, showOpt *ShowOption) error {
+	var vars *tfe.VariableList
+
+	if showOpt.local {
+		// terraform.tfvarsを読んで vars 変数に格納する
+		fmt.Println("local variable show command")
+		vars = &tfe.VariableList{}
+	} else {
+		w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
+		if err != nil {
+			log.Fatal(err)
+			return err
+		}
+		vars, err = tfeClient.Variables.List(ctx, w.ID, tfe.VariableListOptions{})
+		if err != nil {
+			log.Fatal(err)
+			return err
+		}
 	}
-	vars, err := tfeClient.Variables.List(ctx, w.ID, tfe.VariableListOptions{})
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
+
+
 	for _, v := range(vars.Items) {
 		fmt.Println("Key: " + v.Key)
 		fmt.Println("Value: " + v.Value)
