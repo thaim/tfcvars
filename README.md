@@ -1,2 +1,2 @@
-# terravars
+# tfcvars
 synchronize terraform cloud variables

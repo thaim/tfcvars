@@ -14,7 +14,7 @@ var (
 
 func main() {
 	app := &cli.App{
-		Name: "terravars",
+		Name: "tfcvars",
 		Usage: "synchronize terraform cloud variables",
 		Flags: []cli.Flag {
 			&cli.StringFlag{

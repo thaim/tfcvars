@@ -1,4 +1,4 @@
-module github.com/thaim/terravars
+module github.com/thaim/tfcvars
 
 go 1.16
 
