@@ -53,7 +53,7 @@ func main() {
 			},
 			{
 				Name: "pull",
-				Action: pull,
+				Action: Pull,
 			},
 			{
 				Name: "push",
