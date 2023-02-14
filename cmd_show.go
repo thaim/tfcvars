@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
@@ -25,11 +25,11 @@ func NewShowOption(c *cli.Context) *ShowOption {
 // Show display variable list
 func Show(c *cli.Context) error {
 	ctx := context.Background()
-	log.Println("show command")
+	log.Debug().Msg("show command")
 
 	tfeClient, err := buildClient(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("faile to build tfe client")
 		return err
 	}
 	showOpt := NewShowOption(c)
@@ -42,17 +42,17 @@ func show(ctx context.Context, tfeClient *tfe.Client, showOpt *ShowOption) error
 
 	if showOpt.local {
 		// terraform.tfvarsを読んで vars 変数に格納する
-		fmt.Println("local variable show command")
+		log.Debug().Msg("local variable show command")
 		vars = &tfe.VariableList{}
 	} else {
 		w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
 			return err
 		}
 		vars, err = tfeClient.Variables.List(ctx, w.ID, tfe.VariableListOptions{})
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Err(err).Msg("failed to list variables")
 			return err
 		}
 	}
