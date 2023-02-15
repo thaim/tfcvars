@@ -23,7 +23,7 @@ func Pull(c *cli.Context) error {
 	ctx := context.Background()
 	log.Println("pull command")
 
-	tfeClient, err := buildClient(c)
+	tfeClient, err := NewTfeClient(c)
 	if err != nil {
 		log.Fatal(err)
 		return err

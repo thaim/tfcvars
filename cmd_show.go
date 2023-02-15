@@ -29,7 +29,7 @@ func Show(c *cli.Context) error {
 	ctx := context.Background()
 	log.Debug().Msg("show command")
 
-	tfeClient, err := buildClient(c)
+	tfeClient, err := NewTfeClient(c)
 	if err != nil {
 		log.Fatal().Err(err).Msg("faile to build tfe client")
 		return err
