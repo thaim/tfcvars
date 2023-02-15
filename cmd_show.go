@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 	"strconv"
 
 	tfe "github.com/hashicorp/go-tfe"
@@ -34,10 +36,15 @@ func Show(c *cli.Context) error {
 	}
 	showOpt := NewShowOption(c)
 
-	return show(ctx, tfeClient, showOpt)
+	err = show(ctx, tfeClient, showOpt, os.Stdout)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func show(ctx context.Context, tfeClient *tfe.Client, showOpt *ShowOption) error {
+func show(ctx context.Context, tfeClient *tfe.Client, showOpt *ShowOption, w io.Writer) error {
 	var vars *tfe.VariableList
 
 	if showOpt.local {
@@ -59,11 +66,11 @@ func show(ctx context.Context, tfeClient *tfe.Client, showOpt *ShowOption) error
 
 
 	for _, v := range(vars.Items) {
-		fmt.Println("Key: " + v.Key)
-		fmt.Println("Value: " + v.Value)
-		fmt.Println("Description: " + v.Description)
-		fmt.Println("Sensitive: " + strconv.FormatBool(v.Sensitive))
-		fmt.Println()
+		fmt.Fprintf(w, "Key: %s\n", v.Key)
+		fmt.Fprintf(w, "Value: %s\n", v.Value)
+		fmt.Fprintf(w, "Description: %s\n", v.Description)
+		fmt.Fprintf(w, "Sensitive: %s\n", strconv.FormatBool(v.Sensitive))
+		fmt.Fprintf(w, "\n")
 	}
 
 	return nil
