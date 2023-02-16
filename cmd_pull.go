@@ -40,7 +40,7 @@ func pull(ctx context.Context, tfeClient *tfe.Client, pullOpt *PullOption) error
 		return err
 	}
 
-	vars, err := tfeClient.Variables.List(ctx, w.ID, tfe.VariableListOptions{})
+	vars, err := tfeClient.Variables.List(ctx, w.ID, nil)
 	if err != nil {
 		log.Fatal(err)
 		return err

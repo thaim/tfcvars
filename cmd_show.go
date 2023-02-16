@@ -57,7 +57,7 @@ func show(ctx context.Context, tfeClient *tfe.Client, showOpt *ShowOption, w io.
 			log.Fatal().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
 			return err
 		}
-		vars, err = tfeClient.Variables.List(ctx, w.ID, tfe.VariableListOptions{})
+		vars, err = tfeClient.Variables.List(ctx, w.ID, nil)
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to list variables")
 			return err
