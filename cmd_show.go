@@ -34,9 +34,14 @@ func Show(c *cli.Context) error {
 		log.Fatal().Err(err).Msg("faile to build tfe client")
 		return err
 	}
+	w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
+		return err
+	}
 	showOpt := NewShowOption(c)
 
-	err = show(ctx, tfeClient, showOpt, os.Stdout)
+	err = show(ctx, w.ID, tfeClient.Variables, showOpt, os.Stdout)
 	if err != nil {
 		return err
 	}
@@ -44,26 +49,21 @@ func Show(c *cli.Context) error {
 	return nil
 }
 
-func show(ctx context.Context, tfeClient *tfe.Client, showOpt *ShowOption, w io.Writer) error {
+func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, showOpt *ShowOption, w io.Writer) error {
 	var vars *tfe.VariableList
+	var err error
 
 	if showOpt.local {
 		// terraform.tfvarsを読んで vars 変数に格納する
 		log.Debug().Msg("local variable show command")
 		vars = &tfe.VariableList{}
 	} else {
-		w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
-		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
-			return err
-		}
-		vars, err = tfeClient.Variables.List(ctx, w.ID, nil)
+		vars, err = tfeVariables.List(ctx, workspaceId, nil)
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to list variables")
 			return err
 		}
 	}
-
 
 	for _, v := range(vars.Items) {
 		fmt.Fprintf(w, "Key: %s\n", v.Key)
