@@ -11,7 +11,7 @@ import (
 )
 
 
-func buildClient(c *cli.Context) (*tfe.Client, error) {
+func NewTfeClient(c *cli.Context) (*tfe.Client, error) {
 	token := c.String("tfetoken")
 	if token == "" {
 		home, err := os.UserHomeDir()
