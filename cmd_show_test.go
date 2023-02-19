@@ -8,14 +8,15 @@ import (
 
 	"github.com/golang/mock/gomock"
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp/go-tfe/mocks"
 )
 
 func TestCmdShow(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	mockClient := NewMockTfeClient(ctrl)
+	mockVariables := mocks.NewMockVariables(ctrl)
 
 	var items []*tfe.Variable
-	mockClient.Variables.EXPECT().
+	mockVariables.EXPECT().
 		List(context.TODO(), "w-test-no-vars-workspace", nil).
 		Return(&tfe.VariableList{
 			Items: items,
@@ -46,7 +47,7 @@ func TestCmdShow(t *testing.T) {
 			showOpt := &ShowOption{}
 			var buf bytes.Buffer
 
-			err := show(ctx, tt.workspaceId, mockClient.Variables, showOpt, &buf)
+			err := show(ctx, tt.workspaceId, mockVariables, showOpt, &buf)
 
 			if tt.wantErr {
 				if !strings.Contains(err.Error(), tt.expectErr) {
