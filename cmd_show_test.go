@@ -15,11 +15,53 @@ func TestCmdShow(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockVariables := mocks.NewMockVariables(ctrl)
 
-	var items []*tfe.Variable
 	mockVariables.EXPECT().
 		List(context.TODO(), "w-test-no-vars-workspace", nil).
 		Return(&tfe.VariableList{
-			Items: items,
+			Items: nil,
+		}, nil).
+		AnyTimes()
+
+	mockVariables.EXPECT().
+		List(context.TODO(), "w-test-single-variable-workspace", nil).
+		Return(&tfe.VariableList{
+			Items: []*tfe.Variable{
+				{
+					Key: "var1",
+					Value: "value1",
+					Description: "description1",
+				},
+			},
+		}, nil).
+		AnyTimes()
+
+	mockVariables.EXPECT().
+		List(context.TODO(), "w-test-multiple-variables-workspace", nil).
+		Return(&tfe.VariableList{
+			Items: []*tfe.Variable{
+				{
+					Key: "var1",
+					Value: "value1",
+				},
+				{
+					Key: "var2",
+					Value: "value2",
+				},
+			},
+		}, nil).
+		AnyTimes()
+
+	mockVariables.EXPECT().
+		List(context.TODO(), "w-test-sensitive-variable-workspace", nil).
+		Return(&tfe.VariableList{
+			Items: []*tfe.Variable{
+				{
+					Key: "var1",
+					Value: "",
+					Description: "sensitive",
+					Sensitive: true,
+				},
+			},
 		}, nil).
 		AnyTimes()
 
@@ -34,6 +76,27 @@ func TestCmdShow(t *testing.T) {
 			name: "show empty variable",
 			workspaceId: "w-test-no-vars-workspace",
 			expect: "",
+			wantErr: false,
+			expectErr: "",
+		},
+		{
+			name: "show single variable",
+			workspaceId: "w-test-single-variable-workspace",
+			expect: "Key: var1\nValue: value1\nDescription: description1\nSensitive: false\n\n",
+			wantErr: false,
+			expectErr: "",
+		},
+		{
+			name: "show multiple variables",
+			workspaceId: "w-test-multiple-variables-workspace",
+			expect: "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var2\nValue: value2\nDescription: \nSensitive: false\n\n",
+			wantErr: false,
+			expectErr: "",
+		},
+		{
+			name: "show sensitive variable",
+			workspaceId: "w-test-sensitive-variable-workspace",
+			expect: "Key: var1\nValue: \nDescription: sensitive\nSensitive: true\n\n",
 			wantErr: false,
 			expectErr: "",
 		},
