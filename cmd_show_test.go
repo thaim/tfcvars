@@ -25,7 +25,6 @@ func TestCmdShow(t *testing.T) {
 
 	cases := []struct {
 		name string
-		orgName string
 		workspaceId string
 		expect string
 		wantErr bool
@@ -33,7 +32,6 @@ func TestCmdShow(t *testing.T) {
 	}{
 		{
 			name: "show empty variable",
-			orgName: "test-org",
 			workspaceId: "w-test-no-vars-workspace",
 			expect: "",
 			wantErr: false,
