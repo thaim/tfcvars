@@ -28,19 +28,18 @@ func Pull(c *cli.Context) error {
 		log.Fatal().Err(err).Msg("failed to build tfe client")
 		return err
 	}
-	showOpt := NewPullOption(c)
-
-	return pull(ctx, tfeClient, showOpt)
-}
-
-func pull(ctx context.Context, tfeClient *tfe.Client, pullOpt *PullOption) error {
 	w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
 		return err
 	}
+	pullOpt := NewPullOption(c)
 
-	vars, err := tfeClient.Variables.List(ctx, w.ID, nil)
+	return pull(ctx, w.ID, tfeClient.Variables, pullOpt)
+}
+
+func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, pullOpt *PullOption) error {
+	vars, err := tfeVariables.List(ctx, workspaceId, nil)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to list variables")
 		return err
