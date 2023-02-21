@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+	"github.com/zclconf/go-cty/cty"
 )
 
 type PullOption struct {
@@ -53,13 +54,17 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		log.Fatal().Err(err).Msg("failed to list variables")
 		return err
 	}
+	f := hclwrite.NewEmptyFile()
+	rootBody := f.Body()
+
 	for _, v := range(vars.Items) {
-		fmt.Fprintf(w, "Key: " + v.Key)
-		fmt.Fprintf(w, "Value: " + v.Value)
-		fmt.Fprintf(w, "Description: " + v.Description)
-		fmt.Fprintf(w, "Sensitive: " + strconv.FormatBool(v.Sensitive))
-		fmt.Fprintf(w, "\n")
+		if (v.Sensitive) {
+			continue
+		}
+		rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
 	}
+
+	fmt.Fprintf(w, "%s", f.Bytes())
 
 	return nil
 }
