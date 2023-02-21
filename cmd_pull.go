@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
@@ -21,11 +21,11 @@ func NewPullOption(c *cli.Context) *PullOption {
 
 func Pull(c *cli.Context) error {
 	ctx := context.Background()
-	log.Println("pull command")
+	log.Debug().Msg("pull command")
 
 	tfeClient, err := NewTfeClient(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("failed to build tfe client")
 		return err
 	}
 	showOpt := NewPullOption(c)
@@ -36,13 +36,13 @@ func Pull(c *cli.Context) error {
 func pull(ctx context.Context, tfeClient *tfe.Client, pullOpt *PullOption) error {
 	w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
 		return err
 	}
 
 	vars, err := tfeClient.Variables.List(ctx, w.ID, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("failed to list variables")
 		return err
 	}
 	for _, v := range(vars.Items) {
