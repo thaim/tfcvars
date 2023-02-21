@@ -37,7 +37,14 @@ func Pull(c *cli.Context) error {
 	}
 	pullOpt := NewPullOption(c)
 
-	return pull(ctx, w.ID, tfeClient.Variables, pullOpt, os.Stdout)
+	f, err := os.Open("terraform.tfvars")
+	if err != nil {
+		log.Fatal().Err(err).Msg("cannot open terraform.tfvars")
+		return err
+	}
+	defer f.Close()
+
+	return pull(ctx, w.ID, tfeClient.Variables, pullOpt, f)
 }
 
 func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, pullOpt *PullOption, w io.Writer) error {
