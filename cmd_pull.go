@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 	"strconv"
 
 	tfe "github.com/hashicorp/go-tfe"
@@ -35,21 +37,21 @@ func Pull(c *cli.Context) error {
 	}
 	pullOpt := NewPullOption(c)
 
-	return pull(ctx, w.ID, tfeClient.Variables, pullOpt)
+	return pull(ctx, w.ID, tfeClient.Variables, pullOpt, os.Stdout)
 }
 
-func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, pullOpt *PullOption) error {
+func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, pullOpt *PullOption, w io.Writer) error {
 	vars, err := tfeVariables.List(ctx, workspaceId, nil)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to list variables")
 		return err
 	}
 	for _, v := range(vars.Items) {
-		fmt.Println("Key: " + v.Key)
-		fmt.Println("Value: " + v.Value)
-		fmt.Println("Description: " + v.Description)
-		fmt.Println("Sensitive: " + strconv.FormatBool(v.Sensitive))
-		fmt.Println()
+		fmt.Fprintf(w, "Key: " + v.Key)
+		fmt.Fprintf(w, "Value: " + v.Value)
+		fmt.Fprintf(w, "Description: " + v.Description)
+		fmt.Fprintf(w, "Sensitive: " + strconv.FormatBool(v.Sensitive))
+		fmt.Fprintf(w, "\n")
 	}
 
 	return nil
