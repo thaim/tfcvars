@@ -61,6 +61,11 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		if (v.Sensitive) {
 			continue
 		}
+		if (v.Category == tfe.CategoryEnv) {
+			// Terraform VariablesではなくEnvironment Variablesであれば出力しない
+			// TODO: Env対応は別オプションで実装する
+			continue
+		}
 		rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
 	}
 

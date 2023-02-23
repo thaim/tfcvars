@@ -51,6 +51,29 @@ func TestCmdPull(t *testing.T) {
 		}, nil).
 		AnyTimes()
 
+	// test for Types
+	// https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables#types
+	mockVariables.EXPECT().
+		List(context.TODO(), "w-test-linclude-multiple-variable-types-workspace", nil).
+		Return(&tfe.VariableList{
+			Items: []*tfe.Variable{
+				{
+					Key: "var1",
+					Value: "value1",
+					Description: "Terraform Variables",
+					Category: tfe.CategoryTerraform,
+				},
+				{
+					Key: "var2",
+					Value: "value2",
+					Description: "Environment Variables",
+					Category: tfe.CategoryEnv,
+				},
+				// TODO support policy-set
+			},
+		}, nil).
+		AnyTimes()
+
 	mockVariables.EXPECT().
 		List(context.TODO(), "w-test-sensitive-variable-workspace", nil).
 		Return(&tfe.VariableList{
@@ -97,6 +120,13 @@ func TestCmdPull(t *testing.T) {
 			name: "pull sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
 			expect: "",
+			wantErr: false,
+			expectErr: "",
+		},
+		{
+			name: "treat multiple variable types",
+			workspaceId: "w-test-linclude-multiple-variable-types-workspace",
+			expect: "var1 = \"value1\"\n",
 			wantErr: false,
 			expectErr: "",
 		},
