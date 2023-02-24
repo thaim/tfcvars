@@ -84,6 +84,13 @@ func TestCmdPull(t *testing.T) {
 					Description: "sensitive",
 					Sensitive: true,
 				},
+				{
+					Key: "var2",
+					Value: "",
+					Description: "sensitive environment",
+					Sensitive: true,
+					Category: tfe.CategoryEnv,
+				},
 			},
 		}, nil).
 		AnyTimes()
@@ -119,7 +126,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name: "pull sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
-			expect: "",
+			expect: "// var1 = \"***\"\n",
 			wantErr: false,
 			expectErr: "",
 		},
