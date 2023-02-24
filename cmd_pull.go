@@ -7,6 +7,7 @@ import (
 	"os"
 
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -58,12 +59,13 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	rootBody := f.Body()
 
 	for _, v := range(vars.Items) {
-		if (v.Sensitive) {
-			continue
-		}
 		if (v.Category == tfe.CategoryEnv) {
 			// Terraform VariablesではなくEnvironment Variablesであれば出力しない
 			// TODO: Env対応は別オプションで実装する
+			continue
+		}
+		if (v.Sensitive) {
+			rootBody.AppendUnstructuredTokens(generateComment(v.Key))
 			continue
 		}
 		rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
@@ -72,4 +74,31 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	fmt.Fprintf(w, "%s", f.Bytes())
 
 	return nil
+}
+
+func generateComment(key string) hclwrite.Tokens {
+	tokens := hclwrite.Tokens{
+		{
+			Type:  hclsyntax.TokenSlash,
+			Bytes: []byte("//"),
+		},
+		{
+			Type:  hclsyntax.TokenIdent,
+			Bytes: []byte(key),
+		},
+		{
+			Type:  hclsyntax.TokenIdent,
+			Bytes: []byte("="),
+		},
+		{
+			Type:  hclsyntax.TokenIdent,
+			Bytes: []byte("\"***\""),
+		},
+		{
+			Type:  hclsyntax.TokenNewline,
+			Bytes: []byte("\n"),
+		},
+	}
+
+	return tokens
 }
