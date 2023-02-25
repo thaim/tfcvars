@@ -3,13 +3,33 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/antonholmquist/jason"
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
+
+func init() {
+	logLevelString := strings.ToUpper(os.Getenv("TFCVARS_LOG"))
+	logLevelMap := map[string]zerolog.Level{
+		"TRACE": zerolog.TraceLevel,
+		"DEBUG": zerolog.DebugLevel,
+		"INFO": zerolog.InfoLevel,
+		"WARN": zerolog.WarnLevel,
+		"ERROR": zerolog.ErrorLevel,
+	}
+
+	logLevel, ok := logLevelMap[logLevelString]
+	if !ok {
+		// default to debug until GA
+		logLevel = zerolog.DebugLevel
+	}
+	zerolog.SetGlobalLevel(logLevel)
+}
 
 func NewTfeClient(c *cli.Context) (*tfe.Client, error) {
 	token := c.String("tfetoken")
