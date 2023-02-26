@@ -42,9 +42,9 @@ func Pull(c *cli.Context) error {
 	}
 	pullOpt := NewPullOption(c)
 
-	f, err := os.Create("terraform.tfvars")
+	f, err := os.Create(pullOpt.varFile)
 	if err != nil {
-		log.Fatal().Err(err).Msg("cannot open terraform.tfvars")
+		log.Fatal().Err(err).Msgf("cannot open varfile: %s", pullOpt.varFile)
 		return err
 	}
 	defer f.Close()
