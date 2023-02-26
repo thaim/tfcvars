@@ -54,6 +54,13 @@ func main() {
 			{
 				Name: "pull",
 				Action: Pull,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name: "var-file",
+						Usage: "Output filename to write var-file",
+						Value: "terraform.tfvars",
+					},
+				},
 			},
 			{
 				Name: "push",
