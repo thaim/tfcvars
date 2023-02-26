@@ -15,10 +15,13 @@ import (
 )
 
 type PullOption struct {
+	varFile string
 }
 
 func NewPullOption(c *cli.Context) *PullOption {
 	var opt = &PullOption{}
+
+	opt.varFile = c.String("var-file")
 
 	return opt
 }
