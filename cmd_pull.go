@@ -16,12 +16,14 @@ import (
 
 type PullOption struct {
 	varFile string
+	overwrite bool
 }
 
 func NewPullOption(c *cli.Context) *PullOption {
 	var opt = &PullOption{}
 
 	opt.varFile = c.String("var-file")
+	opt.overwrite = c.Bool("overwrite")
 
 	return opt
 }
@@ -41,6 +43,7 @@ func Pull(c *cli.Context) error {
 		return err
 	}
 	pullOpt := NewPullOption(c)
+	log.Debug().Msgf("pullOption: %+v", pullOpt)
 
 	f, err := os.Create(pullOpt.varFile)
 	if err != nil {
