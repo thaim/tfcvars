@@ -60,6 +60,11 @@ func main() {
 						Usage: "Output filename to write var-file",
 						Value: "terraform.tfvars",
 					},
+					&cli.BoolFlag{
+						Name: "overwrite",
+						Usage: "overwrite existing vars file",
+						Value: false,
+					},
 				},
 			},
 			{
