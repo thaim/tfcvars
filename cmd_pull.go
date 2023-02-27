@@ -43,6 +43,7 @@ func Pull(c *cli.Context) error {
 		return err
 	}
 	pullOpt := NewPullOption(c)
+	log.Debug().Msgf("pullOption: %+v", pullOpt)
 
 	f, err := os.Create(pullOpt.varFile)
 	if err != nil {
