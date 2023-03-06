@@ -12,14 +12,13 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-
 func init() {
 	logLevelString := strings.ToUpper(os.Getenv("TFCVARS_LOG"))
 	logLevelMap := map[string]zerolog.Level{
 		"TRACE": zerolog.TraceLevel,
 		"DEBUG": zerolog.DebugLevel,
-		"INFO": zerolog.InfoLevel,
-		"WARN": zerolog.WarnLevel,
+		"INFO":  zerolog.InfoLevel,
+		"WARN":  zerolog.WarnLevel,
 		"ERROR": zerolog.ErrorLevel,
 	}
 

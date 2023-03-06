@@ -27,8 +27,8 @@ func TestCmdShow(t *testing.T) {
 		Return(&tfe.VariableList{
 			Items: []*tfe.Variable{
 				{
-					Key: "var1",
-					Value: "value1",
+					Key:         "var1",
+					Value:       "value1",
 					Description: "description1",
 				},
 			},
@@ -40,11 +40,11 @@ func TestCmdShow(t *testing.T) {
 		Return(&tfe.VariableList{
 			Items: []*tfe.Variable{
 				{
-					Key: "var1",
+					Key:   "var1",
 					Value: "value1",
 				},
 				{
-					Key: "var2",
+					Key:   "var2",
 					Value: "value2",
 				},
 			},
@@ -56,49 +56,49 @@ func TestCmdShow(t *testing.T) {
 		Return(&tfe.VariableList{
 			Items: []*tfe.Variable{
 				{
-					Key: "var1",
-					Value: "",
+					Key:         "var1",
+					Value:       "",
 					Description: "sensitive",
-					Sensitive: true,
+					Sensitive:   true,
 				},
 			},
 		}, nil).
 		AnyTimes()
 
 	cases := []struct {
-		name string
+		name        string
 		workspaceId string
-		expect string
-		wantErr bool
-		expectErr string
+		expect      string
+		wantErr     bool
+		expectErr   string
 	}{
 		{
-			name: "show empty variable",
+			name:        "show empty variable",
 			workspaceId: "w-test-no-vars-workspace",
-			expect: "",
-			wantErr: false,
-			expectErr: "",
+			expect:      "",
+			wantErr:     false,
+			expectErr:   "",
 		},
 		{
-			name: "show single variable",
+			name:        "show single variable",
 			workspaceId: "w-test-single-variable-workspace",
-			expect: "Key: var1\nValue: value1\nDescription: description1\nSensitive: false\n\n",
-			wantErr: false,
-			expectErr: "",
+			expect:      "Key: var1\nValue: value1\nDescription: description1\nSensitive: false\n\n",
+			wantErr:     false,
+			expectErr:   "",
 		},
 		{
-			name: "show multiple variables",
+			name:        "show multiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
-			expect: "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var2\nValue: value2\nDescription: \nSensitive: false\n\n",
-			wantErr: false,
-			expectErr: "",
+			expect:      "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var2\nValue: value2\nDescription: \nSensitive: false\n\n",
+			wantErr:     false,
+			expectErr:   "",
 		},
 		{
-			name: "show sensitive variable",
+			name:        "show sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
-			expect: "Key: var1\nValue: \nDescription: sensitive\nSensitive: true\n\n",
-			wantErr: false,
-			expectErr: "",
+			expect:      "Key: var1\nValue: \nDescription: sensitive\nSensitive: true\n\n",
+			wantErr:     false,
+			expectErr:   "",
 		},
 	}
 

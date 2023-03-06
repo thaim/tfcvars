@@ -27,8 +27,8 @@ func TestCmdPull(t *testing.T) {
 		Return(&tfe.VariableList{
 			Items: []*tfe.Variable{
 				{
-					Key: "var1",
-					Value: "value1",
+					Key:         "var1",
+					Value:       "value1",
 					Description: "description1",
 				},
 			},
@@ -40,11 +40,11 @@ func TestCmdPull(t *testing.T) {
 		Return(&tfe.VariableList{
 			Items: []*tfe.Variable{
 				{
-					Key: "var1",
+					Key:   "var1",
 					Value: "value1",
 				},
 				{
-					Key: "var2",
+					Key:   "var2",
 					Value: "value2",
 				},
 			},
@@ -58,16 +58,16 @@ func TestCmdPull(t *testing.T) {
 		Return(&tfe.VariableList{
 			Items: []*tfe.Variable{
 				{
-					Key: "var1",
-					Value: "value1",
+					Key:         "var1",
+					Value:       "value1",
 					Description: "Terraform Variables",
-					Category: tfe.CategoryTerraform,
+					Category:    tfe.CategoryTerraform,
 				},
 				{
-					Key: "var2",
-					Value: "value2",
+					Key:         "var2",
+					Value:       "value2",
 					Description: "Environment Variables",
-					Category: tfe.CategoryEnv,
+					Category:    tfe.CategoryEnv,
 				},
 				// TODO support policy-set
 			},
@@ -79,63 +79,63 @@ func TestCmdPull(t *testing.T) {
 		Return(&tfe.VariableList{
 			Items: []*tfe.Variable{
 				{
-					Key: "var1",
-					Value: "",
+					Key:         "var1",
+					Value:       "",
 					Description: "sensitive",
-					Sensitive: true,
+					Sensitive:   true,
 				},
 				{
-					Key: "var2",
-					Value: "",
+					Key:         "var2",
+					Value:       "",
 					Description: "sensitive environment",
-					Sensitive: true,
-					Category: tfe.CategoryEnv,
+					Sensitive:   true,
+					Category:    tfe.CategoryEnv,
 				},
 			},
 		}, nil).
 		AnyTimes()
 
 	cases := []struct {
-		name string
+		name        string
 		workspaceId string
-		expect string
-		wantErr bool
-		expectErr string
+		expect      string
+		wantErr     bool
+		expectErr   string
 	}{
 		{
-			name: "pull empty variable",
+			name:        "pull empty variable",
 			workspaceId: "w-test-no-vars-workspace",
-			expect: "",
-			wantErr: false,
-			expectErr: "",
+			expect:      "",
+			wantErr:     false,
+			expectErr:   "",
 		},
 		{
-			name: "pull single variable",
+			name:        "pull single variable",
 			workspaceId: "w-test-single-variable-workspace",
-			expect: "var1 = \"value1\"\n",
-			wantErr: false,
-			expectErr: "",
+			expect:      "var1 = \"value1\"\n",
+			wantErr:     false,
+			expectErr:   "",
 		},
 		{
-			name: "pull multiple variables",
+			name:        "pull multiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
-			expect: "var1 = \"value1\"\nvar2 = \"value2\"\n",
-			wantErr: false,
-			expectErr: "",
+			expect:      "var1 = \"value1\"\nvar2 = \"value2\"\n",
+			wantErr:     false,
+			expectErr:   "",
 		},
 		{
-			name: "pull sensitive variable",
+			name:        "pull sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
-			expect: "// var1 = \"***\"\n",
-			wantErr: false,
-			expectErr: "",
+			expect:      "// var1 = \"***\"\n",
+			wantErr:     false,
+			expectErr:   "",
 		},
 		{
-			name: "treat multiple variable types",
+			name:        "treat multiple variable types",
 			workspaceId: "w-test-linclude-multiple-variable-types-workspace",
-			expect: "var1 = \"value1\"\n",
-			wantErr: false,
-			expectErr: "",
+			expect:      "var1 = \"value1\"\n",
+			wantErr:     false,
+			expectErr:   "",
 		},
 	}
 

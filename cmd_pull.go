@@ -15,7 +15,7 @@ import (
 )
 
 type PullOption struct {
-	varFile string
+	varFile   string
 	overwrite bool
 }
 
@@ -64,13 +64,13 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	f := hclwrite.NewEmptyFile()
 	rootBody := f.Body()
 
-	for _, v := range(vars.Items) {
-		if (v.Category == tfe.CategoryEnv) {
+	for _, v := range vars.Items {
+		if v.Category == tfe.CategoryEnv {
 			// Terraform VariablesではなくEnvironment Variablesであれば出力しない
 			// TODO: Env対応は別オプションで実装する
 			continue
 		}
-		if (v.Sensitive) {
+		if v.Sensitive {
 			rootBody.AppendUnstructuredTokens(generateComment(v.Key))
 			continue
 		}
