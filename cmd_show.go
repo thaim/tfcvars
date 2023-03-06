@@ -15,12 +15,14 @@ import (
 )
 
 type ShowOption struct {
-	local bool
+	varFile string
+	local   bool
 }
 
 func NewShowOption(c *cli.Context) *ShowOption {
 	var opt = &ShowOption{}
 
+	opt.varFile = c.String("var-file")
 	opt.local = c.Bool("local")
 
 	return opt

@@ -45,7 +45,16 @@ func main() {
 				Name: "show",
 				Action: Show,
 				Flags: []cli.Flag{
-					&cli.BoolFlag{Name: "local", Usage: "show local variables"},
+					&cli.BoolFlag{
+						Name:  "local",
+						Usage: "show local variables",
+						Value: false,
+					},
+					&cli.StringFlag{
+						Name:  "var-file",
+						Usage: "Input filename to read for local variable",
+						Value: "terraform.tfvars",
+					},
 				},
 			},
 			{
