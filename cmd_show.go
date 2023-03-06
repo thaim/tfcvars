@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strconv"
 
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
@@ -57,6 +59,22 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 		// terraform.tfvarsを読んで vars 変数に格納する
 		log.Debug().Msg("local variable show command")
 		vars = &tfe.VariableList{}
+		vars.Items = []*tfe.Variable{}
+
+		p := hclparse.NewParser()
+		file, diags := p.ParseHCLFile("terraform.tfvars")
+		if diags.HasErrors() {
+			return errors.New(diags.Error())
+		}
+		attrs, diags := file.Body.JustAttributes()
+		for attrKey, attrValue := range attrs {
+			val, _ := attrValue.Expr.Value(nil)
+			vars.Items = append(vars.Items, &tfe.Variable{
+				Key: attrKey,
+				Value: val.AsString(),
+			})
+		}
+
 	} else {
 		vars, err = tfeVariables.List(ctx, workspaceId, nil)
 		if err != nil {
