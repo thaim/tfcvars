@@ -8,32 +8,32 @@ import (
 )
 
 var (
-	organization string
+	organization  string
 	workspaceName string
 )
 
 func main() {
 	app := &cli.App{
-		Name: "tfcvars",
+		Name:  "tfcvars",
 		Usage: "synchronize terraform cloud variables",
-		Flags: []cli.Flag {
+		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name: "tfetoken",
-				Usage: "The token used to authenticate with Terraform Cloud",
+				Name:    "tfetoken",
+				Usage:   "The token used to authenticate with Terraform Cloud",
 				EnvVars: []string{"TFE_TOKEN"},
 			},
 			&cli.StringFlag{
-				Name: "organization",
-				Aliases: []string{"o"},
-				Usage: "Terraform Cloud organization name to deal with",
-				EnvVars: []string{"TFCVARS_ORGANIZATION"},
+				Name:        "organization",
+				Aliases:     []string{"o"},
+				Usage:       "Terraform Cloud organization name to deal with",
+				EnvVars:     []string{"TFCVARS_ORGANIZATION"},
 				Destination: &organization,
 			},
 			&cli.StringFlag{
-				Name: "workspace",
-				Aliases: []string{"w"},
-				Usage: "Terraform Cloud workspace name to deal with",
-				EnvVars: []string{"TFCVARS_WORKSPACE"},
+				Name:        "workspace",
+				Aliases:     []string{"w"},
+				Usage:       "Terraform Cloud workspace name to deal with",
+				EnvVars:     []string{"TFCVARS_WORKSPACE"},
 				Destination: &workspaceName,
 			},
 		},
@@ -42,26 +42,35 @@ func main() {
 				Name: "help",
 			},
 			{
-				Name: "show",
+				Name:   "show",
 				Action: Show,
 				Flags: []cli.Flag{
-					&cli.BoolFlag{Name: "local", Usage: "show local variables"},
+					&cli.BoolFlag{
+						Name:  "local",
+						Usage: "show local variables",
+						Value: false,
+					},
+					&cli.StringFlag{
+						Name:  "var-file",
+						Usage: "Input filename to read for local variable",
+						Value: "terraform.tfvars",
+					},
 				},
 			},
 			{
 				Name: "diff",
 			},
 			{
-				Name: "pull",
+				Name:   "pull",
 				Action: Pull,
 				Flags: []cli.Flag{
 					&cli.StringFlag{
-						Name: "var-file",
+						Name:  "var-file",
 						Usage: "Output filename to write var-file",
 						Value: "terraform.tfvars",
 					},
 					&cli.BoolFlag{
-						Name: "overwrite",
+						Name:  "overwrite",
 						Usage: "overwrite existing vars file",
 						Value: false,
 					},

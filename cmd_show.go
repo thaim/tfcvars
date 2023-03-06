@@ -15,12 +15,14 @@ import (
 )
 
 type ShowOption struct {
-	local bool
+	varFile string
+	local   bool
 }
 
 func NewShowOption(c *cli.Context) *ShowOption {
 	var opt = &ShowOption{}
 
+	opt.varFile = c.String("var-file")
 	opt.local = c.Bool("local")
 
 	return opt
@@ -70,7 +72,7 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 		for attrKey, attrValue := range attrs {
 			val, _ := attrValue.Expr.Value(nil)
 			vars.Items = append(vars.Items, &tfe.Variable{
-				Key: attrKey,
+				Key:   attrKey,
 				Value: val.AsString(),
 			})
 		}
@@ -83,7 +85,7 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 		}
 	}
 
-	for _, v := range(vars.Items) {
+	for _, v := range vars.Items {
 		fmt.Fprintf(w, "Key: %s\n", v.Key)
 		fmt.Fprintf(w, "Value: %s\n", v.Value)
 		fmt.Fprintf(w, "Description: %s\n", v.Description)
