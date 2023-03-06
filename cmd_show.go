@@ -66,7 +66,7 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 		if diags.HasErrors() {
 			return errors.New(diags.Error())
 		}
-		attrs, diags := file.Body.JustAttributes()
+		attrs, _ := file.Body.JustAttributes()
 		for attrKey, attrValue := range attrs {
 			val, _ := attrValue.Expr.Value(nil)
 			vars.Items = append(vars.Items, &tfe.Variable{
