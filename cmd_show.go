@@ -105,9 +105,6 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 
 
 func requireTfcAccess(opt *ShowOption) bool {
-	if opt.local {
-		return false
-	}
-
-	return true
+	// local以外のオプションでも条件分岐が生じそうなので関数化している
+	return !opt.local
 }
