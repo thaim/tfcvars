@@ -71,7 +71,7 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 		vars.Items = []*tfe.Variable{}
 
 		p := hclparse.NewParser()
-		file, diags := p.ParseHCLFile("terraform.tfvars")
+		file, diags := p.ParseHCLFile(showOpt.varFile)
 		if diags.HasErrors() {
 			return errors.New(diags.Error())
 		}
