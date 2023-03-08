@@ -33,19 +33,26 @@ func Show(c *cli.Context) error {
 	ctx := context.Background()
 	log.Debug().Msg("show command")
 
-	tfeClient, err := NewTfeClient(c)
-	if err != nil {
-		log.Fatal().Err(err).Msg("faile to build tfe client")
-		return err
-	}
-	w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
-	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
-		return err
-	}
 	showOpt := NewShowOption(c)
+	workspaceId := ""
+	var tfeVariables tfe.Variables
+	if requireTfcAccess(showOpt) {
+		tfeClient, err := NewTfeClient(c)
+		if err != nil {
+			log.Fatal().Err(err).Msg("faile to build tfe client")
+			return err
+		}
+		w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
+			return err
+		}
 
-	err = show(ctx, w.ID, tfeClient.Variables, showOpt, os.Stdout)
+		workspaceId = w.ID
+		tfeVariables = tfeClient.Variables
+	}
+
+	err := show(ctx, workspaceId, tfeVariables, showOpt, os.Stdout)
 	if err != nil {
 		return err
 	}
@@ -94,4 +101,13 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 	}
 
 	return nil
+}
+
+
+func requireTfcAccess(opt *ShowOption) bool {
+	if opt.local {
+		return false
+	}
+
+	return true
 }
