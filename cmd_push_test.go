@@ -22,11 +22,11 @@ func TestCmdPush(t *testing.T) {
 		AnyTimes()
 
 	mockVariables.EXPECT().
-		Update(context.TODO(),"w-test-no-vars-workspace", "", nil).
+		Update(context.TODO(), "w-test-no-vars-workspace", "", nil).
 		Return(&tfe.Variable{}, nil).
 		Times(0)
 	mockVariables.EXPECT().
-		Create(context.TODO(),"w-test-no-vars-workspace", nil).
+		Create(context.TODO(), "w-test-no-vars-workspace", nil).
 		Return(&tfe.Variable{}, nil).
 		Times(0)
 
