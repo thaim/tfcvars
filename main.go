@@ -77,7 +77,7 @@ func main() {
 				},
 			},
 			{
-				Name: "push",
+				Name:   "push",
 				Action: Push,
 			},
 		},
