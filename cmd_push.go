@@ -67,12 +67,12 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		for _, targetVar := range previousVars.Items {
 			if targetVar.Key == variable.Key {
 				updateOpt := tfe.VariableUpdateOptions{
-					Key: tfe.String(variable.Key),
-					Value: tfe.String(variable.Value),
+					Key:         tfe.String(variable.Key),
+					Value:       tfe.String(variable.Value),
 					Description: tfe.String(targetVar.Description),
-					Category: tfe.Category(targetVar.Category),
-					HCL: tfe.Bool(targetVar.HCL),
-					Sensitive: tfe.Bool(targetVar.Sensitive),
+					Category:    tfe.Category(targetVar.Category),
+					HCL:         tfe.Bool(targetVar.HCL),
+					Sensitive:   tfe.Bool(targetVar.Sensitive),
 				}
 				tfeVariables.Update(ctx, workspaceId, targetVar.ID, updateOpt)
 				pushed = true
@@ -82,10 +82,10 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 
 		if !pushed {
 			createOpt := tfe.VariableCreateOptions{
-				Key: tfe.String(variable.Key),
-				Value: tfe.String(variable.Value),
-				Category: tfe.Category(tfe.CategoryEnv),
-				HCL: tfe.Bool(false),
+				Key:       tfe.String(variable.Key),
+				Value:     tfe.String(variable.Value),
+				Category:  tfe.Category(tfe.CategoryEnv),
+				HCL:       tfe.Bool(false),
 				Sensitive: tfe.Bool(false),
 			}
 			tfeVariables.Create(ctx, workspaceId, createOpt)
