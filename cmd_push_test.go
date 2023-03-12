@@ -21,19 +21,11 @@ func TestCmdPush(t *testing.T) {
 		}, nil).
 		AnyTimes()
 
-	mockVariables.EXPECT().
-		Update(context.TODO(), "w-test-no-vars-workspace", "", nil).
-		Return(&tfe.Variable{}, nil).
-		Times(0)
-	mockVariables.EXPECT().
-		Create(context.TODO(), "w-test-no-vars-workspace", nil).
-		Return(&tfe.Variable{}, nil).
-		Times(0)
-
 	cases := []struct {
 		name        string
 		workspaceId string
 		vars        *tfe.VariableList
+		setClient   func(*mocks.MockVariables)
 		expect      string
 		wantErr     bool
 		expectErr   string
@@ -42,9 +34,47 @@ func TestCmdPush(t *testing.T) {
 			name:        "push no variable",
 			workspaceId: "w-test-no-vars-workspace",
 			vars:        &tfe.VariableList{},
-			expect:      "",
-			wantErr:     false,
-			expectErr:   "",
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					Update(context.TODO(), "w-test-no-vars-workspace", gomock.Any(), gomock.Any()).
+					Return(&tfe.Variable{}, nil).
+					Times(0)
+				mc.EXPECT().
+					Create(context.TODO(), "w-test-no-vars-workspace", gomock.Any()).
+					Return(&tfe.Variable{}, nil).
+					Times(0)
+			},
+			expect:    "",
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
+			name:        "push one variable",
+			workspaceId: "w-test-no-vars-workspace",
+			vars: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						Key:       "environment",
+						Value:     "test",
+						Category:  tfe.CategoryEnv,
+						HCL:       false,
+						Sensitive: false,
+					},
+				},
+			},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					Update(context.TODO(), "w-test-no-vars-workspace", gomock.Any(), gomock.Any()).
+					Return(&tfe.Variable{}, nil).
+					Times(0)
+				mc.EXPECT().
+					Create(context.TODO(), "w-test-no-vars-workspace", gomock.Any()).
+					Return(&tfe.Variable{}, nil).
+					Times(1)
+			},
+			expect:    "",
+			wantErr:   false,
+			expectErr: "",
 		},
 	}
 
@@ -52,6 +82,7 @@ func TestCmdPush(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
 			pushOpt := &PushOption{}
+			tt.setClient(mockVariables)
 
 			err := push(ctx, tt.workspaceId, mockVariables, pushOpt, tt.vars)
 
