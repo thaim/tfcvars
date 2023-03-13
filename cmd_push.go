@@ -23,6 +23,7 @@ func NewPushOption(c *cli.Context) *PushOption {
 
 func Push(c *cli.Context) error {
 	ctx := context.Background()
+	log.Debug().Msg("push command")
 
 	tfeClient, err := NewTfeClient(c)
 	if err != nil {
@@ -36,6 +37,7 @@ func Push(c *cli.Context) error {
 	}
 
 	pushOpt := NewPushOption(c)
+	log.Debug().Msgf("pushOption: %+v", pushOpt)
 	vars := &tfe.VariableList{}
 	p := hclparse.NewParser()
 	file, diags := p.ParseHCLFile(pushOpt.varFile)
@@ -61,6 +63,9 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		return err
 	}
 
+	countUpdate := 0
+	countCreate := 0
+
 	for _, variable := range vars.Items {
 		pushed := false
 
@@ -76,6 +81,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 				}
 				tfeVariables.Update(ctx, workspaceId, targetVar.ID, updateOpt)
 				pushed = true
+				countUpdate++
 				break
 			}
 		}
@@ -89,8 +95,10 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 				Sensitive: tfe.Bool(false),
 			}
 			tfeVariables.Create(ctx, workspaceId, createOpt)
+			countCreate++
 		}
 	}
+	log.Info().Msgf("create: %d, update: %d, delete: 0", countCreate, countUpdate)
 
 	return nil
 }
