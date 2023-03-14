@@ -1,4 +1,5 @@
-GIT_VERSION := $(shell git describe --abbrev=0 --tags)
+# GIT_VERSION := $(shell git describe --abbrev=0 --tags)
+GIT_VERSION := "develop"
 GIT_REVISION := $(shell git rev-list -1 HEAD)
 DATE := $(shell date +%Y-%m-%dT%H:%M%Sz)
 
@@ -15,3 +16,6 @@ test: ## Run lint and test
 clean: ## Remove unnecessary files
 	go clean
 	rm -f pkg/* bin/*
+
+fmt: ## Run go fmt
+	@./scripts/gofmt.sh

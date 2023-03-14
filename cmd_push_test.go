@@ -69,8 +69,8 @@ func TestCmdPush(t *testing.T) {
 					Times(0)
 				mc.EXPECT().
 					Create(context.TODO(), "w-test-no-vars-workspace", tfe.VariableCreateOptions{
-						Key: tfe.String("environment"),
-						Value: tfe.String("test"),
+						Key:       tfe.String("environment"),
+						Value:     tfe.String("test"),
 						Category:  tfe.Category(tfe.CategoryTerraform),
 						HCL:       tfe.Bool(false),
 						Sensitive: tfe.Bool(false),
