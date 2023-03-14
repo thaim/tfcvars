@@ -8,6 +8,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '>= 1.19.4'
+          cache: true
+      - name: run go fmt
+      - run: |
+          gofmt_files=$(go fmt ./...)
+          if [[ -n "${gofmt_files} ]]; then
+              echo "needs to run go fmt: ${gofmt_files}"
+              exit 1
+          fi
       - uses: reviewdog/action-staticcheck@v1
         with:
           github_token: ${{ secrets.github_token }}
