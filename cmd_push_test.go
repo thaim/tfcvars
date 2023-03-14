@@ -49,14 +49,14 @@ func TestCmdPush(t *testing.T) {
 			expectErr: "",
 		},
 		{
-			name:        "push one variable",
+			name:        "create one variable",
 			workspaceId: "w-test-no-vars-workspace",
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
 						Key:       "environment",
 						Value:     "test",
-						Category:  tfe.CategoryEnv,
+						Category:  tfe.CategoryTerraform,
 						HCL:       false,
 						Sensitive: false,
 					},
@@ -68,7 +68,13 @@ func TestCmdPush(t *testing.T) {
 					Return(&tfe.Variable{}, nil).
 					Times(0)
 				mc.EXPECT().
-					Create(context.TODO(), "w-test-no-vars-workspace", gomock.Any()).
+					Create(context.TODO(), "w-test-no-vars-workspace", tfe.VariableCreateOptions{
+						Key: tfe.String("environment"),
+						Value: tfe.String("test"),
+						Category:  tfe.Category(tfe.CategoryTerraform),
+						HCL:       tfe.Bool(false),
+						Sensitive: tfe.Bool(false),
+					}).
 					Return(&tfe.Variable{}, nil).
 					Times(1)
 			},

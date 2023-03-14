@@ -90,7 +90,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 			createOpt := tfe.VariableCreateOptions{
 				Key:       tfe.String(variable.Key),
 				Value:     tfe.String(variable.Value),
-				Category:  tfe.Category(tfe.CategoryEnv),
+				Category:  tfe.Category(tfe.CategoryTerraform),
 				HCL:       tfe.Bool(false),
 				Sensitive: tfe.Bool(false),
 			}
