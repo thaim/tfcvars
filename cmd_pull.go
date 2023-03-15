@@ -17,8 +17,8 @@ import (
 )
 
 type PullOption struct {
-	varFile   string
-	overwrite bool
+	varFile     string
+	overwrite   bool
 	prevVarfile []byte
 }
 
