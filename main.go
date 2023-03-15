@@ -74,6 +74,11 @@ func main() {
 						Usage: "overwrite existing vars file",
 						Value: false,
 					},
+					&cli.BoolFlag{
+						Name:  "merge",
+						Usage: "merge variables into existing vars file",
+						Value: false,
+					},
 				},
 			},
 			{

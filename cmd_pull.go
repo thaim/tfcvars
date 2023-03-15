@@ -23,7 +23,7 @@ func NewPullOption(c *cli.Context) *PullOption {
 	var opt = &PullOption{}
 
 	opt.varFile = c.String("var-file")
-	opt.overwrite = c.Bool("overwrite")
+	opt.overwrite = c.Bool("overwrite") && !c.Bool("merge")
 
 	return opt
 }
