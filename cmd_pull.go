@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/rs/zerolog/log"
@@ -17,6 +19,7 @@ import (
 type PullOption struct {
 	varFile   string
 	overwrite bool
+	prevVarfile []byte
 }
 
 func NewPullOption(c *cli.Context) *PullOption {
@@ -24,6 +27,7 @@ func NewPullOption(c *cli.Context) *PullOption {
 
 	opt.varFile = c.String("var-file")
 	opt.overwrite = c.Bool("overwrite") && !c.Bool("merge")
+	opt.prevVarfile = nil
 
 	return opt
 }
@@ -43,6 +47,10 @@ func Pull(c *cli.Context) error {
 		return err
 	}
 	pullOpt := NewPullOption(c)
+	if !pullOpt.overwrite {
+		src, _ := os.ReadFile(pullOpt.varFile)
+		pullOpt.prevVarfile = src
+	}
 	log.Debug().Msgf("pullOption: %+v", pullOpt)
 
 	f, err := os.Create(pullOpt.varFile)
@@ -61,7 +69,17 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		log.Fatal().Err(err).Msg("failed to list variables")
 		return err
 	}
-	f := hclwrite.NewEmptyFile()
+	var f *hclwrite.File
+	if pullOpt.overwrite {
+		f = hclwrite.NewEmptyFile()
+	} else {
+		var diags hcl.Diagnostics
+		f, diags = hclwrite.ParseConfig(pullOpt.prevVarfile, pullOpt.varFile, hcl.Pos{Line: 1, Column: 1})
+		if diags.HasErrors() {
+			log.Fatal().Msgf("failed to parse existing varfile: %s", diags.Error())
+			return errors.New(diags.Error())
+		}
+	}
 	rootBody := f.Body()
 
 	for _, v := range vars.Items {
