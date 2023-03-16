@@ -68,6 +68,7 @@ func TestCmdShow(t *testing.T) {
 	cases := []struct {
 		name        string
 		workspaceId string
+		showOpt     *ShowOption
 		expect      string
 		wantErr     bool
 		expectErr   string
@@ -75,6 +76,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show empty variable",
 			workspaceId: "w-test-no-vars-workspace",
+			showOpt:     &ShowOption{},
 			expect:      "",
 			wantErr:     false,
 			expectErr:   "",
@@ -82,6 +84,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show single variable",
 			workspaceId: "w-test-single-variable-workspace",
+			showOpt:     &ShowOption{},
 			expect:      "Key: var1\nValue: value1\nDescription: description1\nSensitive: false\n\n",
 			wantErr:     false,
 			expectErr:   "",
@@ -89,6 +92,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show multiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
+			showOpt:     &ShowOption{},
 			expect:      "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var2\nValue: value2\nDescription: \nSensitive: false\n\n",
 			wantErr:     false,
 			expectErr:   "",
@@ -96,6 +100,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
+			showOpt:     &ShowOption{},
 			expect:      "Key: var1\nValue: \nDescription: sensitive\nSensitive: true\n\n",
 			wantErr:     false,
 			expectErr:   "",
@@ -105,7 +110,7 @@ func TestCmdShow(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
-			showOpt := &ShowOption{}
+			showOpt := tt.showOpt
 			var buf bytes.Buffer
 
 			err := show(ctx, tt.workspaceId, mockVariables, showOpt, &buf)
