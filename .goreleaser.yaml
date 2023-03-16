@@ -44,9 +44,3 @@ brews:
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     homepage: "https://github.com/thaim/tfcvars"
     description: "tfcvars is a CLI tool that synchronizes variables managed in Terraform Cloud with local variable files"
-
-dockers:
-  - image_templates:
-      - "ghcr.io/thaim/tfcvars:{{ .Tag }}"
-      - "ghcr.io/thaim/tfcvars:{{ .FullCommit }}"
-      - "ghcr.io/thaim/tfcvars:latest"
