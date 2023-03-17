@@ -106,12 +106,12 @@ func TestCmdShow(t *testing.T) {
 			expectErr:   "",
 		},
 		{
-			name: "show local variable",
+			name:        "show local variable",
 			workspaceId: "",
 			showOpt:     &ShowOption{local: true, varFile: "tests/terraform.tfvars"},
-			expect: "Key: environment\nValue: development\nDescription: \nSensitive: false\n\n",
-			wantErr: false,
-			expectErr: "",
+			expect:      "Key: environment\nValue: development\nDescription: \nSensitive: false\n\n",
+			wantErr:     false,
+			expectErr:   "",
 		},
 	}
 
