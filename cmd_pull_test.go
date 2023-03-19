@@ -156,7 +156,7 @@ func TestCmdPull(t *testing.T) {
 
 			if tt.wantErr {
 				if !strings.Contains(err.Error(), tt.expectErr) {
-					t.Errorf("expect %s error, got %T", tt.expectErr, err)
+					t.Errorf("expect %s error, got %s", tt.expectErr, err.Error())
 				}
 				return
 			}
