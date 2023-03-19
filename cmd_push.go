@@ -27,12 +27,12 @@ func Push(c *cli.Context) error {
 
 	tfeClient, err := NewTfeClient(c)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to build tfe client")
+		log.Error().Err(err).Msg("failed to build tfe client")
 		return err
 	}
 	w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
 	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
+		log.Error().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
 		return err
 	}
 
@@ -59,7 +59,7 @@ func Push(c *cli.Context) error {
 func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, pushOpt *PushOption, vars *tfe.VariableList) error {
 	previousVars, err := tfeVariables.List(ctx, workspaceId, nil)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to list variables")
+		log.Error().Err(err).Msg("failed to list variables")
 		return err
 	}
 
