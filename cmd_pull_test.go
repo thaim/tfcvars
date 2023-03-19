@@ -26,7 +26,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull empty variable",
 			workspaceId: "w-test-no-vars-workspace",
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
 					Return(&tfe.VariableList{
@@ -34,14 +34,14 @@ func TestCmdPull(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect:      "",
-			wantErr:     false,
-			expectErr:   "",
+			expect:    "",
+			wantErr:   false,
+			expectErr: "",
 		},
 		{
 			name:        "pull single variable",
 			workspaceId: "w-test-single-variable-workspace",
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-single-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -55,14 +55,14 @@ func TestCmdPull(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect:      "var1 = \"value1\"\n",
-			wantErr:     false,
-			expectErr:   "",
+			expect:    "var1 = \"value1\"\n",
+			wantErr:   false,
+			expectErr: "",
 		},
 		{
 			name:        "pull multiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-multiple-variables-workspace", nil).
 					Return(&tfe.VariableList{
@@ -79,14 +79,14 @@ func TestCmdPull(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect:      "var1 = \"value1\"\nvar2 = \"value2\"\n",
-			wantErr:     false,
-			expectErr:   "",
+			expect:    "var1 = \"value1\"\nvar2 = \"value2\"\n",
+			wantErr:   false,
+			expectErr: "",
 		},
 		{
 			name:        "pull sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-sensitive-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -108,14 +108,14 @@ func TestCmdPull(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect:      "// var1 = \"***\"\n",
-			wantErr:     false,
-			expectErr:   "",
+			expect:    "// var1 = \"***\"\n",
+			wantErr:   false,
+			expectErr: "",
 		},
 		{
 			name:        "treat multiple variable types",
 			workspaceId: "w-test-linclude-multiple-variable-types-workspace",
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				// test for Types
 				// https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables#types
 				mc.EXPECT().
@@ -139,21 +139,21 @@ func TestCmdPull(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect:      "var1 = \"value1\"\n",
-			wantErr:     false,
-			expectErr:   "",
+			expect:    "var1 = \"value1\"\n",
+			wantErr:   false,
+			expectErr: "",
 		},
 		{
 			name:        "return error if failed to access terraform cloud",
 			workspaceId: "w-test-access-error",
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-access-error", nil).
 					Return(nil, tfe.ErrInvalidWorkspaceID)
 			},
-			expect:      "",
-			wantErr:     true,
-			expectErr:   "invalid value for workspace ID",
+			expect:    "",
+			wantErr:   true,
+			expectErr: "invalid value for workspace ID",
 		},
 	}
 
