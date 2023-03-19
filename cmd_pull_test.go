@@ -143,6 +143,18 @@ func TestCmdPull(t *testing.T) {
 			wantErr:     false,
 			expectErr:   "",
 		},
+		{
+			name:        "return error if failed to access terraform cloud",
+			workspaceId: "w-test-access-error",
+			setClient:   func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-access-error", nil).
+					Return(nil, tfe.ErrInvalidWorkspaceID)
+			},
+			expect:      "",
+			wantErr:     true,
+			expectErr:   "invalid value for workspace ID",
+		},
 	}
 
 	for _, tt := range cases {
