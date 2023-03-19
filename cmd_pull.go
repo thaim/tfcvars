@@ -38,12 +38,12 @@ func Pull(c *cli.Context) error {
 
 	tfeClient, err := NewTfeClient(c)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to build tfe client")
+		log.Error().Err(err).Msg("failed to build tfe client")
 		return err
 	}
 	w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
 	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
+		log.Error().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
 		return err
 	}
 	pullOpt := NewPullOption(c)
@@ -55,7 +55,7 @@ func Pull(c *cli.Context) error {
 
 	f, err := os.Create(pullOpt.varFile)
 	if err != nil {
-		log.Fatal().Err(err).Msgf("cannot open varfile: %s", pullOpt.varFile)
+		log.Error().Err(err).Msgf("cannot open varfile: %s", pullOpt.varFile)
 		return err
 	}
 	defer f.Close()
@@ -66,7 +66,7 @@ func Pull(c *cli.Context) error {
 func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, pullOpt *PullOption, w io.Writer) error {
 	vars, err := tfeVariables.List(ctx, workspaceId, nil)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to list variables")
+		log.Error().Err(err).Msg("failed to list variables")
 		return err
 	}
 	var f *hclwrite.File
@@ -76,7 +76,7 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		var diags hcl.Diagnostics
 		f, diags = hclwrite.ParseConfig(pullOpt.prevVarfile, pullOpt.varFile, hcl.Pos{Line: 1, Column: 1})
 		if diags.HasErrors() {
-			log.Fatal().Msgf("failed to parse existing varfile: %s", diags.Error())
+			log.Error().Msgf("failed to parse existing varfile: %s", diags.Error())
 			return errors.New(diags.Error())
 		}
 	}

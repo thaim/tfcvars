@@ -39,12 +39,12 @@ func Show(c *cli.Context) error {
 	if requireTfcAccess(showOpt) {
 		tfeClient, err := NewTfeClient(c)
 		if err != nil {
-			log.Fatal().Err(err).Msg("faile to build tfe client")
+			log.Error().Err(err).Msg("faile to build tfe client")
 			return err
 		}
 		w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
 		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
+			log.Error().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
 			return err
 		}
 
@@ -87,7 +87,7 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 	} else {
 		vars, err = tfeVariables.List(ctx, workspaceId, nil)
 		if err != nil {
-			log.Fatal().Err(err).Msg("failed to list variables")
+			log.Error().Err(err).Msg("failed to list variables")
 			return err
 		}
 	}
