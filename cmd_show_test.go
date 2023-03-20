@@ -27,7 +27,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show empty variable",
 			workspaceId: "w-test-no-vars-workspace",
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
 					Return(&tfe.VariableList{
@@ -35,16 +35,16 @@ func TestCmdShow(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			showOpt:     &ShowOption{},
-			expect:      "",
-			wantErr:     false,
-			expectErr:   "",
+			showOpt:   &ShowOption{},
+			expect:    "",
+			wantErr:   false,
+			expectErr: "",
 		},
 		{
 			name:        "show single variable",
 			workspaceId: "w-test-single-variable-workspace",
 			showOpt:     &ShowOption{},
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-single-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -58,15 +58,15 @@ func TestCmdShow(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect:      "Key: var1\nValue: value1\nDescription: description1\nSensitive: false\n\n",
-			wantErr:     false,
-			expectErr:   "",
+			expect:    "Key: var1\nValue: value1\nDescription: description1\nSensitive: false\n\n",
+			wantErr:   false,
+			expectErr: "",
 		},
 		{
 			name:        "show multiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
 			showOpt:     &ShowOption{},
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-multiple-variables-workspace", nil).
 					Return(&tfe.VariableList{
@@ -83,15 +83,15 @@ func TestCmdShow(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect:      "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var2\nValue: value2\nDescription: \nSensitive: false\n\n",
-			wantErr:     false,
-			expectErr:   "",
+			expect:    "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var2\nValue: value2\nDescription: \nSensitive: false\n\n",
+			wantErr:   false,
+			expectErr: "",
 		},
 		{
 			name:        "show sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
 			showOpt:     &ShowOption{},
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				mockVariables.EXPECT().
 					List(context.TODO(), "w-test-sensitive-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -106,9 +106,9 @@ func TestCmdShow(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect:      "Key: var1\nValue: \nDescription: sensitive\nSensitive: true\n\n",
-			wantErr:     false,
-			expectErr:   "",
+			expect:    "Key: var1\nValue: \nDescription: sensitive\nSensitive: true\n\n",
+			wantErr:   false,
+			expectErr: "",
 		},
 		{
 			name:        "show local variable",
