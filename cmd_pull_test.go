@@ -203,12 +203,12 @@ func TestNewPullOption(t *testing.T) {
 			},
 		},
 		{
-			name: "custom var file",
+			name:  "custom var file",
 			flags: pullFlags(),
-			args: []string{"--var-file", "custom.tfvars"},
+			args:  []string{"--var-file", "custom.tfvars"},
 			expect: &PullOption{
-				varFile: "custom.tfvars",
-				overwrite: false,
+				varFile:     "custom.tfvars",
+				overwrite:   false,
 				prevVarfile: nil,
 			},
 		},
