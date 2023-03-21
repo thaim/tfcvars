@@ -206,9 +206,11 @@ func TestNewPullOption(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := cli.NewContext(nil, flagSet(tt.flags), nil)
+			app := cli.NewApp()
+			set := flagSet(tt.flags)
+			set.Parse(tt.args)
+			ctx := cli.NewContext(app, set, nil)
 			ctx.Command = &cli.Command{Flags: tt.flags}
-			flagSet(tt.flags).Parse(tt.args)
 
 			sut := NewPullOption(ctx)
 
