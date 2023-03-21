@@ -194,11 +194,7 @@ func TestNewPullOption(t *testing.T) {
 	}{
 		{
 			name: "default value",
-			flags: []cli.Flag{
-				&cli.StringFlag{Name: "var-file"},
-				&cli.BoolFlag{Name: "overwrite"},
-				&cli.BoolFlag{Name: "merge"},
-			},
+			flags: pullFlags(),
 			args: []string{"-var-file \"terraform.tfvars\""},
 			expect: &PullOption{
 				varFile: "terraform.tfvars",
