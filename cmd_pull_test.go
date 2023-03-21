@@ -3,12 +3,15 @@ package main
 import (
 	"bytes"
 	"context"
+	"flag"
+	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/go-tfe/mocks"
+	"github.com/urfave/cli/v2"
 )
 
 func TestCmdPull(t *testing.T) {
@@ -180,4 +183,78 @@ func TestCmdPull(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestNewPullOption(t *testing.T) {
+	cases := []struct {
+		name   string
+		flags  []cli.Flag
+		args   []string
+		expect *PullOption
+	}{
+		{
+			name:  "default value",
+			flags: pullFlags(),
+			args:  []string{},
+			expect: &PullOption{
+				varFile:     "terraform.tfvars",
+				overwrite:   false,
+				prevVarfile: nil,
+			},
+		},
+		{
+			name:  "custom var file",
+			flags: pullFlags(),
+			args:  []string{"--var-file", "custom.tfvars"},
+			expect: &PullOption{
+				varFile:     "custom.tfvars",
+				overwrite:   false,
+				prevVarfile: nil,
+			},
+		},
+		{
+			name:  "enable overwite option",
+			flags: pullFlags(),
+			args:  []string{"--overwrite"},
+			expect: &PullOption{
+				varFile:     "terraform.tfvars",
+				overwrite:   true,
+				prevVarfile: nil,
+			},
+		},
+		{
+			name:  "ignore overwite option if merge option specified",
+			flags: pullFlags(),
+			args:  []string{"--overwrite", "--merge"},
+			expect: &PullOption{
+				varFile:     "terraform.tfvars",
+				overwrite:   false,
+				prevVarfile: nil,
+			},
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			app := cli.NewApp()
+			set := flagSet(tt.flags)
+			set.Parse(tt.args)
+			ctx := cli.NewContext(app, set, nil)
+
+			sut := NewPullOption(ctx)
+
+			if !reflect.DeepEqual(tt.expect, sut) {
+				t.Errorf("expect '%v', got '%v'", tt.expect, sut)
+			}
+		})
+	}
+}
+
+func flagSet(flags []cli.Flag) *flag.FlagSet {
+	set := flag.NewFlagSet("", flag.ContinueOnError)
+	for _, f := range flags {
+		f.Apply(set)
+	}
+
+	return set
 }
