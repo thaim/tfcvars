@@ -44,7 +44,7 @@ func main() {
 			{
 				Name:   "show",
 				Action: Show,
-				Flags:  pullFlags(),
+				Flags:  showFlags(),
 			},
 			{
 				Name: "diff",
@@ -86,7 +86,7 @@ func main() {
 	os.Exit(0)
 }
 
-func pullFlags() []cli.Flag {
+func showFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.BoolFlag{
 			Name:  "local",
