@@ -222,6 +222,16 @@ func TestNewPullOption(t *testing.T) {
 				prevVarfile: nil,
 			},
 		},
+		{
+			name:  "ignore overwite option if merge option specified",
+			flags: pullFlags(),
+			args:  []string{"--overwrite", "--merge"},
+			expect: &PullOption{
+				varFile:     "terraform.tfvars",
+				overwrite:   false,
+				prevVarfile: nil,
+			},
+		},
 	}
 
 	for _, tt := range cases {
