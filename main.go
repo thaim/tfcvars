@@ -52,23 +52,7 @@ func main() {
 			{
 				Name:   "pull",
 				Action: Pull,
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:  "var-file",
-						Usage: "Output filename to write var-file",
-						Value: "terraform.tfvars",
-					},
-					&cli.BoolFlag{
-						Name:  "overwrite",
-						Usage: "overwrite existing vars file",
-						Value: false,
-					},
-					&cli.BoolFlag{
-						Name:  "merge",
-						Usage: "merge variables into existing vars file",
-						Value: false,
-					},
-				},
+				Flags:  pullFlags(),
 			},
 			{
 				Name:   "push",
@@ -97,6 +81,26 @@ func showFlags() []cli.Flag {
 			Name:  "var-file",
 			Usage: "Input filename to read for local variable",
 			Value: "terraform.tfvars",
+		},
+	}
+}
+
+func pullFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:  "var-file",
+			Usage: "Output filename to write var-file",
+			Value: "terraform.tfvars",
+		},
+		&cli.BoolFlag{
+			Name:  "overwrite",
+			Usage: "overwrite existing vars file",
+			Value: false,
+		},
+		&cli.BoolFlag{
+			Name:  "merge",
+			Usage: "merge variables into existing vars file",
+			Value: false,
 		},
 	}
 }
