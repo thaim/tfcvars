@@ -212,6 +212,16 @@ func TestNewPullOption(t *testing.T) {
 				prevVarfile: nil,
 			},
 		},
+		{
+			name:  "enable overwite option",
+			flags: pullFlags(),
+			args:  []string{"--overwrite"},
+			expect: &PullOption{
+				varFile:     "terraform.tfvars",
+				overwrite:   true,
+				prevVarfile: nil,
+			},
+		},
 	}
 
 	for _, tt := range cases {
