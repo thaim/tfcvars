@@ -240,7 +240,6 @@ func TestNewPullOption(t *testing.T) {
 			set := flagSet(tt.flags)
 			set.Parse(tt.args)
 			ctx := cli.NewContext(app, set, nil)
-			ctx.Command = &cli.Command{Flags: tt.flags}
 
 			sut := NewPullOption(ctx)
 
