@@ -202,6 +202,16 @@ func TestNewPullOption(t *testing.T) {
 				prevVarfile: nil,
 			},
 		},
+		{
+			name: "custom var file",
+			flags: pullFlags(),
+			args: []string{"--var-file", "custom.tfvars"},
+			expect: &PullOption{
+				varFile: "custom.tfvars",
+				overwrite: false,
+				prevVarfile: nil,
+			},
+		},
 	}
 
 	for _, tt := range cases {
