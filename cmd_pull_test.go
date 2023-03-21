@@ -5,6 +5,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -212,7 +213,7 @@ func TestNewPullOption(t *testing.T) {
 			fmt.Printf("%+v", ctx.FlagNames())
 			sut := NewPullOption(ctx)
 
-			if sut != tt.expect {
+			if !reflect.DeepEqual(tt.expect, sut) {
 				t.Errorf("expect '%v', got '%v'", tt.expect, sut)
 			}
 		})
