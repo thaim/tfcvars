@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"flag"
-	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -188,18 +187,18 @@ func TestCmdPull(t *testing.T) {
 
 func TestNewPullOption(t *testing.T) {
 	cases := []struct {
-		name string
-		flags []cli.Flag
-		args []string
+		name   string
+		flags  []cli.Flag
+		args   []string
 		expect *PullOption
 	}{
 		{
-			name: "default value",
+			name:  "default value",
 			flags: pullFlags(),
 			args:  []string{},
 			expect: &PullOption{
-				varFile: "terraform.tfvars",
-				overwrite: false,
+				varFile:     "terraform.tfvars",
+				overwrite:   false,
 				prevVarfile: nil,
 			},
 		},
@@ -210,7 +209,7 @@ func TestNewPullOption(t *testing.T) {
 			ctx := cli.NewContext(nil, flagSet(tt.flags), nil)
 			ctx.Command = &cli.Command{Flags: tt.flags}
 			flagSet(tt.flags).Parse(tt.args)
-			fmt.Printf("%+v", ctx.FlagNames())
+
 			sut := NewPullOption(ctx)
 
 			if !reflect.DeepEqual(tt.expect, sut) {
@@ -223,7 +222,7 @@ func TestNewPullOption(t *testing.T) {
 func flagSet(flags []cli.Flag) *flag.FlagSet {
 	set := flag.NewFlagSet("", flag.ContinueOnError)
 	for _, f := range flags {
-        f.Apply(set)
+		f.Apply(set)
 	}
 
 	return set
