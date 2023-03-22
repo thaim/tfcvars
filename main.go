@@ -57,6 +57,7 @@ func main() {
 			{
 				Name:   "push",
 				Action: Push,
+				Flags:  pushFlags(),
 			},
 		},
 	}
@@ -103,4 +104,8 @@ func pullFlags() []cli.Flag {
 			Value: false,
 		},
 	}
+}
+
+func pushFlags() []cli.Flag {
+	return []cli.Flag{}
 }
