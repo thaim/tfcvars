@@ -57,6 +57,7 @@ func main() {
 			{
 				Name:   "push",
 				Action: Push,
+				Flags:  pushFlags(),
 			},
 		},
 	}
@@ -102,5 +103,10 @@ func pullFlags() []cli.Flag {
 			Usage: "merge variables into existing vars file",
 			Value: false,
 		},
+	}
+}
+
+func pushFlags() []cli.Flag {
+	return []cli.Flag{
 	}
 }
