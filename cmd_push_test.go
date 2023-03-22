@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/go-tfe/mocks"
+	"github.com/urfave/cli/v2"
 )
 
 func TestCmdPush(t *testing.T) {
@@ -100,6 +102,39 @@ func TestCmdPush(t *testing.T) {
 			}
 			if err != nil {
 				t.Errorf("expect no error, got error: %v", err)
+			}
+		})
+	}
+}
+
+func TestNewPushOption(t *testing.T) {
+	cases := []struct {
+		name   string
+		flags  []cli.Flag
+		args   []string
+		expect *PushOption
+	}{
+		{
+			name:  "default value",
+			flags: pushFlags(),
+			args:  []string{},
+			expect: &PushOption{
+				varFile:     "terraform.tfvars",
+			},
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			app := cli.NewApp()
+			set := flagSet(tt.flags)
+			set.Parse(tt.args)
+			ctx := cli.NewContext(app, set, nil)
+
+			sut := NewPushOption(ctx)
+
+			if !reflect.DeepEqual(tt.expect, sut) {
+				t.Errorf("expect '%v', got '%v'", tt.expect, sut)
 			}
 		})
 	}
