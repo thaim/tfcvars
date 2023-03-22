@@ -107,6 +107,5 @@ func pullFlags() []cli.Flag {
 }
 
 func pushFlags() []cli.Flag {
-	return []cli.Flag{
-	}
+	return []cli.Flag{}
 }

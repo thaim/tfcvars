@@ -119,7 +119,7 @@ func TestNewPushOption(t *testing.T) {
 			flags: pushFlags(),
 			args:  []string{},
 			expect: &PushOption{
-				varFile:     "terraform.tfvars",
+				varFile: "terraform.tfvars",
 			},
 		},
 	}
