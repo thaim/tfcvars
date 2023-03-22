@@ -3,12 +3,14 @@ package main
 import (
 	"bytes"
 	"context"
+	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/go-tfe/mocks"
+	"github.com/urfave/cli/v2"
 )
 
 func TestCmdShow(t *testing.T) {
@@ -141,6 +143,58 @@ func TestCmdShow(t *testing.T) {
 			}
 			if bufString := buf.String(); bufString != tt.expect {
 				t.Errorf("expect %s, got id: %s", tt.expect, buf.String())
+			}
+		})
+	}
+}
+
+func TestNewShowOption(t *testing.T) {
+	cases := []struct {
+		name   string
+		flags  []cli.Flag
+		args   []string
+		expect *ShowOption
+	}{
+		{
+			name:  "default value",
+			flags: showFlags(),
+			args:  []string{},
+			expect: &ShowOption{
+				varFile: "terraform.tfvars",
+				local:   false,
+			},
+		},
+		{
+			name:  "custom var file",
+			flags: showFlags(),
+			args:  []string{"--var-file", "custom.tfvars"},
+			expect: &ShowOption{
+				varFile: "custom.tfvars",
+				local:   false,
+			},
+		},
+		{
+			name:  "enable local option",
+			flags: showFlags(),
+			args:  []string{"--local"},
+			expect: &ShowOption{
+				varFile: "terraform.tfvars",
+				local:   true,
+			},
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			app := cli.NewApp()
+			set := flagSet(tt.flags)
+			set.Parse(tt.args)
+			ctx := cli.NewContext(app, set, nil)
+
+			sut := NewShowOption(ctx)
+
+			if !reflect.DeepEqual(tt.expect, sut) {
+				t.Errorf("expect '%v', got '%v'", tt.expect, sut)
 			}
 		})
 	}
