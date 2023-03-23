@@ -85,6 +85,57 @@ func TestCmdPush(t *testing.T) {
 			expectErr: "",
 		},
 		{
+			name:        "update one variable",
+			workspaceId: "w-test-one-var-workspace",
+			vars: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						ID:        "variable-id-environment",
+						Key:       "environment",
+						Value:     "test",
+						Category:  tfe.CategoryTerraform,
+						HCL:       false,
+						Sensitive: false,
+					},
+				},
+			},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-one-var-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								ID:        "variable-id-environment",
+								Key:       "environment",
+								Value:     "test",
+								Category:  tfe.CategoryTerraform,
+								HCL:       false,
+								Sensitive: false,
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mc.EXPECT().
+					Update(context.TODO(), "w-test-one-var-workspace", "variable-id-environment", gomock.Any()).
+					Return(&tfe.Variable{
+						ID:        "variable-id-environment",
+						Key:       "environment",
+						Value:     "test2",
+						Category:  tfe.CategoryTerraform,
+						HCL:       false,
+						Sensitive: false,
+					}, nil).
+					AnyTimes()
+				mc.EXPECT().
+					Create(context.TODO(), "w-test-one-var-workspace", gomock.Any()).
+					Return(&tfe.Variable{}, nil).
+					Times(0)
+			},
+			expect:    "",
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
 			name:        "return error if failed to access terraform cloud",
 			workspaceId: "w-test-access-error",
 			setClient: func(mc *mocks.MockVariables) {
