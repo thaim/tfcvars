@@ -53,7 +53,7 @@ func NewTfeClient(c *cli.Context) (*tfe.Client, error) {
 
 		token, err = v.GetString("credentials", "app.terraform.io", "token")
 		if err != nil {
-			log.Error().Err(err).Msg("cannot retrieve credentails from terraform cloud credential file")
+			log.Error().Err(err).Msg("cannot retrieve credentials from terraform cloud credential file")
 			return nil, err
 		}
 	}
