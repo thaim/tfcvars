@@ -30,6 +30,7 @@ func Push(c *cli.Context) error {
 		log.Error().Err(err).Msg("failed to build tfe client")
 		return err
 	}
+	organization, workspaceName = updateTerraformCloudWorkspace(organization, workspaceName)
 	w, err := tfeClient.Workspaces.Read(ctx, organization, workspaceName)
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to access workspace %s/%s", organization, workspaceName)
