@@ -199,3 +199,32 @@ func TestNewShowOption(t *testing.T) {
 		})
 	}
 }
+
+func TestRequireTfcAccess(t *testing.T) {
+	cases := []struct {
+		name   string
+		opts   *ShowOption
+		expect bool
+	}{
+		{
+			name: "default",
+			opts: &ShowOption{local: false},
+			expect: true,
+		},
+		{
+			name: "enable local option",
+			opts: &ShowOption{local: true},
+			expect: false,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := requireTfcAccess(tt.opts)
+
+			if actual != tt.expect {
+				t.Errorf("expect: %t, got: %t", tt.expect, actual)
+			}
+		})
+	}
+}
