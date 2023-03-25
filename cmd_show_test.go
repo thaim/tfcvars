@@ -207,13 +207,13 @@ func TestRequireTfcAccess(t *testing.T) {
 		expect bool
 	}{
 		{
-			name: "default",
-			opts: &ShowOption{local: false},
+			name:   "default",
+			opts:   &ShowOption{local: false},
 			expect: true,
 		},
 		{
-			name: "enable local option",
-			opts: &ShowOption{local: true},
+			name:   "enable local option",
+			opts:   &ShowOption{local: true},
 			expect: false,
 		},
 	}
