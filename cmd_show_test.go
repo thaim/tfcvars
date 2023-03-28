@@ -116,7 +116,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show local variable",
 			workspaceId: "",
-			showOpt:     &ShowOption{local: true, varFile: "tests/terraform.tfvars"},
+			showOpt:     &ShowOption{local: true, varFile: "testdata/terraform.tfvars"},
 			setClient:   func(mc *mocks.MockVariables) {}, // do nothing
 			expect:      "Key: environment\nValue: development\nDescription: \nSensitive: false\n\n",
 			wantErr:     false,
@@ -125,7 +125,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "return HCL parse error",
 			workspaceId: "not-used",
-			showOpt:     &ShowOption{local: true, varFile: "tests/invalid.tfvars"},
+			showOpt:     &ShowOption{local: true, varFile: "testdata/invalid.tfvars"},
 			setClient:   func(mc *mocks.MockVariables) {}, // do nothing
 			wantErr:     true,
 			expectErr:   "Argument or block definition required",
