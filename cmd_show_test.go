@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"reflect"
 	"strings"
 	"testing"
@@ -120,6 +121,27 @@ func TestCmdShow(t *testing.T) {
 			expect:      "Key: environment\nValue: development\nDescription: \nSensitive: false\n\n",
 			wantErr:     false,
 			expectErr:   "",
+		},
+		{
+			name:        "return HCL parse error",
+			workspaceId: "not-used",
+			showOpt:     &ShowOption{local: true, varFile: "tests/invalid.tfvars"},
+			setClient:   func(mc *mocks.MockVariables) {}, // do nothing
+			wantErr:     true,
+			expectErr:   "Argument or block definition required",
+		},
+		{
+			name:        "not allowed to list variables",
+			workspaceId: "w-test-not-allowed-to-list-variables",
+			showOpt:     &ShowOption{},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-not-allowed-to-list-variables", gomock.Any()).
+					Return(nil, errors.New("failed to list variables")).
+					AnyTimes()
+			}, // do nothing
+			wantErr:   true,
+			expectErr: "failed to list variables",
 		},
 	}
 
