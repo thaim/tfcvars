@@ -29,9 +29,6 @@ func updateTerraformCloudWorkspace(organization string, workspaceName string, wo
 	} else if nameGJson.Type == gjson.Null {
 		env, _ := os.ReadFile(filepath.Join(workdir, ".terraform/environment"))
 		workspaceName = gjson.Get(src, "backend.config.workspaces.prefix").String() + string(env)
-	} else {
-		log.Warn().Msg("invalid tfstate format")
-		return organization, workspaceName
 	}
 
 	log.Debug().Msgf("retrive from tfstate: org=%s workspace=%s", organization, workspaceName)
