@@ -1,22 +1,38 @@
 package main
 
 import (
-	"fmt"
+	"os"
 
-	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/rs/zerolog/log"
+	"github.com/tidwall/gjson"
 )
 
 func updateTerraformCloudWorkspace(organization string, workspaceName string) (string, string) {
-	p := hclparse.NewParser()
-	file, diags := p.ParseHCLFile("main.tf")
-	if diags.HasErrors() {
-		log.Warn().Msgf("failed to parse main.tf to retrive organization and workspace %s", diags.Error())
+	srcByte, err := os.ReadFile(".terraform/terraform.tfstate")
+	if err != nil {
+		log.Error().Err(err).Msg("cannot open tfstate file")
+		return organization, workspaceName
+	}
+	src := string(srcByte)
+
+	backendType := gjson.Get(src, "backend.type").String()
+	if backendType != "remote" {
+		log.Warn().Msg("backend for this workspace is not a remote")
 		return organization, workspaceName
 	}
 
-	fmt.Printf("%s\n", file.Bytes)
+	organization = gjson.Get(src, "backend.config.organization").String()
+	nameGJson := gjson.Get(src, "backend.config.workspaces.name")
+	if nameGJson.Type == gjson.String {
+		workspaceName = nameGJson.String()
+	} else if nameGJson.Type == gjson.Null {
+		env, _ := os.ReadFile(".terraform/environment")
+		workspaceName = gjson.Get(src, "backend.config.workspaces.prefix").String() + string(env)
+	} else {
+		log.Warn().Msg("invalid tfstate format")
+		return organization, workspaceName
+	}
 
+	log.Debug().Msgf("retrive from tfstate: org=%s workspace=%s", organization, workspaceName)
 	return organization, workspaceName
 }
