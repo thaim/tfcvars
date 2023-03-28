@@ -2,13 +2,14 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/rs/zerolog/log"
 	"github.com/tidwall/gjson"
 )
 
-func updateTerraformCloudWorkspace(organization string, workspaceName string) (string, string) {
-	srcByte, err := os.ReadFile(".terraform/terraform.tfstate")
+func updateTerraformCloudWorkspace(organization string, workspaceName string, workdir string) (string, string) {
+	srcByte, err := os.ReadFile(filepath.Join(workdir, ".terraform/terraform.tfstate"))
 	if err != nil {
 		log.Error().Err(err).Msg("cannot open tfstate file")
 		return organization, workspaceName
@@ -26,7 +27,7 @@ func updateTerraformCloudWorkspace(organization string, workspaceName string) (s
 	if nameGJson.Type == gjson.String {
 		workspaceName = nameGJson.String()
 	} else if nameGJson.Type == gjson.Null {
-		env, _ := os.ReadFile(".terraform/environment")
+		env, _ := os.ReadFile(filepath.Join(workdir, ".terraform/environment"))
 		workspaceName = gjson.Get(src, "backend.config.workspaces.prefix").String() + string(env)
 	} else {
 		log.Warn().Msg("invalid tfstate format")
