@@ -8,6 +8,7 @@ require (
 	github.com/hashicorp/go-tfe v1.18.0
 	github.com/hashicorp/hcl/v2 v2.16.1
 	github.com/rs/zerolog v1.29.0
+	github.com/tidwall/gjson v1.14.4
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/zclconf/go-cty v1.12.1
 )
@@ -28,6 +29,8 @@ require (
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.3.8 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
