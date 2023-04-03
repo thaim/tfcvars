@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/gocty"
 )
 
 type PushOption struct {
@@ -48,10 +51,23 @@ func Push(c *cli.Context) error {
 	attrs, _ := file.Body.JustAttributes()
 	for attrKey, attrValue := range attrs {
 		val, _ := attrValue.Expr.Value(nil)
-		vars.Items = append(vars.Items, &tfe.Variable{
-			Key:   attrKey,
-			Value: val.AsString(),
-		})
+		switch val.Type() {
+		case cty.String:
+			vars.Items = append(vars.Items, &tfe.Variable{
+				Key:   attrKey,
+				Value: val.AsString(),
+			})
+		case cty.Number:
+			var valInt int64
+			gocty.FromCtyValue(val, &valInt)
+			vars.Items = append(vars.Items, &tfe.Variable{
+				Key:   attrKey,
+				Value: strconv.FormatInt(valInt, 10),
+			})
+		default:
+			log.Error().Msgf("unknown value type for variable: %s", attrKey)
+			return errors.New("unknown value type for variable: " + attrKey)
+		}
 	}
 
 	return push(ctx, w.ID, tfeClient.Variables, pushOpt, vars)
