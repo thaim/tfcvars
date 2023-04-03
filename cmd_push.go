@@ -64,6 +64,13 @@ func Push(c *cli.Context) error {
 				Key:   attrKey,
 				Value: strconv.FormatInt(valInt, 10),
 			})
+		case cty.Bool:
+			var valBool bool
+			gocty.FromCtyValue(val, &valBool)
+			vars.Items = append(vars.Items, &tfe.Variable{
+				Key:   attrKey,
+				Value: strconv.FormatBool(valBool),
+			})
 		default:
 			log.Error().Msgf("unknown value type for variable: %s", attrKey)
 			return errors.New("unknown value type for variable: " + attrKey)
