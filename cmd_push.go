@@ -51,12 +51,15 @@ func Push(c *cli.Context) error {
 	attrs, _ := file.Body.JustAttributes()
 	for attrKey, attrValue := range attrs {
 		val, _ := attrValue.Expr.Value(nil)
+		primitive := false
+
 		switch val.Type() {
 		case cty.String:
 			vars.Items = append(vars.Items, &tfe.Variable{
 				Key:   attrKey,
 				Value: val.AsString(),
 			})
+			primitive = true
 		case cty.Number:
 			var valInt int64
 			gocty.FromCtyValue(val, &valInt)
@@ -64,6 +67,7 @@ func Push(c *cli.Context) error {
 				Key:   attrKey,
 				Value: strconv.FormatInt(valInt, 10),
 			})
+			primitive = true
 		case cty.Bool:
 			var valBool bool
 			gocty.FromCtyValue(val, &valBool)
@@ -71,9 +75,17 @@ func Push(c *cli.Context) error {
 				Key:   attrKey,
 				Value: strconv.FormatBool(valBool),
 			})
-		default:
-			log.Error().Msgf("unknown value type for variable: %s", attrKey)
-			return errors.New("unknown value type for variable: " + attrKey)
+			primitive = true
+		}
+
+		if !primitive && val.Type().IsCollectionType() {
+			log.Debug().Msgf("%s is collection type value", attrKey)
+		}
+		if !primitive && val.Type().IsObjectType() {
+			log.Debug().Msgf("%s is object type value", attrKey)
+		}
+		if !primitive && val.Type().IsTupleType() {
+			log.Debug().Msgf("%s is tuple type value", attrKey)
 		}
 	}
 
