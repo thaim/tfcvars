@@ -3,14 +3,11 @@ package main
 import (
 	"context"
 	"errors"
-	"strconv"
 
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
-	"github.com/zclconf/go-cty/cty"
-	"github.com/zclconf/go-cty/cty/gocty"
 )
 
 type PushOption struct {
@@ -51,42 +48,11 @@ func Push(c *cli.Context) error {
 	attrs, _ := file.Body.JustAttributes()
 	for attrKey, attrValue := range attrs {
 		val, _ := attrValue.Expr.Value(nil)
-		primitive := false
 
-		switch val.Type() {
-		case cty.String:
-			vars.Items = append(vars.Items, &tfe.Variable{
-				Key:   attrKey,
-				Value: val.AsString(),
-			})
-			primitive = true
-		case cty.Number:
-			var valInt int64
-			gocty.FromCtyValue(val, &valInt)
-			vars.Items = append(vars.Items, &tfe.Variable{
-				Key:   attrKey,
-				Value: strconv.FormatInt(valInt, 10),
-			})
-			primitive = true
-		case cty.Bool:
-			var valBool bool
-			gocty.FromCtyValue(val, &valBool)
-			vars.Items = append(vars.Items, &tfe.Variable{
-				Key:   attrKey,
-				Value: strconv.FormatBool(valBool),
-			})
-			primitive = true
-		}
-
-		if !primitive && val.Type().IsCollectionType() {
-			log.Debug().Msgf("%s is collection type value", attrKey)
-		}
-		if !primitive && val.Type().IsObjectType() {
-			log.Debug().Msgf("%s is object type value", attrKey)
-		}
-		if !primitive && val.Type().IsTupleType() {
-			log.Debug().Msgf("%s is tuple type value", attrKey)
-		}
+		vars.Items = append(vars.Items, &tfe.Variable{
+			Key:   attrKey,
+			Value: String(val),
+		})
 	}
 
 	return push(ctx, w.ID, tfeClient.Variables, pushOpt, vars)
