@@ -158,6 +158,27 @@ func TestCmdPull(t *testing.T) {
 			wantErr:   true,
 			expectErr: "invalid value for workspace ID",
 		},
+		{
+			name:        "pull tuple string",
+			workspaceId: "w-test-variable-tuple",
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-variable-tuple", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "var1",
+								Value: `["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]`,
+								HCL:   true,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect:    "var1 = [\"ap-northeast-1a\", \"ap-northeast-1c\", \"ap-northeast-1d\"]\n",
+			wantErr:   false,
+			expectErr: "",
+		},
 	}
 
 	for _, tt := range cases {
