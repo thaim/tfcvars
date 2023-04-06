@@ -59,3 +59,38 @@ func TestString(t *testing.T) {
 		})
 	}
 }
+
+func TestCtyValue(t *testing.T) {
+	cases := []struct {
+		name   string
+		value  string
+		expect cty.Value
+	}{
+		{
+			name:   "primitive string",
+			value:  `"value"`,
+			expect: cty.StringVal("value"),
+		},
+		{
+			name:   "primitive int",
+			value:  `123`,
+			expect: cty.NumberFloatVal(123),
+		},
+		{
+			name:   "list string",
+			value:  `["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]`,
+			expect: cty.TupleVal([]cty.Value{cty.StringVal("ap-northeast-1a"), cty.StringVal("ap-northeast-1c"), cty.StringVal("ap-northeast-1d")}),
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := CtyValue(tt.value)
+
+			if actual.Equals(tt.expect).False() {
+				t.Errorf("expect '%s' (type %s), got '%s' (type %s)",
+					String(tt.expect), tt.expect.Type().GoString(), String(actual), actual.Type().GoString())
+			}
+		})
+	}
+}
