@@ -93,7 +93,11 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 			rootBody.AppendUnstructuredTokens(generateComment(v.Key))
 			continue
 		}
-		rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
+		if v.HCL {
+			rootBody.SetAttributeValue(v.Key, CtyValue(v.Value))
+		} else {
+			rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
+		}
 	}
 
 	fmt.Fprintf(w, "%s", f.Bytes())
