@@ -16,7 +16,7 @@ type PushOption struct {
 
 func NewPushOption(c *cli.Context) *PushOption {
 	var opt = &PushOption{}
-	opt.varFile = "terraform.tfvars"
+	opt.varFile = c.String("var-file")
 
 	return opt
 }

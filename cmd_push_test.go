@@ -185,6 +185,14 @@ func TestNewPushOption(t *testing.T) {
 				varFile: "terraform.tfvars",
 			},
 		},
+		{
+			name: "custom var file",
+			flags: pushFlags(),
+			args: []string{"--var-file", "custom.tfvars"},
+			expect: &PushOption{
+				varFile: "custom.tfvars",
+			},
+		},
 	}
 
 	for _, tt := range cases {
