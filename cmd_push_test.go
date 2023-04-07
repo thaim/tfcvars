@@ -186,9 +186,9 @@ func TestNewPushOption(t *testing.T) {
 			},
 		},
 		{
-			name: "custom var file",
+			name:  "custom var file",
 			flags: pushFlags(),
-			args: []string{"--var-file", "custom.tfvars"},
+			args:  []string{"--var-file", "custom.tfvars"},
 			expect: &PushOption{
 				varFile: "custom.tfvars",
 			},
