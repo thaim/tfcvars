@@ -50,7 +50,12 @@ func Push(c *cli.Context) error {
 	pushOpt := NewPushOption(c)
 	log.Debug().Msgf("pushOption: %+v", pushOpt)
 
-	vars, err := variableFile(pushOpt.varFile)
+	var vars *tfe.VariableList
+	if pushOpt.variableKey == "" {
+		vars, err = variableFile(pushOpt.varFile)
+	} else {
+		vars = BuildVariableList(pushOpt.variableKey, pushOpt.variableValue)
+	}
 	if err != nil {
 		return err
 	}
