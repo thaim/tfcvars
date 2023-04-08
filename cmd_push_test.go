@@ -193,6 +193,26 @@ func TestNewPushOption(t *testing.T) {
 				varFile: "custom.tfvars",
 			},
 		},
+		{
+			name:  "variable option",
+			flags: pushFlags(),
+			args:  []string{"--variable", "key=value"},
+			expect: &PushOption{
+				varFile:       "terraform.tfvars",
+				variableKey:   "key",
+				variableValue: "value",
+			},
+		},
+		{
+			name:  "variable option with include equal",
+			flags: pushFlags(),
+			args:  []string{"--variable", "key=value=10"},
+			expect: &PushOption{
+				varFile:       "terraform.tfvars",
+				variableKey:   "key",
+				variableValue: "value=10",
+			},
+		},
 	}
 
 	for _, tt := range cases {

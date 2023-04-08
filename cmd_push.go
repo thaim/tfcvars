@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2/hclparse"
@@ -11,12 +12,21 @@ import (
 )
 
 type PushOption struct {
-	varFile string
+	varFile       string
+	variableKey   string
+	variableValue string
 }
 
 func NewPushOption(c *cli.Context) *PushOption {
 	var opt = &PushOption{}
 	opt.varFile = c.String("var-file")
+
+	variable := c.String("variable")
+	if variable != "" {
+		splitVariable := strings.SplitN(variable, "=", 2)
+		opt.variableKey = splitVariable[0]
+		opt.variableValue = splitVariable[1]
+	}
 
 	return opt
 }

@@ -113,5 +113,9 @@ func pushFlags() []cli.Flag {
 			Usage: "Input filename to push variables",
 			Value: "terraform.tfvars",
 		},
+		&cli.StringFlag{
+			Name:  "variable",
+			Usage: "Crate or Update Specified variable",
+		},
 	}
 }
