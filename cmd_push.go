@@ -49,20 +49,10 @@ func Push(c *cli.Context) error {
 
 	pushOpt := NewPushOption(c)
 	log.Debug().Msgf("pushOption: %+v", pushOpt)
-	vars := &tfe.VariableList{}
-	p := hclparse.NewParser()
-	file, diags := p.ParseHCLFile(pushOpt.varFile)
-	if diags.HasErrors() {
-		return errors.New(diags.Error())
-	}
-	attrs, _ := file.Body.JustAttributes()
-	for attrKey, attrValue := range attrs {
-		val, _ := attrValue.Expr.Value(nil)
 
-		vars.Items = append(vars.Items, &tfe.Variable{
-			Key:   attrKey,
-			Value: String(val),
-		})
+	vars, err := variableFile(pushOpt.varFile)
+	if err != nil {
+		return err
 	}
 
 	return push(ctx, w.ID, tfeClient.Variables, pushOpt, vars)
@@ -113,4 +103,25 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	log.Info().Msgf("create: %d, update: %d, delete: 0", countCreate, countUpdate)
 
 	return nil
+}
+
+func variableFile(varfile string) (*tfe.VariableList, error) {
+	vars := &tfe.VariableList{}
+
+	p := hclparse.NewParser()
+	file, diags := p.ParseHCLFile(varfile)
+	if diags.HasErrors() {
+		return nil, errors.New(diags.Error())
+	}
+	attrs, _ := file.Body.JustAttributes()
+	for attrKey, attrValue := range attrs {
+		val, _ := attrValue.Expr.Value(nil)
+
+		vars.Items = append(vars.Items, &tfe.Variable{
+			Key:   attrKey,
+			Value: String(val),
+		})
+	}
+
+	return vars, nil
 }
