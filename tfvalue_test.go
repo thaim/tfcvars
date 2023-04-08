@@ -105,14 +105,14 @@ func TestBuildVariableList(t *testing.T) {
 		expect *tfe.VariableList
 	}{
 		{
-			name:   "primitive string",
-			key:    "environment",
-			value:  `"test"`,
+			name:  "primitive string",
+			key:   "environment",
+			value: `"test"`,
 			expect: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
-						Key:         "environment",
-						Value:       `"test"`,
+						Key:   "environment",
+						Value: `"test"`,
 					},
 				},
 			},

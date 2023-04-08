@@ -57,7 +57,7 @@ func BuildVariableList(key string, value string) *tfe.VariableList {
 	vars := &tfe.VariableList{
 		Items: []*tfe.Variable{
 			{
-				Key: key,
+				Key:   key,
 				Value: value,
 			},
 		},

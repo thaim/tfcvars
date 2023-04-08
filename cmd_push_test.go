@@ -252,9 +252,9 @@ func TestVariableFile(t *testing.T) {
 			},
 		},
 		{
-			name:    "invalid vars file",
-			varfile: "testdata/invalid.tfvars",
-			wantErr: true,
+			name:      "invalid vars file",
+			varfile:   "testdata/invalid.tfvars",
+			wantErr:   true,
 			expectErr: "Argument or block definition required",
 		},
 	}
