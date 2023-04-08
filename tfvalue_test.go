@@ -1,8 +1,10 @@
 package main
 
 import (
+	"reflect"
 	"testing"
 
+	tfe "github.com/hashicorp/go-tfe"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -90,6 +92,39 @@ func TestCtyValue(t *testing.T) {
 			if actual.Equals(tt.expect).False() {
 				t.Errorf("expect '%s' (type %s), got '%s' (type %s)",
 					String(tt.expect), tt.expect.Type().GoString(), String(actual), actual.Type().GoString())
+			}
+		})
+	}
+}
+
+func TestBuildVariableList(t *testing.T) {
+	cases := []struct {
+		name   string
+		key    string
+		value  string
+		expect *tfe.VariableList
+	}{
+		{
+			name:  "primitive string",
+			key:   "environment",
+			value: `"test"`,
+			expect: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						Key:   "environment",
+						Value: `"test"`,
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := BuildVariableList(tt.key, tt.value)
+
+			if !reflect.DeepEqual(tt.expect, actual) {
+				t.Errorf("expect '%v', got '%v'", tt.expect.Items[0], actual.Items[0])
 			}
 		})
 	}

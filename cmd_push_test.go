@@ -193,6 +193,26 @@ func TestNewPushOption(t *testing.T) {
 				varFile: "custom.tfvars",
 			},
 		},
+		{
+			name:  "variable option",
+			flags: pushFlags(),
+			args:  []string{"--variable", "key=value"},
+			expect: &PushOption{
+				varFile:       "terraform.tfvars",
+				variableKey:   "key",
+				variableValue: "value",
+			},
+		},
+		{
+			name:  "variable option with include equal",
+			flags: pushFlags(),
+			args:  []string{"--variable", "key=value=10"},
+			expect: &PushOption{
+				varFile:       "terraform.tfvars",
+				variableKey:   "key",
+				variableValue: "value=10",
+			},
+		},
 	}
 
 	for _, tt := range cases {
@@ -206,6 +226,56 @@ func TestNewPushOption(t *testing.T) {
 
 			if !reflect.DeepEqual(tt.expect, sut) {
 				t.Errorf("expect '%v', got '%v'", tt.expect, sut)
+			}
+		})
+	}
+}
+
+func TestVariableFile(t *testing.T) {
+	cases := []struct {
+		name      string
+		varfile   string
+		expect    *tfe.VariableList
+		wantErr   bool
+		expectErr string
+	}{
+		{
+			name:    "default value",
+			varfile: "testdata/terraform.tfvars",
+			expect: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						Key:   "environment",
+						Value: "development",
+					},
+				},
+			},
+		},
+		{
+			name:      "invalid vars file",
+			varfile:   "testdata/invalid.tfvars",
+			wantErr:   true,
+			expectErr: "Argument or block definition required",
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			actual, err := variableFile(tt.varfile)
+
+			if tt.wantErr {
+				if !strings.Contains(err.Error(), tt.expectErr) {
+					t.Errorf("expect '%s' error, got '%s'", tt.expectErr, err.Error())
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("expect no error, got error: %v", err)
+			}
+
+			if !reflect.DeepEqual(tt.expect, actual) {
+				t.Errorf("expect '%v', got '%v'", tt.expect, actual)
 			}
 		})
 	}
