@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
@@ -50,4 +51,17 @@ func CtyValue(value string) cty.Value {
 	}
 
 	return val
+}
+
+func BuildVariableList(key string, value string) *tfe.VariableList {
+	vars := &tfe.VariableList{
+		Items: []*tfe.Variable{
+			{
+				Key: key,
+				Value: value,
+			},
+		},
+	}
+
+	return vars
 }
