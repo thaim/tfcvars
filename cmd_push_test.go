@@ -92,7 +92,7 @@ func TestCmdPush(t *testing.T) {
 					{
 						ID:        "variable-id-environment",
 						Key:       "environment",
-						Value:     "test",
+						Value:     "test2",
 						Category:  tfe.CategoryTerraform,
 						HCL:       false,
 						Sensitive: false,
@@ -125,7 +125,7 @@ func TestCmdPush(t *testing.T) {
 						HCL:       false,
 						Sensitive: false,
 					}, nil).
-					AnyTimes()
+					Times(1)
 				mc.EXPECT().
 					Create(context.TODO(), "w-test-one-var-workspace", gomock.Any()).
 					Return(&tfe.Variable{}, nil).
