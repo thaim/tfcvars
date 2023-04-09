@@ -280,3 +280,26 @@ func TestVariableFile(t *testing.T) {
 		})
 	}
 }
+
+func TestVariableEqual(t *testing.T) {
+	cases := []struct {
+		name      string
+		options   tfe.VariableUpdateOptions
+		target    *tfe.Variable
+		expect    bool
+	}{
+		{
+			name:   "compare variable",
+			expect: false,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := variableEqual(tt.options, tt.target)
+			if  actual != tt.expect {
+				t.Errorf("expect '%t', got '%t'", tt.expect, actual)
+			}
+		})
+	}
+}

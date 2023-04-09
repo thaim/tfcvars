@@ -86,9 +86,11 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 					HCL:         tfe.Bool(targetVar.HCL),
 					Sensitive:   tfe.Bool(targetVar.Sensitive),
 				}
-				tfeVariables.Update(ctx, workspaceId, targetVar.ID, updateOpt)
-				pushed = true
-				countUpdate++
+				if !variableEqual(updateOpt, targetVar) {
+					tfeVariables.Update(ctx, workspaceId, targetVar.ID, updateOpt)
+					pushed = true
+					countUpdate++
+				}
 				break
 			}
 		}
@@ -129,4 +131,8 @@ func variableFile(varfile string) (*tfe.VariableList, error) {
 	}
 
 	return vars, nil
+}
+
+func variableEqual(updateOpt tfe.VariableUpdateOptions, targetVariable *tfe.Variable) bool {
+	return false
 }
