@@ -289,7 +289,7 @@ func TestVariableEqual(t *testing.T) {
 		expect  bool
 	}{
 		{
-			name: "compare variable",
+			name: "compare same value",
 			options: tfe.VariableUpdateOptions{
 				Key:         tfe.String("key"),
 				Value:       tfe.String("value"),
@@ -307,6 +307,66 @@ func TestVariableEqual(t *testing.T) {
 				Sensitive:   false,
 			},
 			expect: true,
+		},
+		{
+			name: "compare variable with key differ",
+			options: tfe.VariableUpdateOptions{
+				Key:         tfe.String("key"),
+				Value:       tfe.String("value"),
+				Description: tfe.String("description"),
+				Category:    tfe.Category(tfe.CategoryTerraform),
+				HCL:         tfe.Bool(false),
+				Sensitive:   tfe.Bool(false),
+			},
+			target: &tfe.Variable{
+				Key:         "changedkey",
+				Value:       "value",
+				Description: "description",
+				Category:    tfe.CategoryTerraform,
+				HCL:         false,
+				Sensitive:   false,
+			},
+			expect: false,
+		},
+		{
+			name: "compare variable with value differ",
+			options: tfe.VariableUpdateOptions{
+				Key:         tfe.String("key"),
+				Value:       tfe.String("value"),
+				Description: tfe.String("description"),
+				Category:    tfe.Category(tfe.CategoryTerraform),
+				HCL:         tfe.Bool(false),
+				Sensitive:   tfe.Bool(false),
+			},
+			target: &tfe.Variable{
+				Key:         "key",
+				Value:       "changed value",
+				Description: "description",
+				Category:    tfe.CategoryTerraform,
+				HCL:         false,
+				Sensitive:   false,
+			},
+			expect: false,
+		},
+		{
+			name: "compare variable with description differ",
+			options: tfe.VariableUpdateOptions{
+				Key:         tfe.String("key"),
+				Value:       tfe.String("value"),
+				Description: tfe.String("description"),
+				Category:    tfe.Category(tfe.CategoryTerraform),
+				HCL:         tfe.Bool(false),
+				Sensitive:   tfe.Bool(false),
+			},
+			target: &tfe.Variable{
+				Key:         "key",
+				Value:       "value",
+				Description: "description has updated",
+				Category:    tfe.CategoryTerraform,
+				HCL:         false,
+				Sensitive:   false,
+			},
+			expect: false,
 		},
 	}
 
