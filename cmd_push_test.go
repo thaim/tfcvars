@@ -92,7 +92,7 @@ func TestCmdPush(t *testing.T) {
 					{
 						ID:        "variable-id-environment",
 						Key:       "environment",
-						Value:     "test",
+						Value:     "test2",
 						Category:  tfe.CategoryTerraform,
 						HCL:       false,
 						Sensitive: false,
@@ -125,7 +125,58 @@ func TestCmdPush(t *testing.T) {
 						HCL:       false,
 						Sensitive: false,
 					}, nil).
+					Times(1)
+				mc.EXPECT().
+					Create(context.TODO(), "w-test-one-var-workspace", gomock.Any()).
+					Return(&tfe.Variable{}, nil).
+					Times(0)
+			},
+			expect:    "",
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
+			name:        "update one variable with exact same value",
+			workspaceId: "w-test-one-var-workspace",
+			vars: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						ID:        "variable-id-environment",
+						Key:       "environment",
+						Value:     "test",
+						Category:  tfe.CategoryTerraform,
+						HCL:       false,
+						Sensitive: false,
+					},
+				},
+			},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-one-var-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								ID:        "variable-id-environment",
+								Key:       "environment",
+								Value:     "test",
+								Category:  tfe.CategoryTerraform,
+								HCL:       false,
+								Sensitive: false,
+							},
+						},
+					}, nil).
 					AnyTimes()
+				mc.EXPECT().
+					Update(context.TODO(), "w-test-one-var-workspace", "variable-id-environment", gomock.Any()).
+					Return(&tfe.Variable{
+						ID:        "variable-id-environment",
+						Key:       "environment",
+						Value:     "test",
+						Category:  tfe.CategoryTerraform,
+						HCL:       false,
+						Sensitive: false,
+					}, nil).
+					Times(0)
 				mc.EXPECT().
 					Create(context.TODO(), "w-test-one-var-workspace", gomock.Any()).
 					Return(&tfe.Variable{}, nil).
@@ -276,6 +327,105 @@ func TestVariableFile(t *testing.T) {
 
 			if !reflect.DeepEqual(tt.expect, actual) {
 				t.Errorf("expect '%v', got '%v'", tt.expect, actual)
+			}
+		})
+	}
+}
+
+func TestVariableEqual(t *testing.T) {
+	cases := []struct {
+		name    string
+		options tfe.VariableUpdateOptions
+		target  *tfe.Variable
+		expect  bool
+	}{
+		{
+			name: "compare same value",
+			options: tfe.VariableUpdateOptions{
+				Key:         tfe.String("key"),
+				Value:       tfe.String("value"),
+				Description: tfe.String("description"),
+				Category:    tfe.Category(tfe.CategoryTerraform),
+				HCL:         tfe.Bool(false),
+				Sensitive:   tfe.Bool(false),
+			},
+			target: &tfe.Variable{
+				Key:         "key",
+				Value:       "value",
+				Description: "description",
+				Category:    tfe.CategoryTerraform,
+				HCL:         false,
+				Sensitive:   false,
+			},
+			expect: true,
+		},
+		{
+			name: "compare variable with key differ",
+			options: tfe.VariableUpdateOptions{
+				Key:         tfe.String("key"),
+				Value:       tfe.String("value"),
+				Description: tfe.String("description"),
+				Category:    tfe.Category(tfe.CategoryTerraform),
+				HCL:         tfe.Bool(false),
+				Sensitive:   tfe.Bool(false),
+			},
+			target: &tfe.Variable{
+				Key:         "changedkey",
+				Value:       "value",
+				Description: "description",
+				Category:    tfe.CategoryTerraform,
+				HCL:         false,
+				Sensitive:   false,
+			},
+			expect: false,
+		},
+		{
+			name: "compare variable with value differ",
+			options: tfe.VariableUpdateOptions{
+				Key:         tfe.String("key"),
+				Value:       tfe.String("value"),
+				Description: tfe.String("description"),
+				Category:    tfe.Category(tfe.CategoryTerraform),
+				HCL:         tfe.Bool(false),
+				Sensitive:   tfe.Bool(false),
+			},
+			target: &tfe.Variable{
+				Key:         "key",
+				Value:       "changed value",
+				Description: "description",
+				Category:    tfe.CategoryTerraform,
+				HCL:         false,
+				Sensitive:   false,
+			},
+			expect: false,
+		},
+		{
+			name: "compare variable with description differ",
+			options: tfe.VariableUpdateOptions{
+				Key:         tfe.String("key"),
+				Value:       tfe.String("value"),
+				Description: tfe.String("description"),
+				Category:    tfe.Category(tfe.CategoryTerraform),
+				HCL:         tfe.Bool(false),
+				Sensitive:   tfe.Bool(false),
+			},
+			target: &tfe.Variable{
+				Key:         "key",
+				Value:       "value",
+				Description: "description has updated",
+				Category:    tfe.CategoryTerraform,
+				HCL:         false,
+				Sensitive:   false,
+			},
+			expect: false,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := variableEqual(tt.options, tt.target)
+			if actual != tt.expect {
+				t.Errorf("expect '%t', got '%t'", tt.expect, actual)
 			}
 		})
 	}
