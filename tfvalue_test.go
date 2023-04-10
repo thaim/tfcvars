@@ -77,6 +77,55 @@ func TestString(t *testing.T) {
 	}
 }
 
+func TestIsPrimitive(t *testing.T) {
+	cases := []struct {
+		name   string
+		value  cty.Value
+		expect bool
+	}{
+		{
+			name:   "primitive string",
+			value:  cty.StringVal("string_value"),
+			expect: true,
+		},
+		{
+			name:   "primitive bool",
+			value:  cty.BoolVal(true),
+			expect: true,
+		},
+		{
+			name:   "primitive int number",
+			value:  cty.NumberIntVal(42),
+			expect: true,
+		},
+		{
+			name:   "primitive float number",
+			value:  cty.NumberFloatVal(123.45),
+			expect: true,
+		},
+		{
+			name:   "tuple value",
+			value:  cty.TupleVal([]cty.Value{cty.StringVal("ap-northeast-1a"), cty.StringVal("ap-northeast-1c"), cty.StringVal("ap-northeast-1d")}),
+			expect: false,
+		},
+		{
+			name:   "object value",
+			value:  cty.ObjectVal(map[string]cty.Value{"key": cty.StringVal("value"), "key2": cty.StringVal("value2")}),
+			expect: false,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := IsPrimitive(tt.value)
+
+			if actual != tt.expect {
+				t.Errorf("expect %t, got %t", tt.expect, actual)
+			}
+		})
+	}
+}
+
 func TestCtyValue(t *testing.T) {
 	cases := []struct {
 		name   string

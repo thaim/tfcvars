@@ -52,6 +52,16 @@ func String(value cty.Value) string {
 	return valString
 }
 
+func IsPrimitive(value cty.Value) bool {
+	ty := value.Type()
+	switch ty {
+	case cty.String, cty.Number, cty.Bool:
+		return true
+	}
+
+	return false
+}
+
 func CtyValue(value string) cty.Value {
 	p := hclparse.NewParser()
 	file, diag := p.ParseHCL([]byte(fmt.Sprintf("key = %s", value)), "file")
