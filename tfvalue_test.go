@@ -49,6 +49,21 @@ func TestString(t *testing.T) {
 			ctyValue: cty.TupleVal([]cty.Value{cty.StringVal("ap-northeast-1a"), cty.StringVal("ap-northeast-1c"), cty.StringVal("ap-northeast-1d")}),
 			expect:   `["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]`,
 		},
+		{
+			name:     "empty map",
+			ctyValue: cty.ObjectVal(map[string]cty.Value{}),
+			expect:   `{}`,
+		},
+		{
+			name:     "simple map",
+			ctyValue: cty.ObjectVal(map[string]cty.Value{"key": cty.StringVal("value"), "key2": cty.StringVal("value2")}),
+			expect:   `{key = "value", key2 = "value2"}`,
+		},
+		{
+			name:     "nested map",
+			ctyValue: cty.ObjectVal(map[string]cty.Value{"key": cty.StringVal("value"), "key2": cty.ObjectVal(map[string]cty.Value{"key2key": cty.StringVal("nestedValue")})}),
+			expect:   `{key = "value", key2 = {key2key = "nestedValue"}}`,
+		},
 	}
 
 	for _, tt := range cases {
