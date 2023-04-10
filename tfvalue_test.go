@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	"golang.org/x/exp/slices"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/zclconf/go-cty/cty"
+	"golang.org/x/exp/slices"
 )
 
 func TestString(t *testing.T) {
@@ -18,7 +18,7 @@ func TestString(t *testing.T) {
 		{
 			name:     "primitive string",
 			ctyValue: cty.StringVal("value"),
-			expect:  []string{"value"},
+			expect:   []string{"value"},
 		},
 		{
 			name:     "primitive number int",
@@ -58,7 +58,7 @@ func TestString(t *testing.T) {
 		{
 			name:     "simple map",
 			ctyValue: cty.ObjectVal(map[string]cty.Value{"key": cty.StringVal("value"), "key2": cty.StringVal("value2")}),
-			expect:   []string{`{key = "value", key2 = "value2"}`,`{key2 = "value2", key = "value"}`},
+			expect:   []string{`{key = "value", key2 = "value2"}`, `{key2 = "value2", key = "value"}`},
 		},
 		{
 			name:     "nested map",

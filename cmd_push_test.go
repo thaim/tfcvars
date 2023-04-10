@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/go-tfe/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
-
 )
 
 func TestCmdPush(t *testing.T) {
