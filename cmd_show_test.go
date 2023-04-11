@@ -114,6 +114,31 @@ func TestCmdShow(t *testing.T) {
 			expectErr: "",
 		},
 		{
+			name:        "show specified variable",
+			workspaceId: "w-test-multiple-variables-filter-variable-workspace",
+			showOpt:     &ShowOption{variableKey: "var2"},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-multiple-variables-filter-variable-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "var1",
+								Value: "value1",
+							},
+							{
+								Key:   "var2",
+								Value: "value2",
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect:    "Key: var2\nValue: value2\nDescription: \nSensitive: false\n\n",
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
 			name:        "show local variable",
 			workspaceId: "",
 			showOpt:     &ShowOption{local: true, varFile: "testdata/terraform.tfvars"},
@@ -202,6 +227,15 @@ func TestNewShowOption(t *testing.T) {
 			expect: &ShowOption{
 				varFile: "terraform.tfvars",
 				local:   true,
+			},
+		},
+		{
+			name:  "specify variable",
+			flags: showFlags(),
+			args:  []string{"--variable", "environment"},
+			expect: &ShowOption{
+				varFile:     "terraform.tfvars",
+				variableKey: "environment",
 			},
 		},
 	}

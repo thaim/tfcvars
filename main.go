@@ -83,6 +83,10 @@ func showFlags() []cli.Flag {
 			Usage: "Input filename to read for local variable",
 			Value: "terraform.tfvars",
 		},
+		&cli.StringFlag{
+			Name:  "variable",
+			Usage: "Show specified variable",
+		},
 	}
 }
 
