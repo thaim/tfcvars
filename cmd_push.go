@@ -127,6 +127,7 @@ func variableFile(varfile string) (*tfe.VariableList, error) {
 		vars.Items = append(vars.Items, &tfe.Variable{
 			Key:   attrKey,
 			Value: String(val),
+			HCL:   !IsPrimitive(val),
 		})
 	}
 

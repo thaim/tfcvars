@@ -9,6 +9,7 @@ import (
 	"github.com/golang/mock/gomock"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/go-tfe/mocks"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 )
 
@@ -298,6 +299,37 @@ func TestVariableFile(t *testing.T) {
 					{
 						Key:   "environment",
 						Value: "development",
+						HCL:   false,
+					},
+				},
+			},
+		},
+		{
+			name:    "mixed type value",
+			varfile: "testdata/mixedtypes.tfvars",
+			expect: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						Key:   "environment",
+						Value: "test",
+					},
+					{
+						Key:   "port",
+						Value: "3000",
+					},
+					{
+						Key:   "terraform",
+						Value: "true",
+					},
+					{
+						Key:   "availability_zones",
+						Value: `["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]`,
+						HCL:   true,
+					},
+					{
+						Key:   "tags",
+						Value: `{reop = "github.com/thaim/tfcvars"}`,
+						HCL:   true,
 					},
 				},
 			},
@@ -325,9 +357,7 @@ func TestVariableFile(t *testing.T) {
 				t.Errorf("expect no error, got error: %v", err)
 			}
 
-			if !reflect.DeepEqual(tt.expect, actual) {
-				t.Errorf("expect '%v', got '%v'", tt.expect, actual)
-			}
+			assert.ElementsMatch(t, tt.expect.Items, actual.Items)
 		})
 	}
 }

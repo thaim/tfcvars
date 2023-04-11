@@ -34,7 +34,32 @@ func String(value cty.Value) string {
 		return valString
 	}
 
-	return ""
+	first := true
+	valString := "{"
+	for key, val := range value.AsValueMap() {
+		if !first {
+			valString += ", "
+		}
+		if val.Type() == cty.String {
+			valString += key + " = \"" + String(val) + "\""
+		} else {
+			valString += key + " = " + String(val)
+		}
+		first = false
+	}
+	valString += "}"
+
+	return valString
+}
+
+func IsPrimitive(value cty.Value) bool {
+	ty := value.Type()
+	switch ty {
+	case cty.String, cty.Number, cty.Bool:
+		return true
+	}
+
+	return false
 }
 
 func CtyValue(value string) cty.Value {
