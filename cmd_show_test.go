@@ -198,41 +198,36 @@ func TestCmdShow(t *testing.T) {
 func TestNewShowOption(t *testing.T) {
 	cases := []struct {
 		name   string
-		flags  []cli.Flag
 		args   []string
 		expect *ShowOption
 	}{
 		{
-			name:  "default value",
-			flags: showFlags(),
-			args:  []string{},
+			name: "default value",
+			args: []string{},
 			expect: &ShowOption{
 				varFile: "terraform.tfvars",
 				local:   false,
 			},
 		},
 		{
-			name:  "custom var file",
-			flags: showFlags(),
-			args:  []string{"--var-file", "custom.tfvars"},
+			name: "custom var file",
+			args: []string{"--var-file", "custom.tfvars"},
 			expect: &ShowOption{
 				varFile: "custom.tfvars",
 				local:   false,
 			},
 		},
 		{
-			name:  "enable local option",
-			flags: showFlags(),
-			args:  []string{"--local"},
+			name: "enable local option",
+			args: []string{"--local"},
 			expect: &ShowOption{
 				varFile: "terraform.tfvars",
 				local:   true,
 			},
 		},
 		{
-			name:  "specify variable",
-			flags: showFlags(),
-			args:  []string{"--variable", "environment"},
+			name: "specify variable",
+			args: []string{"--variable", "environment"},
 			expect: &ShowOption{
 				varFile:     "terraform.tfvars",
 				variableKey: "environment",
@@ -243,7 +238,7 @@ func TestNewShowOption(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			app := cli.NewApp()
-			set := flagSet(tt.flags)
+			set := flagSet(showFlags())
 			set.Parse(tt.args)
 			ctx := cli.NewContext(app, set, nil)
 

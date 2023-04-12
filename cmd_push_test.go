@@ -225,30 +225,26 @@ func TestCmdPush(t *testing.T) {
 func TestNewPushOption(t *testing.T) {
 	cases := []struct {
 		name   string
-		flags  []cli.Flag
 		args   []string
 		expect *PushOption
 	}{
 		{
-			name:  "default value",
-			flags: pushFlags(),
-			args:  []string{},
+			name: "default value",
+			args: []string{},
 			expect: &PushOption{
 				varFile: "terraform.tfvars",
 			},
 		},
 		{
-			name:  "custom var file",
-			flags: pushFlags(),
-			args:  []string{"--var-file", "custom.tfvars"},
+			name: "custom var file",
+			args: []string{"--var-file", "custom.tfvars"},
 			expect: &PushOption{
 				varFile: "custom.tfvars",
 			},
 		},
 		{
-			name:  "variable option",
-			flags: pushFlags(),
-			args:  []string{"--variable", "key=value"},
+			name: "variable option",
+			args: []string{"--variable", "key=value"},
 			expect: &PushOption{
 				varFile:       "terraform.tfvars",
 				variableKey:   "key",
@@ -256,9 +252,8 @@ func TestNewPushOption(t *testing.T) {
 			},
 		},
 		{
-			name:  "variable option with include equal",
-			flags: pushFlags(),
-			args:  []string{"--variable", "key=value=10"},
+			name: "variable option with include equal",
+			args: []string{"--variable", "key=value=10"},
 			expect: &PushOption{
 				varFile:       "terraform.tfvars",
 				variableKey:   "key",
@@ -270,7 +265,7 @@ func TestNewPushOption(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			app := cli.NewApp()
-			set := flagSet(tt.flags)
+			set := flagSet(pushFlags())
 			set.Parse(tt.args)
 			ctx := cli.NewContext(app, set, nil)
 
