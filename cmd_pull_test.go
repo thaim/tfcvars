@@ -209,14 +209,12 @@ func TestCmdPull(t *testing.T) {
 func TestNewPullOption(t *testing.T) {
 	cases := []struct {
 		name   string
-		flags  []cli.Flag
 		args   []string
 		expect *PullOption
 	}{
 		{
-			name:  "default value",
-			flags: pullFlags(),
-			args:  []string{},
+			name: "default value",
+			args: []string{},
 			expect: &PullOption{
 				varFile:     "terraform.tfvars",
 				overwrite:   false,
@@ -224,9 +222,8 @@ func TestNewPullOption(t *testing.T) {
 			},
 		},
 		{
-			name:  "custom var file",
-			flags: pullFlags(),
-			args:  []string{"--var-file", "custom.tfvars"},
+			name: "custom var file",
+			args: []string{"--var-file", "custom.tfvars"},
 			expect: &PullOption{
 				varFile:     "custom.tfvars",
 				overwrite:   false,
@@ -234,9 +231,8 @@ func TestNewPullOption(t *testing.T) {
 			},
 		},
 		{
-			name:  "enable overwite option",
-			flags: pullFlags(),
-			args:  []string{"--overwrite"},
+			name: "enable overwite option",
+			args: []string{"--overwrite"},
 			expect: &PullOption{
 				varFile:     "terraform.tfvars",
 				overwrite:   true,
@@ -244,9 +240,8 @@ func TestNewPullOption(t *testing.T) {
 			},
 		},
 		{
-			name:  "ignore overwite option if merge option specified",
-			flags: pullFlags(),
-			args:  []string{"--overwrite", "--merge"},
+			name: "ignore overwite option if merge option specified",
+			args: []string{"--overwrite", "--merge"},
 			expect: &PullOption{
 				varFile:     "terraform.tfvars",
 				overwrite:   false,
@@ -258,7 +253,7 @@ func TestNewPullOption(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			app := cli.NewApp()
-			set := flagSet(tt.flags)
+			set := flagSet(pullFlags())
 			set.Parse(tt.args)
 			ctx := cli.NewContext(app, set, nil)
 
