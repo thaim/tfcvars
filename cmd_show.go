@@ -15,14 +15,16 @@ import (
 )
 
 type ShowOption struct {
-	varFile string
-	local   bool
+	varFile     string
+	variableKey string
+	local       bool
 }
 
 func NewShowOption(c *cli.Context) *ShowOption {
 	var opt = &ShowOption{}
 
 	opt.varFile = c.String("var-file")
+	opt.variableKey = c.String("variable")
 	opt.local = c.Bool("local")
 
 	return opt
@@ -94,6 +96,10 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 	}
 
 	for _, v := range vars.Items {
+		if showOpt.variableKey != "" && showOpt.variableKey != v.Key {
+			continue
+		}
+
 		fmt.Fprintf(w, "Key: %s\n", v.Key)
 		fmt.Fprintf(w, "Value: %s\n", v.Value)
 		fmt.Fprintf(w, "Description: %s\n", v.Description)
