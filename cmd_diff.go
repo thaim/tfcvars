@@ -53,7 +53,7 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 		return err
 	}
 
-	fmt.Fprintf(w, cmp.Diff(varsSrc.Items, varsDest.Items))
+	fmt.Fprint(w, cmp.Diff(varsSrc.Items, varsDest.Items))
 
 	return nil
 }
