@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 
+	"github.com/google/go-cmp/cmp"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -39,5 +41,19 @@ func Diff(c *cli.Context) error {
 }
 
 func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, diffOpt *DiffOption, w io.Writer) error {
+	varsDest, err := tfeVariables.List(ctx, workspaceId, nil)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to list variables")
+		return err
+	}
+
+	varsSrc, err := variableFile("terraform.tfvars")
+	if err != nil {
+		log.Error().Err(err).Msg("failed to read variable file")
+		return err
+	}
+
+	fmt.Fprintf(w, cmp.Diff(varsSrc.Items, varsDest.Items))
+
 	return nil
 }
