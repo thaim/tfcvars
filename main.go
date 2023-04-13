@@ -48,6 +48,8 @@ func main() {
 			},
 			{
 				Name: "diff",
+				Action: Diff,
+				Flags: diffFlags(),
 			},
 			{
 				Name:   "pull",
@@ -122,4 +124,8 @@ func pushFlags() []cli.Flag {
 			Usage: "Crate or Update Specified variable",
 		},
 	}
+}
+
+func diffFlags() []cli.Flag {
+	return []cli.Flag{}
 }
