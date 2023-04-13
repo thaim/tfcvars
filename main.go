@@ -47,9 +47,9 @@ func main() {
 				Flags:  showFlags(),
 			},
 			{
-				Name: "diff",
+				Name:   "diff",
 				Action: Diff,
-				Flags: diffFlags(),
+				Flags:  diffFlags(),
 			},
 			{
 				Name:   "pull",

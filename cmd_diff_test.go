@@ -14,10 +14,9 @@ func TestNewDiffOption(t *testing.T) {
 		expect *DiffOption
 	}{
 		{
-			name: "default value",
-			args: []string{},
-			expect: &DiffOption{
-			},
+			name:   "default value",
+			args:   []string{},
+			expect: &DiffOption{},
 		},
 	}
 
@@ -36,4 +35,3 @@ func TestNewDiffOption(t *testing.T) {
 		})
 	}
 }
-
