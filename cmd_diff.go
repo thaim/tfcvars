@@ -47,7 +47,7 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 		return err
 	}
 
-	varsSrc, err := variableFile("terraform.tfvars")
+	varsSrc, err := variableFile("terraform.tfvars", false)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to read variable file")
 		return err

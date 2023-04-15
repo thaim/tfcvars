@@ -282,6 +282,7 @@ func TestVariableFile(t *testing.T) {
 	cases := []struct {
 		name      string
 		varfile   string
+		required  bool
 		expect    *tfe.VariableList
 		wantErr   bool
 		expectErr string
@@ -289,6 +290,7 @@ func TestVariableFile(t *testing.T) {
 		{
 			name:    "default value",
 			varfile: "testdata/terraform.tfvars",
+			required: true,
 			expect: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -302,6 +304,7 @@ func TestVariableFile(t *testing.T) {
 		{
 			name:    "mixed type value",
 			varfile: "testdata/mixedtypes.tfvars",
+			required: true,
 			expect: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -332,14 +335,30 @@ func TestVariableFile(t *testing.T) {
 		{
 			name:      "invalid vars file",
 			varfile:   "testdata/invalid.tfvars",
+			required: true,
 			wantErr:   true,
 			expectErr: "Argument or block definition required",
+		},
+		{
+			name: "vars file not exist without required option",
+			varfile: "terraform.tfvars",
+			required: false,
+			expect: &tfe.VariableList{
+				Items: []*tfe.Variable{{}},
+			},
+		},
+		{
+			name: "vars file not exist with required option",
+			varfile: "terraform.tfvars",
+			required: true,
+			wantErr: true,
+			expectErr: "no such file or directory",
 		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := variableFile(tt.varfile)
+			actual, err := variableFile(tt.varfile, tt.required)
 
 			if tt.wantErr {
 				if !strings.Contains(err.Error(), tt.expectErr) {
