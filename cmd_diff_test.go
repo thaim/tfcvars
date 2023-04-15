@@ -114,8 +114,8 @@ func TestCmdDiff(t *testing.T) {
 					AnyTimes()
 			},
 			expect: `
-- 		Key:   "environment",
-+ 		Key:   "env",
+- 		Key:   "environment",
++ 		Key:   "env",
 `,
 		},
 		{
