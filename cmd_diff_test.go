@@ -96,6 +96,22 @@ func TestCmdDiff(t *testing.T) {
 			wantErr:   true,
 			expectErr: "invalid value for workspace ID",
 		},
+		{
+			name:        "return error if failed to readvars file",
+			workspaceId: "w-test-no-vars-workspace",
+			diffOpt:     &DiffOption{varFile: "testdata/invalid.tfvars"},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-no-vars-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{{}},
+					}, nil).
+					AnyTimes()
+			},
+			expect:    "",
+			wantErr:   true,
+			expectErr: "Argument or block definition required",
+		},
 	}
 
 	for _, tt := range cases {
