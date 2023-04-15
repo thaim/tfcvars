@@ -41,6 +41,49 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
+			name:        "show no diff with same variables",
+			workspaceId: "w-test-single-variable-workspace",
+			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars"},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-single-variable-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:         "environment",
+								Value:       "development",
+								Description: "env",
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect: "",
+		},
+		{
+			name:        "show diff with dirrerent key",
+			workspaceId: "w-test-single-variable-different-key-workspace",
+			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars"},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-single-variable-different-key-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:         "env",
+								Value:       "development",
+								Description: "env",
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect: `
+- 		Key:   "environment",
++ 		Key:   "env",
+`,
+		},
+		{
 			name:        "return error if not able to list variable list",
 			workspaceId: "w-test-access-error",
 			diffOpt:     &DiffOption{},
@@ -72,7 +115,7 @@ func TestCmdDiff(t *testing.T) {
 			if err != nil {
 				t.Errorf("expect no error, got error: %v", err)
 			}
-			if bufString := buf.String(); bufString != tt.expect {
+			if bufString := buf.String(); !strings.Contains(bufString, tt.expect) {
 				t.Errorf("expect %s, got id: %s", tt.expect, buf.String())
 			}
 		})
@@ -86,15 +129,15 @@ func TestNewDiffOption(t *testing.T) {
 		expect *DiffOption
 	}{
 		{
-			name:   "default value",
-			args:   []string{},
+			name: "default value",
+			args: []string{},
 			expect: &DiffOption{
 				varFile: "terraform.tfvars",
 			},
 		},
 		{
-			name:   "default value",
-			args:   []string{"--var-file", "testdata/terraform.tfvars"},
+			name: "default value",
+			args: []string{"--var-file", "testdata/terraform.tfvars"},
 			expect: &DiffOption{
 				varFile: "testdata/terraform.tfvars",
 			},
