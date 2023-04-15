@@ -61,6 +61,41 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
+			name:        "show no diff with mutiple variables",
+			workspaceId: "w-test-multiple-variables-workspace",
+			diffOpt:     &DiffOption{varFile: "testdata/mixedtypes.tfvars"},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-multiple-variables-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "environment",
+								Value: "test",
+							},
+							{
+								Key:   "port",
+								Value: "3000",
+							},
+							{
+								Key:   "terraform",
+								Value: "true",
+							},
+							{
+								Key:   "availability_zones",
+								Value: `["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]`,
+							},
+							{
+								Key:   "tags",
+								Value: `{reop = "github.com/thaim/tfcvars"}`,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect: "",
+		},
+		{
 			name:        "show diff with dirrerent key",
 			workspaceId: "w-test-single-variable-different-key-workspace",
 			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars"},
