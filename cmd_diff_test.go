@@ -27,7 +27,7 @@ func TestCmdDiff(t *testing.T) {
 		expectErr   string
 	}{
 		{
-			name:        "",
+			name:        "show no diff with empty local variable and empty variable list",
 			workspaceId: "w-test-no-vars-workspace",
 			diffOpt:     &DiffOption{},
 			setClient: func(mc *mocks.MockVariables) {
@@ -39,6 +39,19 @@ func TestCmdDiff(t *testing.T) {
 					AnyTimes()
 			},
 			expect: "",
+		},
+		{
+			name:        "return error if not able to list variable list",
+			workspaceId: "w-test-access-error",
+			diffOpt:     &DiffOption{},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-access-error", nil).
+					Return(nil, tfe.ErrInvalidWorkspaceID)
+			},
+			expect:    "",
+			wantErr:   true,
+			expectErr: "invalid value for workspace ID",
 		},
 	}
 
