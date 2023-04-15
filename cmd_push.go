@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"os"
 	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
@@ -52,7 +53,7 @@ func Push(c *cli.Context) error {
 
 	var vars *tfe.VariableList
 	if pushOpt.variableKey == "" {
-		vars, err = variableFile(pushOpt.varFile)
+		vars, err = variableFile(pushOpt.varFile, true)
 	} else {
 		vars = BuildVariableList(pushOpt.variableKey, pushOpt.variableValue)
 	}
@@ -112,8 +113,16 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	return nil
 }
 
-func variableFile(varfile string) (*tfe.VariableList, error) {
+func variableFile(varfile string, required bool) (*tfe.VariableList, error) {
 	vars := &tfe.VariableList{}
+
+	if _, err := os.Stat(varfile); os.IsNotExist(err) {
+		if required {
+			return nil, err
+		}
+		vars.Items = []*tfe.Variable{{}}
+		return vars, nil
+	}
 
 	p := hclparse.NewParser()
 	file, diags := p.ParseHCLFile(varfile)

@@ -47,7 +47,9 @@ func main() {
 				Flags:  showFlags(),
 			},
 			{
-				Name: "diff",
+				Name:   "diff",
+				Action: Diff,
+				Flags:  diffFlags(),
 			},
 			{
 				Name:   "pull",
@@ -120,6 +122,16 @@ func pushFlags() []cli.Flag {
 		&cli.StringFlag{
 			Name:  "variable",
 			Usage: "Crate or Update Specified variable",
+		},
+	}
+}
+
+func diffFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:  "var-file",
+			Usage: "Input filename to push variables",
+			Value: "terraform.tfvars",
 		},
 	}
 }
