@@ -88,7 +88,16 @@ func TestNewDiffOption(t *testing.T) {
 		{
 			name:   "default value",
 			args:   []string{},
-			expect: &DiffOption{},
+			expect: &DiffOption{
+				varFile: "terraform.tfvars",
+			},
+		},
+		{
+			name:   "default value",
+			args:   []string{"--var-file", "testdata/terraform.tfvars"},
+			expect: &DiffOption{
+				varFile: "testdata/terraform.tfvars",
+			},
 		},
 	}
 

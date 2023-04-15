@@ -15,10 +15,15 @@ import (
 )
 
 type DiffOption struct {
+	varFile string
 }
 
 func NewDiffOption(c *cli.Context) *DiffOption {
-	return &DiffOption{}
+	opt := &DiffOption{}
+
+	opt.varFile = c.String("var-file")
+
+	return opt
 }
 
 func Diff(c *cli.Context) error {
@@ -49,7 +54,7 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 		return err
 	}
 
-	varsSrc, err := variableFile("terraform.tfvars", false)
+	varsSrc, err := variableFile(diffOpt.varFile, false)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to read variable file")
 		return err

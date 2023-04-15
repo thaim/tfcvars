@@ -127,5 +127,11 @@ func pushFlags() []cli.Flag {
 }
 
 func diffFlags() []cli.Flag {
-	return []cli.Flag{}
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:  "var-file",
+			Usage: "Input filename to push variables",
+			Value: "terraform.tfvars",
+		},
+	}
 }
