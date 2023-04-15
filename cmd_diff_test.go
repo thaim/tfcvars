@@ -18,18 +18,18 @@ func TestCmdDiff(t *testing.T) {
 	mockVariables := mocks.NewMockVariables(ctrl)
 
 	cases := []struct {
-		name string
+		name        string
 		workspaceId string
-		diffOpt *DiffOption
-		setClient func(*mocks.MockVariables)
-		expect string
-		wantErr bool
-		expectErr string
+		diffOpt     *DiffOption
+		setClient   func(*mocks.MockVariables)
+		expect      string
+		wantErr     bool
+		expectErr   string
 	}{
 		{
-			name: "",
+			name:        "",
 			workspaceId: "w-test-no-vars-workspace",
-			diffOpt: &DiffOption{},
+			diffOpt:     &DiffOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
@@ -41,7 +41,6 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 	}
-
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
