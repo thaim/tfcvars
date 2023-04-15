@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -53,7 +55,14 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 		return err
 	}
 
-	fmt.Fprint(w, cmp.Diff(varsSrc.Items, varsDest.Items))
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(tfe.Variable{}, "ID", "Description", "Category", "HCL", "Workspace"),
+		cmpopts.SortSlices(func(x, y *tfe.Variable) bool {
+			return strings.Compare(x.Key, y.Key) < 0
+		}),
+	}
+
+	fmt.Fprint(w, cmp.Diff(varsSrc.Items, varsDest.Items, opts...))
 
 	return nil
 }
