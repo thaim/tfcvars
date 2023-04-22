@@ -25,7 +25,7 @@ func init() {
 	logLevel, ok := logLevelMap[logLevelString]
 	if !ok {
 		// default to debug until GA
-		logLevel = zerolog.DebugLevel
+		logLevel = zerolog.InfoLevel
 	}
 	zerolog.SetGlobalLevel(logLevel)
 }
