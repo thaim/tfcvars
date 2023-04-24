@@ -166,7 +166,7 @@ func TestCmdDiff(t *testing.T) {
 			if err != nil {
 				t.Errorf("expect no error, got error: %v", err)
 			}
-			if bufString := buf.String(); !strings.Contains(bufString, tt.expect) {
+			if bufString := replaceNBSPWithSpace(buf.String()); !strings.Contains(bufString, tt.expect) {
 				t.Errorf("expect: %s, got: %s", tt.expect, bufString)
 			}
 		})
@@ -209,4 +209,13 @@ func TestNewDiffOption(t *testing.T) {
 			}
 		})
 	}
+}
+
+func replaceNBSPWithSpace(s string) string {
+	return strings.Map(func(r rune) rune {
+		if r == '\u00A0' {
+			return ' '
+		}
+		return r
+	}, s)
 }
