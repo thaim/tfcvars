@@ -167,7 +167,7 @@ func TestCmdDiff(t *testing.T) {
 				t.Errorf("expect no error, got error: %v", err)
 			}
 			if bufString := buf.String(); !strings.Contains(bufString, tt.expect) {
-				t.Errorf("expect %s, got id: %s", tt.expect, buf.String())
+				t.Errorf("expect: %s, got: %s", tt.expect, bufString)
 			}
 		})
 	}
