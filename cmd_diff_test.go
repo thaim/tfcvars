@@ -119,6 +119,58 @@ func TestCmdDiff(t *testing.T) {
 `,
 		},
 		{
+			name:        "show no diff include env category with include-env disabled",
+			workspaceId: "w-test-variable-include-env-show-diff-workspace",
+			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-variable-include-env-show-diff-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:         "environment",
+								Value:       "development",
+								Description: "env",
+							},
+							{
+								Key:      "ENV",
+								Value:    "TEST",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect: `
++ 	&{Key: "ENV", Value: "TEST", Category: "env"},
+`,
+		},
+		{
+			name:        "show diff include env category with include-env enabled",
+			workspaceId: "w-test-variable-include-env-show-diff-workspace",
+			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-variable-include-env-show-diff-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:         "environment",
+								Value:       "development",
+								Description: "env",
+							},
+							{
+								Key:      "ENV",
+								Value:    "TEST",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect: "",
+		},
+		{
 			name:        "return error if not able to list variable list",
 			workspaceId: "w-test-access-error",
 			diffOpt:     &DiffOption{},
@@ -191,6 +243,14 @@ func TestNewDiffOption(t *testing.T) {
 			args: []string{"--var-file", "testdata/terraform.tfvars"},
 			expect: &DiffOption{
 				varFile: "testdata/terraform.tfvars",
+			},
+		},
+		{
+			name: "enable include env option",
+			args: []string{"--include-env"},
+			expect: &DiffOption{
+				varFile:    "terraform.tfvars",
+				includeEnv: true,
 			},
 		},
 	}

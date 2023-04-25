@@ -20,6 +20,7 @@ type PullOption struct {
 	varFile     string
 	overwrite   bool
 	prevVarfile []byte
+	includeEnv  bool
 }
 
 func NewPullOption(c *cli.Context) *PullOption {
@@ -28,6 +29,7 @@ func NewPullOption(c *cli.Context) *PullOption {
 	opt.varFile = c.String("var-file")
 	opt.overwrite = c.Bool("overwrite") && !c.Bool("merge")
 	opt.prevVarfile = nil
+	opt.includeEnv = c.Bool("include-env")
 
 	return opt
 }
@@ -70,6 +72,16 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		log.Error().Err(err).Msg("failed to list variables")
 		return err
 	}
+	if !pullOpt.includeEnv {
+		filteredVars := []*tfe.Variable{}
+		for _, v := range vars.Items {
+			if v.Category != tfe.CategoryEnv {
+				filteredVars = append(filteredVars, v)
+			}
+		}
+		vars.Items = filteredVars
+	}
+
 	var f *hclwrite.File
 	if pullOpt.overwrite {
 		f = hclwrite.NewEmptyFile()
@@ -84,11 +96,6 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	rootBody := f.Body()
 
 	for _, v := range vars.Items {
-		if v.Category == tfe.CategoryEnv {
-			// Terraform VariablesではなくEnvironment Variablesであれば出力しない
-			// TODO: Env対応は別オプションで実装する
-			continue
-		}
 		if v.Sensitive {
 			rootBody.AppendUnstructuredTokens(generateComment(v.Key))
 			continue

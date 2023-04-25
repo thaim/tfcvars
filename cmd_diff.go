@@ -15,13 +15,15 @@ import (
 )
 
 type DiffOption struct {
-	varFile string
+	varFile    string
+	includeEnv bool
 }
 
 func NewDiffOption(c *cli.Context) *DiffOption {
 	opt := &DiffOption{}
 
 	opt.varFile = c.String("var-file")
+	opt.includeEnv = c.Bool("include-env")
 
 	return opt
 }
@@ -52,6 +54,15 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 	if err != nil {
 		log.Error().Err(err).Msg("failed to list variables")
 		return err
+	}
+	if !diffOpt.includeEnv {
+		filteredVars := []*tfe.Variable{}
+		for _, v := range varsDest.Items {
+			if v.Category != tfe.CategoryEnv {
+				filteredVars = append(filteredVars, v)
+			}
+		}
+		varsDest.Items = filteredVars
 	}
 
 	varsSrc, err := variableFile(diffOpt.varFile, false)

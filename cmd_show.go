@@ -18,6 +18,7 @@ type ShowOption struct {
 	varFile     string
 	variableKey string
 	local       bool
+	includeEnv  bool
 }
 
 func NewShowOption(c *cli.Context) *ShowOption {
@@ -26,6 +27,7 @@ func NewShowOption(c *cli.Context) *ShowOption {
 	opt.varFile = c.String("var-file")
 	opt.variableKey = c.String("variable")
 	opt.local = c.Bool("local")
+	opt.includeEnv = c.Bool("include-env")
 
 	return opt
 }
@@ -97,6 +99,9 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 
 	for _, v := range vars.Items {
 		if showOpt.variableKey != "" && showOpt.variableKey != v.Key {
+			continue
+		}
+		if !showOpt.includeEnv && v.Category == tfe.CategoryEnv {
 			continue
 		}
 
