@@ -30,7 +30,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull empty variable",
 			workspaceId: "w-test-no-vars-workspace",
-			pullOpt: &PullOption{},
+			pullOpt:     &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
@@ -46,7 +46,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull single variable",
 			workspaceId: "w-test-single-variable-workspace",
-			pullOpt: &PullOption{},
+			pullOpt:     &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-single-variable-workspace", nil).
@@ -68,7 +68,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull multiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
-			pullOpt: &PullOption{},
+			pullOpt:     &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-multiple-variables-workspace", nil).
@@ -93,7 +93,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
-			pullOpt: &PullOption{},
+			pullOpt:     &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-sensitive-variable-workspace", nil).
@@ -123,7 +123,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "treat multiple variable types",
 			workspaceId: "w-test-linclude-multiple-variable-types-workspace",
-			pullOpt: &PullOption{},
+			pullOpt:     &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				// test for Types
 				// https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables#types
@@ -155,7 +155,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "return error if failed to access terraform cloud",
 			workspaceId: "w-test-access-error",
-			pullOpt: &PullOption{},
+			pullOpt:     &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-access-error", nil).
@@ -168,7 +168,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull tuple string",
 			workspaceId: "w-test-variable-tuple",
-			pullOpt: &PullOption{},
+			pullOpt:     &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variable-tuple", nil).
@@ -190,7 +190,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull variables include env with include-env option enabled",
 			workspaceId: "w-test-variables-include-env-enabled-workspace",
-			pullOpt: &PullOption{includeEnv: true},
+			pullOpt:     &PullOption{includeEnv: true},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variables-include-env-enabled-workspace", nil).
@@ -205,8 +205,8 @@ func TestCmdPull(t *testing.T) {
 								Value: "value2",
 							},
 							{
-								Key:   "var3",
-								Value: "value3",
+								Key:      "var3",
+								Value:    "value3",
 								Category: tfe.CategoryEnv,
 							},
 						},
@@ -220,7 +220,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull variables include env with include-env option disabled",
 			workspaceId: "w-test-variables-include-env-disabled-workspace",
-			pullOpt: &PullOption{includeEnv: false},
+			pullOpt:     &PullOption{includeEnv: false},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variables-include-env-disabled-workspace", nil).
@@ -235,8 +235,8 @@ func TestCmdPull(t *testing.T) {
 								Value: "value2",
 							},
 							{
-								Key:   "var3",
-								Value: "value3",
+								Key:      "var3",
+								Value:    "value3",
 								Category: tfe.CategoryEnv,
 							},
 						},

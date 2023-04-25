@@ -82,7 +82,6 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		vars.Items = filteredVars
 	}
 
-
 	var f *hclwrite.File
 	if pullOpt.overwrite {
 		f = hclwrite.NewEmptyFile()
