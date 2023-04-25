@@ -101,6 +101,9 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 		if showOpt.variableKey != "" && showOpt.variableKey != v.Key {
 			continue
 		}
+		if !showOpt.includeEnv && v.Category == tfe.CategoryEnv {
+			continue
+		}
 
 		fmt.Fprintf(w, "Key: %s\n", v.Key)
 		fmt.Fprintf(w, "Value: %s\n", v.Value)
