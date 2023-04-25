@@ -20,6 +20,7 @@ type PullOption struct {
 	varFile     string
 	overwrite   bool
 	prevVarfile []byte
+	includeEnv  bool
 }
 
 func NewPullOption(c *cli.Context) *PullOption {
@@ -28,6 +29,7 @@ func NewPullOption(c *cli.Context) *PullOption {
 	opt.varFile = c.String("var-file")
 	opt.overwrite = c.Bool("overwrite") && !c.Bool("merge")
 	opt.prevVarfile = nil
+	opt.includeEnv = c.Bool("include-env")
 
 	return opt
 }

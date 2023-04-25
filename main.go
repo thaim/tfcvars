@@ -114,6 +114,11 @@ func pullFlags() []cli.Flag {
 			Usage: "merge variables into existing vars file",
 			Value: false,
 		},
+		&cli.BoolFlag{
+			Name:  "include-env",
+			Usage: "include env Category variables",
+			Value: false,
+		},
 	}
 }
 

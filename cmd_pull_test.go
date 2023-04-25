@@ -248,6 +248,15 @@ func TestNewPullOption(t *testing.T) {
 				prevVarfile: nil,
 			},
 		},
+		{
+			name: "enable include env option",
+			args: []string{"--include-env"},
+			expect: &PullOption{
+				varFile:    "terraform.tfvars",
+				overwrite:  false,
+				includeEnv: true,
+			},
+		},
 	}
 
 	for _, tt := range cases {
