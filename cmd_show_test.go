@@ -233,6 +233,14 @@ func TestNewShowOption(t *testing.T) {
 				variableKey: "environment",
 			},
 		},
+		{
+			name: "enable include env option",
+			args: []string{"--include-env"},
+			expect: &ShowOption{
+				varFile:     "terraform.tfvars",
+				includeEnv: true,
+			},
+		},
 	}
 
 	for _, tt := range cases {

@@ -18,6 +18,7 @@ type ShowOption struct {
 	varFile     string
 	variableKey string
 	local       bool
+	includeEnv  bool
 }
 
 func NewShowOption(c *cli.Context) *ShowOption {
@@ -26,6 +27,7 @@ func NewShowOption(c *cli.Context) *ShowOption {
 	opt.varFile = c.String("var-file")
 	opt.variableKey = c.String("variable")
 	opt.local = c.Bool("local")
+	opt.includeEnv = c.Bool("include-env")
 
 	return opt
 }
