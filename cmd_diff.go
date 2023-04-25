@@ -55,6 +55,15 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 		log.Error().Err(err).Msg("failed to list variables")
 		return err
 	}
+	if !diffOpt.includeEnv {
+		filteredVars := []*tfe.Variable{}
+		for _, v := range varsDest.Items {
+			if v.Category != tfe.CategoryEnv {
+				filteredVars = append(filteredVars, v)
+			}
+		}
+		varsDest.Items = filteredVars
+	}
 
 	varsSrc, err := variableFile(diffOpt.varFile, false)
 	if err != nil {
