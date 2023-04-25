@@ -21,6 +21,7 @@ func TestCmdPull(t *testing.T) {
 	cases := []struct {
 		name        string
 		workspaceId string
+		pullOpt     *PullOption
 		setClient   func(*mocks.MockVariables)
 		expect      string
 		wantErr     bool
@@ -29,6 +30,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull empty variable",
 			workspaceId: "w-test-no-vars-workspace",
+			pullOpt: &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
@@ -44,6 +46,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull single variable",
 			workspaceId: "w-test-single-variable-workspace",
+			pullOpt: &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-single-variable-workspace", nil).
@@ -65,6 +68,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull multiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
+			pullOpt: &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-multiple-variables-workspace", nil).
@@ -89,6 +93,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
+			pullOpt: &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-sensitive-variable-workspace", nil).
@@ -118,6 +123,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "treat multiple variable types",
 			workspaceId: "w-test-linclude-multiple-variable-types-workspace",
+			pullOpt: &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				// test for Types
 				// https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables#types
@@ -149,6 +155,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "return error if failed to access terraform cloud",
 			workspaceId: "w-test-access-error",
+			pullOpt: &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-access-error", nil).
@@ -161,6 +168,7 @@ func TestCmdPull(t *testing.T) {
 		{
 			name:        "pull tuple string",
 			workspaceId: "w-test-variable-tuple",
+			pullOpt: &PullOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variable-tuple", nil).
@@ -184,11 +192,10 @@ func TestCmdPull(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
-			pullOpt := &PullOption{}
 			tt.setClient(mockVariables)
 			var buf bytes.Buffer
 
-			err := pull(ctx, tt.workspaceId, mockVariables, pullOpt, &buf)
+			err := pull(ctx, tt.workspaceId, mockVariables, tt.pullOpt, &buf)
 
 			if tt.wantErr {
 				if !strings.Contains(err.Error(), tt.expectErr) {
