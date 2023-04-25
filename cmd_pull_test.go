@@ -187,6 +187,66 @@ func TestCmdPull(t *testing.T) {
 			wantErr:   false,
 			expectErr: "",
 		},
+		{
+			name:        "pull variables include env with include-env option enabled",
+			workspaceId: "w-test-variables-include-env-enabled-workspace",
+			pullOpt: &PullOption{includeEnv: true},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-variables-include-env-enabled-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "var1",
+								Value: "value1",
+							},
+							{
+								Key:   "var2",
+								Value: "value2",
+							},
+							{
+								Key:   "var3",
+								Value: "value3",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect:    "var1 = \"value1\"\nvar2 = \"value2\"\nvar3 = \"value3\"\n",
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
+			name:        "pull variables include env with include-env option disabled",
+			workspaceId: "w-test-variables-include-env-disabled-workspace",
+			pullOpt: &PullOption{includeEnv: false},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-variables-include-env-disabled-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "var1",
+								Value: "value1",
+							},
+							{
+								Key:   "var2",
+								Value: "value2",
+							},
+							{
+								Key:   "var3",
+								Value: "value3",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect:    "var1 = \"value1\"\nvar2 = \"value2\"\n",
+			wantErr:   false,
+			expectErr: "",
+		},
 	}
 
 	for _, tt := range cases {
