@@ -90,7 +90,7 @@ func showFlags() []cli.Flag {
 			Usage: "Show specified variable",
 		},
 		&cli.BoolFlag{
-			Name: "include-env",
+			Name:  "include-env",
 			Usage: "include env Category variables",
 			Value: false,
 		},

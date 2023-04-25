@@ -151,7 +151,7 @@ func TestCmdShow(t *testing.T) {
 			name:        "show variable include env",
 			workspaceId: "w-test-include-env-variable-workspace",
 			showOpt:     &ShowOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-include-env-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -161,28 +161,28 @@ func TestCmdShow(t *testing.T) {
 								Value: "value1",
 							},
 							{
-								Key:   "var2",
-								Value: "value2",
+								Key:      "var2",
+								Value:    "value2",
 								Category: tfe.CategoryEnv,
 							},
 							{
-								Key:   "var3",
-								Value: "value3",
+								Key:      "var3",
+								Value:    "value3",
 								Category: tfe.CategoryEnv,
 							},
 						},
 					}, nil).
 					AnyTimes()
 			},
-			expect:      "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var2\nValue: value2\nDescription: \nSensitive: false\n\nKey: var3\nValue: value3\nDescription: \nSensitive: false\n\n",
-			wantErr:     false,
-			expectErr:   "",
+			expect:    "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var2\nValue: value2\nDescription: \nSensitive: false\n\nKey: var3\nValue: value3\nDescription: \nSensitive: false\n\n",
+			wantErr:   false,
+			expectErr: "",
 		},
 		{
 			name:        "ignore env variable without include env option",
 			workspaceId: "w-test-ignore-env-variable-workspace",
 			showOpt:     &ShowOption{varFile: "testdata/terraform.tfvars", includeEnv: false},
-			setClient:   func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-ignore-env-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -196,17 +196,17 @@ func TestCmdShow(t *testing.T) {
 								Value: "value2",
 							},
 							{
-								Key:   "var3",
-								Value: "value3",
+								Key:      "var3",
+								Value:    "value3",
 								Category: tfe.CategoryEnv,
 							},
 						},
 					}, nil).
 					AnyTimes()
 			},
-			expect:      "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var2\nValue: value2\nDescription: \nSensitive: false\n\n",
-			wantErr:     false,
-			expectErr:   "",
+			expect:    "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var2\nValue: value2\nDescription: \nSensitive: false\n\n",
+			wantErr:   false,
+			expectErr: "",
 		},
 		{
 			name:        "return HCL parse error",
@@ -298,7 +298,7 @@ func TestNewShowOption(t *testing.T) {
 			name: "enable include env option",
 			args: []string{"--include-env"},
 			expect: &ShowOption{
-				varFile:     "terraform.tfvars",
+				varFile:    "terraform.tfvars",
 				includeEnv: true,
 			},
 		},
