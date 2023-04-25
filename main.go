@@ -138,5 +138,10 @@ func diffFlags() []cli.Flag {
 			Usage: "Input filename to push variables",
 			Value: "terraform.tfvars",
 		},
+		&cli.BoolFlag{
+			Name:  "include-env",
+			Usage: "include env Category variables",
+			Value: false,
+		},
 	}
 }

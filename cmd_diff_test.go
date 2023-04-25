@@ -193,6 +193,14 @@ func TestNewDiffOption(t *testing.T) {
 				varFile: "testdata/terraform.tfvars",
 			},
 		},
+		{
+			name: "enable include env option",
+			args: []string{"--include-env"},
+			expect: &DiffOption{
+				varFile:    "terraform.tfvars",
+				includeEnv: true,
+			},
+		},
 	}
 
 	for _, tt := range cases {

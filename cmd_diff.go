@@ -15,13 +15,15 @@ import (
 )
 
 type DiffOption struct {
-	varFile string
+	varFile    string
+	includeEnv bool
 }
 
 func NewDiffOption(c *cli.Context) *DiffOption {
 	opt := &DiffOption{}
 
 	opt.varFile = c.String("var-file")
+	opt.includeEnv = c.Bool("include-env")
 
 	return opt
 }
