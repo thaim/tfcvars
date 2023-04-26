@@ -38,7 +38,7 @@ func TestCmdShow(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			showOpt:   &ShowOption{},
+			showOpt:   &ShowOption{format: "detail"},
 			expect:    "",
 			wantErr:   false,
 			expectErr: "",
@@ -46,7 +46,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show single variable",
 			workspaceId: "w-test-single-variable-workspace",
-			showOpt:     &ShowOption{},
+			showOpt:     &ShowOption{format: "detail"},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-single-variable-workspace", nil).
@@ -68,7 +68,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show multiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
-			showOpt:     &ShowOption{},
+			showOpt:     &ShowOption{format: "detail"},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-multiple-variables-workspace", nil).
@@ -93,7 +93,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
-			showOpt:     &ShowOption{},
+			showOpt:     &ShowOption{format: "detail"},
 			setClient: func(mc *mocks.MockVariables) {
 				mockVariables.EXPECT().
 					List(context.TODO(), "w-test-sensitive-variable-workspace", nil).
@@ -116,7 +116,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show specified variable",
 			workspaceId: "w-test-multiple-variables-filter-variable-workspace",
-			showOpt:     &ShowOption{variableKey: "var2"},
+			showOpt:     &ShowOption{variableKey: "var2", format: "detail"},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-multiple-variables-filter-variable-workspace", nil).
@@ -141,7 +141,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show local variable",
 			workspaceId: "",
-			showOpt:     &ShowOption{local: true, varFile: "testdata/terraform.tfvars"},
+			showOpt:     &ShowOption{local: true, varFile: "testdata/terraform.tfvars", format: "detail"},
 			setClient:   func(mc *mocks.MockVariables) {}, // do nothing
 			expect:      "Key: environment\nValue: development\nDescription: \nSensitive: false\n\n",
 			wantErr:     false,
@@ -150,7 +150,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show variable include env",
 			workspaceId: "w-test-include-env-variable-workspace",
-			showOpt:     &ShowOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
+			showOpt:     &ShowOption{varFile: "testdata/terraform.tfvars", includeEnv: true, format: "detail"},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-include-env-variable-workspace", nil).
@@ -181,7 +181,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "ignore env variable without include env option",
 			workspaceId: "w-test-ignore-env-variable-workspace",
-			showOpt:     &ShowOption{varFile: "testdata/terraform.tfvars", includeEnv: false},
+			showOpt:     &ShowOption{varFile: "testdata/terraform.tfvars", includeEnv: false, format: "detail"},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-ignore-env-variable-workspace", nil).
@@ -211,7 +211,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "return HCL parse error",
 			workspaceId: "not-used",
-			showOpt:     &ShowOption{local: true, varFile: "testdata/invalid.tfvars"},
+			showOpt:     &ShowOption{local: true, varFile: "testdata/invalid.tfvars", format: "detail"},
 			setClient:   func(mc *mocks.MockVariables) {}, // do nothing
 			wantErr:     true,
 			expectErr:   "Argument or block definition required",
@@ -219,7 +219,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "not allowed to list variables",
 			workspaceId: "w-test-not-allowed-to-list-variables",
-			showOpt:     &ShowOption{},
+			showOpt:     &ShowOption{format: "detail"},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-not-allowed-to-list-variables", gomock.Any()).
