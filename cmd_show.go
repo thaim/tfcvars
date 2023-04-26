@@ -19,6 +19,7 @@ type ShowOption struct {
 	variableKey string
 	local       bool
 	includeEnv  bool
+	format      string
 }
 
 func NewShowOption(c *cli.Context) *ShowOption {
@@ -28,6 +29,7 @@ func NewShowOption(c *cli.Context) *ShowOption {
 	opt.variableKey = c.String("variable")
 	opt.local = c.Bool("local")
 	opt.includeEnv = c.Bool("include-env")
+	opt.format = c.String("format")
 
 	return opt
 }

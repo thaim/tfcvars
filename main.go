@@ -94,6 +94,11 @@ func showFlags() []cli.Flag {
 			Usage: "include env Category variables",
 			Value: false,
 		},
+		&cli.StringFlag{
+			Name:  "format",
+			Usage: "format to display variables",
+			Value: "detail",
+		},
 	}
 }
 

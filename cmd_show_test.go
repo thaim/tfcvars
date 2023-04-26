@@ -268,6 +268,7 @@ func TestNewShowOption(t *testing.T) {
 			expect: &ShowOption{
 				varFile: "terraform.tfvars",
 				local:   false,
+				format:  "detail",
 			},
 		},
 		{
@@ -276,6 +277,7 @@ func TestNewShowOption(t *testing.T) {
 			expect: &ShowOption{
 				varFile: "custom.tfvars",
 				local:   false,
+				format:  "detail",
 			},
 		},
 		{
@@ -284,6 +286,7 @@ func TestNewShowOption(t *testing.T) {
 			expect: &ShowOption{
 				varFile: "terraform.tfvars",
 				local:   true,
+				format:  "detail",
 			},
 		},
 		{
@@ -292,6 +295,7 @@ func TestNewShowOption(t *testing.T) {
 			expect: &ShowOption{
 				varFile:     "terraform.tfvars",
 				variableKey: "environment",
+				format:      "detail",
 			},
 		},
 		{
@@ -300,6 +304,7 @@ func TestNewShowOption(t *testing.T) {
 			expect: &ShowOption{
 				varFile:    "terraform.tfvars",
 				includeEnv: true,
+				format:     "detail",
 			},
 		},
 	}
