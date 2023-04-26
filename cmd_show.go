@@ -19,6 +19,7 @@ type ShowOption struct {
 	variableKey string
 	local       bool
 	includeEnv  bool
+	format      string
 }
 
 func NewShowOption(c *cli.Context) *ShowOption {
@@ -28,6 +29,7 @@ func NewShowOption(c *cli.Context) *ShowOption {
 	opt.variableKey = c.String("variable")
 	opt.local = c.Bool("local")
 	opt.includeEnv = c.Bool("include-env")
+	opt.format = c.String("format")
 
 	return opt
 }
@@ -105,11 +107,7 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 			continue
 		}
 
-		fmt.Fprintf(w, "Key: %s\n", v.Key)
-		fmt.Fprintf(w, "Value: %s\n", v.Value)
-		fmt.Fprintf(w, "Description: %s\n", v.Description)
-		fmt.Fprintf(w, "Sensitive: %s\n", strconv.FormatBool(v.Sensitive))
-		fmt.Fprintf(w, "\n")
+		printVariable(w, v, showOpt)
 	}
 
 	return nil
@@ -118,4 +116,19 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 func requireTfcAccess(opt *ShowOption) bool {
 	// local以外のオプションでも条件分岐が生じそうなので関数化している
 	return !opt.local
+}
+
+func printVariable(w io.Writer, variable *tfe.Variable, opt *ShowOption) {
+	switch opt.format {
+	case "detail":
+		fmt.Fprintf(w, "Key: %s\n", variable.Key)
+		fmt.Fprintf(w, "Value: %s\n", variable.Value)
+		fmt.Fprintf(w, "Description: %s\n", variable.Description)
+		fmt.Fprintf(w, "Sensitive: %s\n", strconv.FormatBool(variable.Sensitive))
+		fmt.Fprintf(w, "\n")
+	case "tfvars", "table":
+		log.Error().Msgf("format %s not implemented yet", opt.format)
+	default:
+		log.Error().Msgf("unknown format %s specified", opt.format)
+	}
 }
