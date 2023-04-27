@@ -156,15 +156,24 @@ func TestCmdShow(t *testing.T) {
 								Value: "value2",
 							},
 							{
-								Key: "var3",
+								Key:   "var3",
 								Value: "[\"value3-1\", \"value3-2\"]",
-								HCL: true,
+								HCL:   true,
+							},
+							{
+								Key:       "var4",
+								Sensitive: true,
+							},
+							{
+								Key:      "var5",
+								Value:    "val5",
+								Category: tfe.CategoryEnv,
 							},
 						},
 					}, nil).
 					AnyTimes()
 			},
-			expect:    "var1 = \"value1\"\nvar2 = \"value2\"\nvar3 = [\"value3-1\", \"value3-2\"]\n",
+			expect:    "var1 = \"value1\"\nvar2 = \"value2\"\nvar3 = [\"value3-1\", \"value3-2\"]\n// var4 = \"***\"\n",
 			wantErr:   false,
 			expectErr: "",
 		},
