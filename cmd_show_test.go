@@ -139,6 +139,31 @@ func TestCmdShow(t *testing.T) {
 			expectErr: "",
 		},
 		{
+			name:        "show variables with tfvars format",
+			workspaceId: "w-test-variables-tfvars-workspace",
+			showOpt:     &ShowOption{format: "tfvars"},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-variables-tfvars-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "var1",
+								Value: "value1",
+							},
+							{
+								Key:   "var2",
+								Value: "value2",
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect:    "var1 = \"value1\"\nvar2 = \"value2\"\n",
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
 			name:        "show local variable",
 			workspaceId: "",
 			showOpt:     &ShowOption{local: true, varFile: "testdata/terraform.tfvars", format: "detail"},

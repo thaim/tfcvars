@@ -10,8 +10,10 @@ import (
 
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2/hclparse"
+	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+	"github.com/zclconf/go-cty/cty"
 )
 
 type ShowOption struct {
@@ -130,7 +132,24 @@ func printVariable(w io.Writer, variables []*tfe.Variable, opt *ShowOption) {
 			fmt.Fprintf(w, "Sensitive: %s\n", strconv.FormatBool(v.Sensitive))
 			fmt.Fprintf(w, "\n")
 		}
-	case "tfvars", "table":
+	case "tfvars":
+		f := hclwrite.NewEmptyFile()
+		rootBody := f.Body()
+
+		for _, v := range variables {
+			if v.Sensitive {
+				rootBody.AppendUnstructuredTokens(generateComment(v.Key))
+				continue
+			}
+			if v.HCL {
+				rootBody.SetAttributeValue(v.Key, CtyValue(v.Value))
+			} else {
+				rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
+			}
+		}
+
+		fmt.Fprintf(w, "%s", f.Bytes())
+	case "table":
 		log.Error().Msgf("format %s not implemented yet", opt.format)
 	default:
 		log.Error().Msgf("unknown format %s specified", opt.format)
