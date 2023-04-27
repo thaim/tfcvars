@@ -155,11 +155,16 @@ func TestCmdShow(t *testing.T) {
 								Key:   "var2",
 								Value: "value2",
 							},
+							{
+								Key: "var3",
+								Value: "[\"value3-1\", \"value3-2\"]",
+								HCL: true,
+							},
 						},
 					}, nil).
 					AnyTimes()
 			},
-			expect:    "var1 = \"value1\"\nvar2 = \"value2\"\n",
+			expect:    "var1 = \"value1\"\nvar2 = \"value2\"\nvar3 = [\"value3-1\", \"value3-2\"]\n",
 			wantErr:   false,
 			expectErr: "",
 		},
