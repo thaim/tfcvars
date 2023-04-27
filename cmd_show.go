@@ -99,6 +99,7 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 		}
 	}
 
+	filteredVars := []*tfe.Variable{}
 	for _, v := range vars.Items {
 		if showOpt.variableKey != "" && showOpt.variableKey != v.Key {
 			continue
@@ -107,8 +108,9 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 			continue
 		}
 
-		printVariable(w, v, showOpt)
+		filteredVars = append(filteredVars, v)
 	}
+	printVariable(w, filteredVars, showOpt)
 
 	return nil
 }
@@ -118,14 +120,16 @@ func requireTfcAccess(opt *ShowOption) bool {
 	return !opt.local
 }
 
-func printVariable(w io.Writer, variable *tfe.Variable, opt *ShowOption) {
+func printVariable(w io.Writer, variables []*tfe.Variable, opt *ShowOption) {
 	switch opt.format {
 	case "detail":
-		fmt.Fprintf(w, "Key: %s\n", variable.Key)
-		fmt.Fprintf(w, "Value: %s\n", variable.Value)
-		fmt.Fprintf(w, "Description: %s\n", variable.Description)
-		fmt.Fprintf(w, "Sensitive: %s\n", strconv.FormatBool(variable.Sensitive))
-		fmt.Fprintf(w, "\n")
+		for _, v := range variables {
+			fmt.Fprintf(w, "Key: %s\n", v.Key)
+			fmt.Fprintf(w, "Value: %s\n", v.Value)
+			fmt.Fprintf(w, "Description: %s\n", v.Description)
+			fmt.Fprintf(w, "Sensitive: %s\n", strconv.FormatBool(v.Sensitive))
+			fmt.Fprintf(w, "\n")
+		}
 	case "tfvars", "table":
 		log.Error().Msgf("format %s not implemented yet", opt.format)
 	default:
