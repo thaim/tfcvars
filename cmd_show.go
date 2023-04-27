@@ -10,8 +10,10 @@ import (
 
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2/hclparse"
+	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+	"github.com/zclconf/go-cty/cty"
 )
 
 type ShowOption struct {
@@ -99,6 +101,7 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 		}
 	}
 
+	filteredVars := []*tfe.Variable{}
 	for _, v := range vars.Items {
 		if showOpt.variableKey != "" && showOpt.variableKey != v.Key {
 			continue
@@ -107,8 +110,9 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 			continue
 		}
 
-		printVariable(w, v, showOpt)
+		filteredVars = append(filteredVars, v)
 	}
+	printVariable(w, filteredVars, showOpt)
 
 	return nil
 }
@@ -118,15 +122,32 @@ func requireTfcAccess(opt *ShowOption) bool {
 	return !opt.local
 }
 
-func printVariable(w io.Writer, variable *tfe.Variable, opt *ShowOption) {
+func printVariable(w io.Writer, variables []*tfe.Variable, opt *ShowOption) {
 	switch opt.format {
 	case "detail":
-		fmt.Fprintf(w, "Key: %s\n", variable.Key)
-		fmt.Fprintf(w, "Value: %s\n", variable.Value)
-		fmt.Fprintf(w, "Description: %s\n", variable.Description)
-		fmt.Fprintf(w, "Sensitive: %s\n", strconv.FormatBool(variable.Sensitive))
-		fmt.Fprintf(w, "\n")
-	case "tfvars", "table":
+		for _, v := range variables {
+			fmt.Fprintf(w, "Key: %s\n", v.Key)
+			fmt.Fprintf(w, "Value: %s\n", v.Value)
+			fmt.Fprintf(w, "Description: %s\n", v.Description)
+			fmt.Fprintf(w, "Sensitive: %s\n", strconv.FormatBool(v.Sensitive))
+			fmt.Fprintf(w, "\n")
+		}
+	case "tfvars":
+		f := hclwrite.NewEmptyFile()
+		rootBody := f.Body()
+
+		for _, v := range variables {
+			if v.Sensitive {
+				rootBody.AppendUnstructuredTokens(generateComment(v.Key))
+			} else if v.HCL {
+				rootBody.SetAttributeValue(v.Key, CtyValue(v.Value))
+			} else {
+				rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
+			}
+		}
+
+		fmt.Fprintf(w, "%s", f.Bytes())
+	case "table":
 		log.Error().Msgf("format %s not implemented yet", opt.format)
 	default:
 		log.Error().Msgf("unknown format %s specified", opt.format)
