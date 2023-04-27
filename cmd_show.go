@@ -139,9 +139,7 @@ func printVariable(w io.Writer, variables []*tfe.Variable, opt *ShowOption) {
 		for _, v := range variables {
 			if v.Sensitive {
 				rootBody.AppendUnstructuredTokens(generateComment(v.Key))
-				continue
-			}
-			if v.HCL {
+			} else if v.HCL {
 				rootBody.SetAttributeValue(v.Key, CtyValue(v.Value))
 			} else {
 				rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
