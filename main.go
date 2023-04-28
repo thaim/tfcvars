@@ -94,10 +94,13 @@ func showFlags() []cli.Flag {
 			Usage: "include env Category variables",
 			Value: false,
 		},
-		&cli.StringFlag{
+		&cli.GenericFlag{
 			Name:  "format",
 			Usage: "format to display variables",
-			Value: "detail",
+			Value: &FormatType{
+				Enum:    []string{"detail", "tfvars", "table"},
+				Default: "detail",
+			},
 		},
 	}
 }

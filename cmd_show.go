@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2/hclparse"
@@ -35,6 +36,30 @@ func NewShowOption(c *cli.Context) *ShowOption {
 	opt.format = c.String("format")
 
 	return opt
+}
+
+type FormatType struct {
+	Enum     []string
+	Default  string
+	selected string
+}
+
+func (e *FormatType) Set(value string) error {
+	for _, enum := range e.Enum {
+		if enum == value {
+			e.selected = value
+			return nil
+		}
+	}
+
+	return fmt.Errorf("allowed values are %s", strings.Join(e.Enum, ", "))
+}
+
+func (e FormatType) String() string {
+	if e.selected == "" {
+		return e.Default
+	}
+	return e.selected
 }
 
 // Show display variable list
