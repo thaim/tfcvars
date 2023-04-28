@@ -7,10 +7,12 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/hashicorp/hcl/v2/hclwrite"
+	"github.com/olekukonko/tablewriter"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"github.com/zclconf/go-cty/cty"
@@ -34,6 +36,30 @@ func NewShowOption(c *cli.Context) *ShowOption {
 	opt.format = c.String("format")
 
 	return opt
+}
+
+type FormatType struct {
+	Enum     []string
+	Default  string
+	selected string
+}
+
+func (e *FormatType) Set(value string) error {
+	for _, enum := range e.Enum {
+		if enum == value {
+			e.selected = value
+			return nil
+		}
+	}
+
+	return fmt.Errorf("allowed values are %s", strings.Join(e.Enum, ", "))
+}
+
+func (e FormatType) String() string {
+	if e.selected == "" {
+		return e.Default
+	}
+	return e.selected
 }
 
 // Show display variable list
@@ -148,7 +174,15 @@ func printVariable(w io.Writer, variables []*tfe.Variable, opt *ShowOption) {
 
 		fmt.Fprintf(w, "%s", f.Bytes())
 	case "table":
-		log.Error().Msgf("format %s not implemented yet", opt.format)
+		var data [][]string
+		for _, v := range variables {
+			row := []string{v.Key, v.Value, strconv.FormatBool(v.Sensitive), v.Description}
+			data = append(data, row)
+		}
+		table := tablewriter.NewWriter(w)
+		table.SetHeader([]string{"Key", "Value", "Sensitive", "Description"})
+		table.AppendBulk(data)
+		table.Render()
 	default:
 		log.Error().Msgf("unknown format %s specified", opt.format)
 	}

@@ -178,6 +178,59 @@ func TestCmdShow(t *testing.T) {
 			expectErr: "",
 		},
 		{
+			name:        "show variables with table format",
+			workspaceId: "w-test-variables-table-workspace",
+			showOpt:     &ShowOption{format: "table"},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-variables-table-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "var1",
+								Value: "value1",
+							},
+							{
+								Key:   "var2",
+								Value: "value2",
+							},
+							{
+								Key:   "var3",
+								Value: "[\"value3-1\", \"value3-2\"]",
+								HCL:   true,
+							},
+							{
+								Key:       "var4",
+								Sensitive: true,
+							},
+							{
+								Key:      "var5",
+								Value:    "val5",
+								Category: tfe.CategoryEnv,
+							},
+							{
+								Key:         "var6",
+								Value:       "val6",
+								Description: "var6 description",
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect: `+------+--------------------------+-----------+------------------+
+| KEY  |          VALUE           | SENSITIVE |   DESCRIPTION    |
++------+--------------------------+-----------+------------------+
+| var1 | value1                   | false     |                  |
+| var2 | value2                   | false     |                  |
+| var3 | ["value3-1", "value3-2"] | false     |                  |
+| var4 |                          | true      |                  |
+| var6 | val6                     | false     | var6 description |
++------+--------------------------+-----------+------------------+
+`,
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
 			name:        "show local variable",
 			workspaceId: "",
 			showOpt:     &ShowOption{local: true, varFile: "testdata/terraform.tfvars", format: "detail"},
