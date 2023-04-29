@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 
@@ -89,6 +90,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 				}
 				if !variableEqual(updateOpt, targetVar) {
 					tfeVariables.Update(ctx, workspaceId, targetVar.ID, updateOpt)
+					fmt.Printf("update: %s\n", variable.Key)
 					countUpdate++
 				}
 				pushed = true
@@ -105,6 +107,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 				Sensitive: tfe.Bool(false),
 			}
 			tfeVariables.Create(ctx, workspaceId, createOpt)
+			fmt.Printf("create: %s\n", variable.Key)
 			countCreate++
 		}
 	}
