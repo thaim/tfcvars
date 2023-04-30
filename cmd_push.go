@@ -17,6 +17,7 @@ type PushOption struct {
 	varFile       string
 	variableKey   string
 	variableValue string
+	delete        bool
 }
 
 func NewPushOption(c *cli.Context) *PushOption {
@@ -29,6 +30,8 @@ func NewPushOption(c *cli.Context) *PushOption {
 		opt.variableKey = splitVariable[0]
 		opt.variableValue = splitVariable[1]
 	}
+
+	opt.delete = c.Bool("delete")
 
 	return opt
 }
@@ -74,6 +77,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 
 	countUpdate := 0
 	countCreate := 0
+	countDelete := 0
 
 	for _, variable := range vars.Items {
 		pushed := false
@@ -111,7 +115,23 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 			countCreate++
 		}
 	}
-	log.Info().Msgf("create: %d, update: %d, delete: 0", countCreate, countUpdate)
+
+	if pushOpt.delete {
+		for _, targetVar := range previousVars.Items {
+			for _, localVar := range vars.Items {
+				if targetVar.Key == localVar.Key {
+					continue
+				}
+
+				// variable that are defined in remote but not in local
+				tfeVariables.Delete(ctx, workspaceId, targetVar.ID)
+				fmt.Printf("delete: %s\n", targetVar.Key)
+				countDelete++
+			}
+		}
+	}
+
+	log.Info().Msgf("create: %d, update: %d, delete: %d", countCreate, countUpdate, countDelete)
 
 	return nil
 }

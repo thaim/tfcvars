@@ -27,6 +27,7 @@ func TestCmdPush(t *testing.T) {
 	cases := []struct {
 		name        string
 		workspaceId string
+		pushOpt     *PushOption
 		vars        *tfe.VariableList
 		setClient   func(*mocks.MockVariables)
 		expect      string
@@ -36,6 +37,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "push no variable",
 			workspaceId: "w-test-no-vars-workspace",
+			pushOpt:     &PushOption{},
 			vars:        &tfe.VariableList{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
@@ -54,6 +56,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "create one variable",
 			workspaceId: "w-test-no-vars-workspace",
+			pushOpt:     &PushOption{},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -88,6 +91,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "update one variable",
 			workspaceId: "w-test-one-var-workspace",
+			pushOpt:     &PushOption{},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -139,6 +143,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "update one variable with exact same value",
 			workspaceId: "w-test-one-var-workspace",
+			pushOpt:     &PushOption{},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -188,8 +193,54 @@ func TestCmdPush(t *testing.T) {
 			expectErr: "",
 		},
 		{
+			name:        "delete one variable",
+			workspaceId: "w-test-delete-one-var-workspace",
+			pushOpt:     &PushOption{delete: true},
+			vars: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						Key:   "environment",
+						Value: "test",
+					},
+				},
+			},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-delete-one-var-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								ID:        "variable-id-environment",
+								Key:       "environment",
+								Value:     "test",
+								Category:  tfe.CategoryTerraform,
+								HCL:       false,
+								Sensitive: false,
+							},
+							{
+								ID:        "variable-id-port",
+								Key:       "port",
+								Value:     "3000",
+								Category:  tfe.CategoryTerraform,
+								HCL:       false,
+								Sensitive: false,
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mc.EXPECT().
+					Delete(context.TODO(), "w-test-delete-one-var-workspace", "variable-id-port").
+					Return(nil).
+					Times(1)
+			},
+			expect:    "",
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
 			name:        "return error if failed to access terraform cloud",
 			workspaceId: "w-test-access-error",
+			pushOpt:     &PushOption{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-access-error", nil).
@@ -204,10 +255,9 @@ func TestCmdPush(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
-			pushOpt := &PushOption{}
 			tt.setClient(mockVariables)
 
-			err := push(ctx, tt.workspaceId, mockVariables, pushOpt, tt.vars)
+			err := push(ctx, tt.workspaceId, mockVariables, tt.pushOpt, tt.vars)
 
 			if tt.wantErr {
 				if !strings.Contains(err.Error(), tt.expectErr) {
@@ -258,6 +308,14 @@ func TestNewPushOption(t *testing.T) {
 				varFile:       "terraform.tfvars",
 				variableKey:   "key",
 				variableValue: "value=10",
+			},
+		},
+		{
+			name: "delete option enabled",
+			args: []string{"--delete"},
+			expect: &PushOption{
+				varFile: "terraform.tfvars",
+				delete:  true,
 			},
 		},
 	}
