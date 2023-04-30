@@ -17,6 +17,7 @@ type PushOption struct {
 	varFile       string
 	variableKey   string
 	variableValue string
+	delete        bool
 }
 
 func NewPushOption(c *cli.Context) *PushOption {
@@ -29,6 +30,8 @@ func NewPushOption(c *cli.Context) *PushOption {
 		opt.variableKey = splitVariable[0]
 		opt.variableValue = splitVariable[1]
 	}
+
+	opt.delete = c.Bool("delete")
 
 	return opt
 }
