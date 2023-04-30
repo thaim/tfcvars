@@ -193,6 +193,51 @@ func TestCmdPush(t *testing.T) {
 			expectErr: "",
 		},
 		{
+			name:        "delete one variable",
+			workspaceId: "w-test-delete-one-var-workspace",
+			pushOpt:     &PushOption{delete: true},
+			vars: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						Key:   "environment",
+						Value: "test",
+					},
+				},
+			},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-delete-one-var-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								ID:        "variable-id-environment",
+								Key:       "environment",
+								Value:     "test",
+								Category:  tfe.CategoryTerraform,
+								HCL:       false,
+								Sensitive: false,
+							},
+							{
+								ID:        "variable-id-port",
+								Key:       "port",
+								Value:     "3000",
+								Category:  tfe.CategoryTerraform,
+								HCL:       false,
+								Sensitive: false,
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mc.EXPECT().
+					Delete(context.TODO(), "w-test-delete-one-var-workspace", "variable-id-port").
+					Return(nil).
+					Times(1)
+			},
+			expect:    "",
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
 			name:        "return error if failed to access terraform cloud",
 			workspaceId: "w-test-access-error",
 			pushOpt:     &PushOption{},
