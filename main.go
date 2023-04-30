@@ -142,7 +142,7 @@ func pushFlags() []cli.Flag {
 			Usage: "Crate or Update Specified variable",
 		},
 		&cli.BoolFlag{
-			Name: "delete",
+			Name:  "delete",
 			Usage: "delete variables not defined in local",
 			Value: false,
 		},

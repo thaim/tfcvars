@@ -260,6 +260,14 @@ func TestNewPushOption(t *testing.T) {
 				variableValue: "value=10",
 			},
 		},
+		{
+			name: "delete option enabled",
+			args: []string{"--delete"},
+			expect: &PushOption{
+				varFile: "terraform.tfvars",
+				delete:  true,
+			},
+		},
 	}
 
 	for _, tt := range cases {
