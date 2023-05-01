@@ -13,7 +13,7 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/tidwall/gjson v1.14.4
 	github.com/urfave/cli/v2 v2.25.2
-	github.com/zclconf/go-cty v1.12.1
+	github.com/zclconf/go-cty v1.13.1
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 )
 
