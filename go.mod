@@ -8,10 +8,11 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/hashicorp/go-tfe v1.22.0
 	github.com/hashicorp/hcl/v2 v2.16.2
+	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rs/zerolog v1.29.1
 	github.com/stretchr/testify v1.8.2
 	github.com/tidwall/gjson v1.14.4
-	github.com/urfave/cli/v2 v2.25.1
+	github.com/urfave/cli/v2 v2.25.2
 	github.com/zclconf/go-cty v1.12.1
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 )
@@ -31,7 +32,6 @@ require (
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
-	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
