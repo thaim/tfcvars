@@ -95,9 +95,7 @@ func BuildVariableList(key string, value string) *tfe.VariableList {
 }
 
 func BuildHCLFile(remoteVars []*tfe.Variable, localFile []byte, filename string) (*hclwrite.File, error) {
-	var f *hclwrite.File
-	var diags hcl.Diagnostics
-	f, diags = hclwrite.ParseConfig(localFile, filename, hcl.Pos{Line: 1, Column: 1})
+	f, diags := hclwrite.ParseConfig(localFile, filename, hcl.Pos{Line: 1, Column: 1})
 	if diags.HasErrors() {
 		log.Error().Msgf("failed to parse existing varfile: %s", diags.Error())
 		return nil, errors.New(diags.Error())
