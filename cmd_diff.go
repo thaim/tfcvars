@@ -50,22 +50,22 @@ func Diff(c *cli.Context) error {
 }
 
 func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, diffOpt *DiffOption, w io.Writer) error {
-	varsDest, err := tfeVariables.List(ctx, workspaceId, nil)
+	varsSrc, err := tfeVariables.List(ctx, workspaceId, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to list variables")
 		return err
 	}
 	if !diffOpt.includeEnv {
 		filteredVars := []*tfe.Variable{}
-		for _, v := range varsDest.Items {
+		for _, v := range varsSrc.Items {
 			if v.Category != tfe.CategoryEnv {
 				filteredVars = append(filteredVars, v)
 			}
 		}
-		varsDest.Items = filteredVars
+		varsSrc.Items = filteredVars
 	}
 
-	varsSrc, err := variableFile(diffOpt.varFile, false)
+	varsDest, err := variableFile(diffOpt.varFile, false)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to read variable file")
 		return err
