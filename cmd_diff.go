@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -64,21 +62,14 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 		}
 		varsSrc.Items = filteredVars
 	}
+	vfSrc := NewTfvars()
+	vfSrc.vars = varsSrc.Items
 
-	varsDest, err := variableFile(diffOpt.varFile, false)
-	if err != nil {
-		log.Error().Err(err).Msg("failed to read variable file")
-		return err
-	}
+	vfDest := NewTfvars()
+	vfDest.filename = diffOpt.varFile
+	vfDest.vardata, _ = os.ReadFile(diffOpt.varFile)
 
-	opts := []cmp.Option{
-		cmpopts.IgnoreFields(tfe.Variable{}, "ID", "Description", "Category", "HCL", "Workspace"),
-		cmpopts.SortSlices(func(x, y *tfe.Variable) bool {
-			return strings.Compare(x.Key, y.Key) < 0
-		}),
-	}
-
-	fmt.Fprint(w, cmp.Diff(varsSrc.Items, varsDest.Items, opts...))
+	fmt.Fprint(w, cmp.Diff(vfSrc.BuildHCLFileString(), vfDest.BuildHCLFileString()))
 
 	return nil
 }

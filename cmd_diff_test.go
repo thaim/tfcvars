@@ -114,8 +114,8 @@ func TestCmdDiff(t *testing.T) {
 					AnyTimes()
 			},
 			expect: `
-- 		Key:   "env",
-+ 		Key:   "environment",
+- 	env = "development",
++ 	environment = "development",
 `,
 		},
 		{
@@ -213,7 +213,7 @@ func TestCmdDiff(t *testing.T) {
 				if err == nil {
 					t.Errorf("expect '%s' error, got no error", tt.expectErr)
 				} else if !strings.Contains(err.Error(), tt.expectErr) {
-					t.Errorf("expect %s error, got %s", tt.expectErr, err.Error())
+					t.Errorf("expect '%s' error, got %s", tt.expectErr, err.Error())
 				}
 				return
 			}
