@@ -333,7 +333,9 @@ func TestCmdShow(t *testing.T) {
 			err := show(ctx, tt.workspaceId, mockVariables, showOpt, &buf)
 
 			if tt.wantErr {
-				if !strings.Contains(err.Error(), tt.expectErr) {
+				if err == nil {
+					t.Errorf("expect '%s' error, got no error", tt.expectErr)
+				} else if !strings.Contains(err.Error(), tt.expectErr) {
 					t.Errorf("expect %s error, got %s", tt.expectErr, err.Error())
 				}
 				return

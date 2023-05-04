@@ -258,7 +258,9 @@ func TestCmdPull(t *testing.T) {
 			err := pull(ctx, tt.workspaceId, mockVariables, tt.pullOpt, &buf)
 
 			if tt.wantErr {
-				if !strings.Contains(err.Error(), tt.expectErr) {
+				if err == nil {
+					t.Errorf("expect '%s' error, got no error", tt.expectErr)
+				} else if !strings.Contains(err.Error(), tt.expectErr) {
 					t.Errorf("expect %s error, got %s", tt.expectErr, err.Error())
 				}
 				return
