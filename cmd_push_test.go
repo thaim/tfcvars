@@ -260,7 +260,9 @@ func TestCmdPush(t *testing.T) {
 			err := push(ctx, tt.workspaceId, mockVariables, tt.pushOpt, tt.vars)
 
 			if tt.wantErr {
-				if !strings.Contains(err.Error(), tt.expectErr) {
+				if err == nil {
+					t.Errorf("expect '%s' error, got no error", tt.expectErr)
+				} else if !strings.Contains(err.Error(), tt.expectErr) {
 					t.Errorf("expect %s error, got %T", tt.expectErr, err)
 				}
 				return
@@ -419,7 +421,9 @@ func TestVariableFile(t *testing.T) {
 			actual, err := variableFile(tt.varfile, tt.required)
 
 			if tt.wantErr {
-				if !strings.Contains(err.Error(), tt.expectErr) {
+				if err == nil {
+					t.Errorf("expect '%s' error, got no error", tt.expectErr)
+				} else if !strings.Contains(err.Error(), tt.expectErr) {
 					t.Errorf("expect '%s' error, got '%s'", tt.expectErr, err.Error())
 				}
 				return
