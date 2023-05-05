@@ -62,12 +62,9 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 		}
 		varsSrc.Items = filteredVars
 	}
-	vfSrc := NewTfvars()
-	vfSrc.vars = varsSrc.Items
+	vfSrc := NewTfvarsVariable(varsSrc.Items)
 
-	vfDest := NewTfvars()
-	vfDest.filename = diffOpt.varFile
-	vfDest.vardata, _ = os.ReadFile(diffOpt.varFile)
+	vfDest := NewTfvarsFile(diffOpt.varFile)
 
 	fmt.Fprint(w, cmp.Diff(vfSrc.BuildHCLFileString(), vfDest.BuildHCLFileString()))
 

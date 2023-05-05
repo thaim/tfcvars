@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"os"
 
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2"
@@ -15,10 +16,50 @@ type Tfvars struct {
 	vars  []*tfe.Variable
 }
 
-func NewTfvars() *Tfvars {
+func NewTfvarsVariable(vars []*tfe.Variable) *Tfvars {
 	vf := &Tfvars{}
 
+	vf.vars = vars
+
+	err := vf.ConvertVarsfile()
+	if err != nil {
+		return nil
+	}
+
 	return vf
+}
+
+func NewTfvarsFile(filename string) *Tfvars {
+	vf := &Tfvars{}
+	var err error
+
+	vf.filename = filename
+	vf.vardata, err = os.ReadFile(filename)
+	if err != nil {
+		return nil
+	}
+
+	err = vf.ConvertTfeVariables()
+	if err != nil {
+		return nil
+	}
+
+	return vf
+}
+
+// ConvertTfeVariables generate list of tfe.Variable from tfvars file
+func (vf *Tfvars) ConvertTfeVariables() error {
+	if vf.vars == nil {
+		return errors.New("tfe.Variable not set")
+	}
+
+
+	return nil
+}
+
+// ConvertVarsfile generate tfvars file from list of tfe.Varialbe
+func (vf *Tfvars) ConvertVarsfile() error {
+	return nil
 }
 
 func (vf *Tfvars) BuildHCLFile() (*hclwrite.File, error) {
