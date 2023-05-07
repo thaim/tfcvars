@@ -20,6 +20,8 @@ func NewTfvarsVariable(vars []*tfe.Variable) *Tfvars {
 	vf := &Tfvars{}
 
 	vf.vars = vars
+	vf.filename = ""
+	vf.vardata = nil
 
 	err := vf.ConvertVarsfile()
 	if err != nil {
@@ -36,29 +38,46 @@ func NewTfvarsFile(filename string) *Tfvars {
 	vf.filename = filename
 	vf.vardata, err = os.ReadFile(filename)
 	if err != nil {
+		// if cannot read file, return nil
 		return nil
 	}
 
-	err = vf.ConvertTfeVariables()
-	if err != nil {
-		return nil
-	}
+	// err = vf.ConvertTfeVariables()
+	// if err != nil {
+	// 	return nil
+	// }
 
 	return vf
 }
 
 // ConvertTfeVariables generate list of tfe.Variable from tfvars file
 func (vf *Tfvars) ConvertTfeVariables() error {
-	if vf.vars == nil {
-		return errors.New("tfe.Variable not set")
-	}
-
-
 	return nil
 }
 
 // ConvertVarsfile generate tfvars file from list of tfe.Varialbe
 func (vf *Tfvars) ConvertVarsfile() error {
+	if vf.vars == nil {
+		return errors.New("tfe variable is nil")
+	}
+
+	f := hclwrite.NewEmptyFile()
+	rootBody := f.Body()
+	for _, v := range vf.vars {
+		if v.Sensitive {
+			rootBody.AppendUnstructuredTokens(generateComment(v.Key))
+			continue
+		}
+		if v.HCL {
+			rootBody.SetAttributeValue(v.Key, CtyValue(v.Value))
+		} else {
+			rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
+		}
+	}
+
+	vf.filename = "generated.tfvars"
+	vf.vardata = f.Bytes()
+
 	return nil
 }
 
@@ -70,6 +89,8 @@ func (vf *Tfvars) BuildHCLFile() (*hclwrite.File, error) {
 		if diags.HasErrors() {
 			return nil, errors.New(diags.Error())
 		}
+
+		return f, nil
 	}
 
 	rootBody := f.Body()
