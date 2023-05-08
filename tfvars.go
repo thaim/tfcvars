@@ -36,16 +36,21 @@ func NewTfvarsFile(filename string) *Tfvars {
 	var err error
 
 	vf.filename = filename
+
+	_, errExist := os.Stat(filename)
 	vf.vardata, err = os.ReadFile(filename)
-	if err != nil {
+	if err != nil && errExist == nil{
 		// if cannot read file, return nil
 		return nil
+	} else if err != nil && errExist != nil {
+		// if file not exist, treat as empty
+		vf.vardata = []byte("")
 	}
 
-	// err = vf.ConvertTfeVariables()
-	// if err != nil {
-	// 	return nil
-	// }
+	err = vf.ConvertTfeVariables()
+	if err != nil {
+		return nil
+	}
 
 	return vf
 }
