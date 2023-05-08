@@ -39,7 +39,7 @@ func NewTfvarsFile(filename string) (*Tfvars, error) {
 
 	_, errExist := os.Stat(filename)
 	vf.vardata, err = os.ReadFile(filename)
-	if err != nil && errExist == nil{
+	if err != nil && errExist == nil {
 		// if cannot read file, return nil
 		return nil, err
 	} else if err != nil && errExist != nil {
@@ -69,7 +69,7 @@ func (vf *Tfvars) ConvertTfeVariables() error {
 	vf.vars = []*tfe.Variable{}
 	for k, v := range f.Body().Attributes() {
 		vf.vars = append(vf.vars, &tfe.Variable{
-			Key: k,
+			Key:   k,
 			Value: string(v.Expr().BuildTokens(nil).Bytes()),
 		})
 	}
