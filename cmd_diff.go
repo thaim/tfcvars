@@ -7,10 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/rs/zerolog/log"
+	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/urfave/cli/v2"
 )
 
@@ -64,21 +63,27 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 		}
 		varsSrc.Items = filteredVars
 	}
+	vfSrc := NewTfvarsVariable(varsSrc.Items)
 
-	varsDest, err := variableFile(diffOpt.varFile, false)
+	vfDest, err := NewTfvarsFile(diffOpt.varFile)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to read variable file")
 		return err
 	}
 
-	opts := []cmp.Option{
-		cmpopts.IgnoreFields(tfe.Variable{}, "ID", "Description", "Category", "HCL", "Workspace"),
-		cmpopts.SortSlices(func(x, y *tfe.Variable) bool {
-			return strings.Compare(x.Key, y.Key) < 0
-		}),
+	dmp := diffmatchpatch.New()
+	a, b, c := dmp.DiffLinesToChars(vfSrc.BuildHCLFileString(), vfDest.BuildHCLFileString())
+	diffs := dmp.DiffMain(a, b, false)
+	diffs = dmp.DiffCharsToLines(diffs, c)
+	var buf strings.Builder
+	for _, diff := range diffs {
+		if diff.Type == diffmatchpatch.DiffDelete {
+			buf.WriteString("- " + diff.Text)
+		} else if diff.Type == diffmatchpatch.DiffInsert {
+			buf.WriteString("+ " + diff.Text)
+		}
 	}
 
-	fmt.Fprint(w, cmp.Diff(varsSrc.Items, varsDest.Items, opts...))
+	fmt.Fprint(w, buf.String())
 
 	return nil
 }

@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"os"
 	"reflect"
+	"strings"
 	"testing"
 
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/zclconf/go-cty/cty"
 	"golang.org/x/exp/slices"
 )
@@ -190,6 +194,65 @@ func TestBuildVariableList(t *testing.T) {
 
 			if !reflect.DeepEqual(tt.expect, actual) {
 				t.Errorf("expect '%v', got '%v'", tt.expect.Items[0], actual.Items[0])
+			}
+		})
+	}
+}
+
+func TestBuildHCLFile(t *testing.T) {
+	cases := []struct {
+		name      string
+		vars      []*tfe.Variable
+		filebody  []byte
+		filename  string
+		expect    *hclwrite.File
+		wantErr   bool
+		expectErr string
+	}{
+		{
+			name:     "parse valid tfvars file",
+			vars:     nil,
+			filebody: []byte("environment = \"development\"\n"),
+			filename: "testdata/terraform.tfvars",
+			expect: func() *hclwrite.File {
+				f := hclwrite.NewEmptyFile()
+				body := f.Body()
+				body.SetAttributeValue("environment", cty.StringVal("development"))
+				return f
+			}(),
+		},
+		{
+			name: "parse invalid tfvars file",
+			vars: nil,
+			filebody: func() []byte {
+				data, _ := os.ReadFile("testdata/invalid.tfvars")
+				return data
+			}(),
+			filename:  "testdata/invalid.tfvars",
+			expect:    nil,
+			wantErr:   true,
+			expectErr: "test",
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			actual, err := BuildHCLFile(tt.vars, tt.filebody, tt.filename)
+
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("expect '%s' error, got no error", tt.expectErr)
+				} else if !strings.Contains(err.Error(), tt.expectErr) {
+					t.Errorf("expect %s error, got %s", tt.expectErr, err.Error())
+				}
+				return
+			}
+			if err != nil {
+				t.Errorf("expect no error, got error: %v", err)
+			}
+
+			if !bytes.Equal(tt.expect.Bytes(), actual.Bytes()) {
+				t.Errorf("expect '%s', got '%s'", tt.expect.Bytes(), actual.Bytes())
 			}
 		})
 	}

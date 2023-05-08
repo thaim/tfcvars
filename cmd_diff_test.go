@@ -34,7 +34,7 @@ func TestCmdDiff(t *testing.T) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
 					Return(&tfe.VariableList{
-						Items: []*tfe.Variable{{}},
+						Items: []*tfe.Variable{},
 					}, nil).
 					AnyTimes()
 			},
@@ -113,9 +113,8 @@ func TestCmdDiff(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect: `
-- 		Key:   "env",
-+ 		Key:   "environment",
+			expect: `- env = "development"
++ environment = "development"
 `,
 		},
 		{
@@ -141,8 +140,7 @@ func TestCmdDiff(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect: `
-- 	&{Key: "ENV", Value: "TEST", Category: "env"},
+			expect: `- ENV         = "TEST"
 `,
 		},
 		{
@@ -191,7 +189,7 @@ func TestCmdDiff(t *testing.T) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
 					Return(&tfe.VariableList{
-						Items: []*tfe.Variable{{}},
+						Items: []*tfe.Variable{},
 					}, nil).
 					AnyTimes()
 			},
@@ -213,7 +211,7 @@ func TestCmdDiff(t *testing.T) {
 				if err == nil {
 					t.Errorf("expect '%s' error, got no error", tt.expectErr)
 				} else if !strings.Contains(err.Error(), tt.expectErr) {
-					t.Errorf("expect %s error, got %s", tt.expectErr, err.Error())
+					t.Errorf("expect '%s' error, got %s", tt.expectErr, err.Error())
 				}
 				return
 			}

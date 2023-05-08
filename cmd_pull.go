@@ -2,18 +2,15 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
 
 	tfe "github.com/hashicorp/go-tfe"
-	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
-	"github.com/zclconf/go-cty/cty"
 )
 
 type PullOption struct {
@@ -82,29 +79,14 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		vars.Items = filteredVars
 	}
 
-	var f *hclwrite.File
-	if pullOpt.overwrite {
-		f = hclwrite.NewEmptyFile()
-	} else {
-		var diags hcl.Diagnostics
-		f, diags = hclwrite.ParseConfig(pullOpt.prevVarfile, pullOpt.varFile, hcl.Pos{Line: 1, Column: 1})
-		if diags.HasErrors() {
-			log.Error().Msgf("failed to parse existing varfile: %s", diags.Error())
-			return errors.New(diags.Error())
-		}
+	var base []byte
+	if !pullOpt.overwrite {
+		base = pullOpt.prevVarfile
 	}
-	rootBody := f.Body()
 
-	for _, v := range vars.Items {
-		if v.Sensitive {
-			rootBody.AppendUnstructuredTokens(generateComment(v.Key))
-			continue
-		}
-		if v.HCL {
-			rootBody.SetAttributeValue(v.Key, CtyValue(v.Value))
-		} else {
-			rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
-		}
+	f, err := BuildHCLFile(vars.Items, base, pullOpt.varFile)
+	if err != nil {
+		return err
 	}
 
 	fmt.Fprintf(w, "%s", f.Bytes())
