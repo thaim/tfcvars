@@ -201,17 +201,17 @@ func TestBuildVariableList(t *testing.T) {
 
 func TestBuildHCLFile(t *testing.T) {
 	cases := []struct {
-		name   string
-		vars   []*tfe.Variable
-		filebody []byte
-		filename string
-		expect *hclwrite.File
-		wantErr bool
+		name      string
+		vars      []*tfe.Variable
+		filebody  []byte
+		filename  string
+		expect    *hclwrite.File
+		wantErr   bool
 		expectErr string
 	}{
 		{
-			name:  "parse valid tfvars file",
-			vars: nil,
+			name:     "parse valid tfvars file",
+			vars:     nil,
 			filebody: []byte("environment = \"development\"\n"),
 			filename: "testdata/terraform.tfvars",
 			expect: func() *hclwrite.File {
@@ -222,15 +222,15 @@ func TestBuildHCLFile(t *testing.T) {
 			}(),
 		},
 		{
-			name:  "parse invalid tfvars file",
+			name: "parse invalid tfvars file",
 			vars: nil,
 			filebody: func() []byte {
 				data, _ := os.ReadFile("testdata/invalid.tfvars")
 				return data
 			}(),
-			filename: "testdata/invalid.tfvars",
-			expect: nil,
-			wantErr: true,
+			filename:  "testdata/invalid.tfvars",
+			expect:    nil,
+			wantErr:   true,
 			expectErr: "test",
 		},
 	}

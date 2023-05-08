@@ -12,8 +12,8 @@ import (
 
 type Tfvars struct {
 	filename string
-	vardata []byte
-	vars  []*tfe.Variable
+	vardata  []byte
+	vars     []*tfe.Variable
 }
 
 func NewTfvarsVariable(vars []*tfe.Variable) *Tfvars {
