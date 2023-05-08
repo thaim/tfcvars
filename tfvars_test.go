@@ -8,6 +8,7 @@ import (
 
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2/hclwrite"
+	"github.com/zclconf/go-cty/cty"
 )
 
 func TestNewTfvarsVariable(t *testing.T) {
@@ -21,24 +22,24 @@ func TestNewTfvarsVariable(t *testing.T) {
 			vars: []*tfe.Variable{},
 			expect: &Tfvars{
 				filename: "generated.tfvars",
-				vardata: []byte(""),
-				vars: []*tfe.Variable{},
+				vardata:  []byte(""),
+				vars:     []*tfe.Variable{},
 			},
 		},
 		{
 			name: "single variable list",
 			vars: []*tfe.Variable{
 				{
-					Key: "env",
+					Key:   "env",
 					Value: "test",
 				},
 			},
 			expect: &Tfvars{
 				filename: "generated.tfvars",
-				vardata: []byte("env = \"test\"\n"),
+				vardata:  []byte("env = \"test\"\n"),
 				vars: []*tfe.Variable{
 					{
-						Key: "env",
+						Key:   "env",
 						Value: "test",
 					},
 				},
@@ -50,9 +51,9 @@ func TestNewTfvarsVariable(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			actual := NewTfvarsVariable(tt.vars)
 
-			if (tt.expect.filename != actual.filename ||
+			if tt.expect.filename != actual.filename ||
 				!bytes.Equal(tt.expect.vardata, actual.vardata) ||
-				!reflect.DeepEqual(tt.expect.vars, actual.vars)) {
+				!reflect.DeepEqual(tt.expect.vars, actual.vars) {
 				t.Errorf("expect '%v', got '%v' (%s)", tt.expect, actual, actual.vardata)
 			}
 		})
@@ -61,17 +62,32 @@ func TestNewTfvarsVariable(t *testing.T) {
 
 func TestTfvars_BuildHCLFile(t *testing.T) {
 	cases := []struct {
-		name   string
-		tfvars *Tfvars
-		expect *hclwrite.File
-		wantErr bool
+		name      string
+		tfvars    *Tfvars
+		expect    *hclwrite.File
+		wantErr   bool
 		expectErr string
 	}{
 		{
-			name: "empty hcl file",
+			name:   "empty tfvars file",
 			tfvars: NewTfvarsVariable([]*tfe.Variable{}),
 			expect: func() *hclwrite.File {
 				f := hclwrite.NewEmptyFile()
+				return f
+			}(),
+		},
+		{
+			name: "single element file",
+			tfvars: NewTfvarsVariable([]*tfe.Variable{
+				{
+					Key:   "env",
+					Value: "test",
+				},
+			}),
+			expect: func() *hclwrite.File {
+				f := hclwrite.NewEmptyFile()
+				body := f.Body()
+				body.SetAttributeValue("env", cty.StringVal("test"))
 				return f
 			}(),
 		},
@@ -95,6 +111,40 @@ func TestTfvars_BuildHCLFile(t *testing.T) {
 
 			if !bytes.Equal(file.Bytes(), tt.expect.Bytes()) {
 				t.Errorf("expect '%s', got '%s'", tt.expect.Bytes(), file.Bytes())
+			}
+		})
+	}
+}
+
+func TestTfvars_BuildHCLFileString(t *testing.T) {
+	cases := []struct {
+		name   string
+		tfvars *Tfvars
+		expect string
+	}{
+		{
+			name:   "empty tfvars file",
+			tfvars: NewTfvarsVariable([]*tfe.Variable{}),
+			expect: "",
+		},
+		{
+			name: "single element file",
+			tfvars: NewTfvarsVariable([]*tfe.Variable{
+				{
+					Key:   "env",
+					Value: "test",
+				},
+			}),
+			expect: "env = \"test\"\n",
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := tt.tfvars.BuildHCLFileString()
+
+			if actual != tt.expect {
+				t.Errorf("expect '%s', got '%s'", tt.expect, actual)
 			}
 		})
 	}
