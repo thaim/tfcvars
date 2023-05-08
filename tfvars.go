@@ -31,7 +31,7 @@ func NewTfvarsVariable(vars []*tfe.Variable) *Tfvars {
 	return vf
 }
 
-func NewTfvarsFile(filename string) *Tfvars {
+func NewTfvarsFile(filename string) (*Tfvars, error) {
 	vf := &Tfvars{}
 	var err error
 
@@ -41,7 +41,7 @@ func NewTfvarsFile(filename string) *Tfvars {
 	vf.vardata, err = os.ReadFile(filename)
 	if err != nil && errExist == nil{
 		// if cannot read file, return nil
-		return nil
+		return nil, err
 	} else if err != nil && errExist != nil {
 		// if file not exist, treat as empty
 		vf.vardata = []byte("")
@@ -49,10 +49,10 @@ func NewTfvarsFile(filename string) *Tfvars {
 
 	err = vf.ConvertTfeVariables()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return vf
+	return vf, nil
 }
 
 // ConvertTfeVariables generate list of tfe.Variable from tfvars file

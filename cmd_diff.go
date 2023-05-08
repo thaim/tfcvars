@@ -65,7 +65,10 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 	}
 	vfSrc := NewTfvarsVariable(varsSrc.Items)
 
-	vfDest := NewTfvarsFile(diffOpt.varFile)
+	vfDest, err := NewTfvarsFile(diffOpt.varFile)
+	if err != nil {
+		return err
+	}
 
 	dmp := diffmatchpatch.New()
 	a, b, c := dmp.DiffLinesToChars(vfSrc.BuildHCLFileString(), vfDest.BuildHCLFileString())
