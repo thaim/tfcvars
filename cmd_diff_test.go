@@ -189,7 +189,7 @@ func TestCmdDiff(t *testing.T) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
 					Return(&tfe.VariableList{
-						Items: []*tfe.Variable{{}},
+						Items: []*tfe.Variable{},
 					}, nil).
 					AnyTimes()
 			},
