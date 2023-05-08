@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
-	"github.com/google/go-cmp/cmp"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/rs/zerolog/log"
+	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/urfave/cli/v2"
 )
 
@@ -66,7 +67,20 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 
 	vfDest := NewTfvarsFile(diffOpt.varFile)
 
-	fmt.Fprint(w, cmp.Diff(vfSrc.BuildHCLFileString(), vfDest.BuildHCLFileString()))
+	dmp := diffmatchpatch.New()
+	a, b, c := dmp.DiffLinesToChars(vfSrc.BuildHCLFileString(), vfDest.BuildHCLFileString())
+	diffs := dmp.DiffMain(a, b, false)
+	diffs = dmp.DiffCharsToLines(diffs, c)
+	var buf strings.Builder
+	for _, diff := range diffs {
+		if diff.Type == diffmatchpatch.DiffDelete {
+			buf.WriteString("- " + diff.Text)
+		} else if diff.Type == diffmatchpatch.DiffInsert {
+			buf.WriteString("+ " + diff.Text)
+		}
+	}
+
+	fmt.Fprint(w, buf.String())
 
 	return nil
 }

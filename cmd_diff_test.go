@@ -113,9 +113,8 @@ func TestCmdDiff(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect: `
-- 	env = "development",
-+ 	environment = "development",
+			expect: `- env = "development"
++ environment = "development"
 `,
 		},
 		{
@@ -141,8 +140,7 @@ func TestCmdDiff(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect: `
-- 	&{Key: "ENV", Value: "TEST", Category: "env"},
+			expect: `- ENV         = "TEST"
 `,
 		},
 		{
