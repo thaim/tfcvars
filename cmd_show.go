@@ -115,7 +115,7 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 			val, _ := attrValue.Expr.Value(nil)
 			vars.Items = append(vars.Items, &tfe.Variable{
 				Key:   attrKey,
-				Value: val.AsString(),
+				Value: String(val),
 			})
 		}
 
