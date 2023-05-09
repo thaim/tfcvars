@@ -111,12 +111,17 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 			return errors.New(diags.Error())
 		}
 		attrs, _ := file.Body.JustAttributes()
-		for attrKey, attrValue := range attrs {
-			val, _ := attrValue.Expr.Value(nil)
-			vars.Items = append(vars.Items, &tfe.Variable{
-				Key:   attrKey,
-				Value: val.AsString(),
-			})
+		for _, attr := range SortAttributes(attrs) {
+			val, _ := attr.Expr.Value(nil)
+			tfVariable := &tfe.Variable{
+				Key:   attr.Name,
+				Value: String(val),
+			}
+			if !IsPrimitive(val) {
+				tfVariable.HCL = true
+			}
+
+			vars.Items = append(vars.Items, tfVariable)
 		}
 
 	} else {

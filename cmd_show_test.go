@@ -240,6 +240,22 @@ func TestCmdShow(t *testing.T) {
 			expectErr:   "",
 		},
 		{
+			name:        "show local variable include HCL format",
+			workspaceId: "",
+			showOpt:     &ShowOption{local: true, varFile: "testdata/mixedtypes.tfvars", format: "tfvars"},
+			setClient:   func(mc *mocks.MockVariables) {}, // do nothing
+			expect: `environment        = "test"
+port               = "3000"
+terraform          = "true"
+availability_zones = ["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]
+tags = {
+  reop = "github.com/thaim/tfcvars"
+}
+`,
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
 			name:        "show variable include env",
 			workspaceId: "w-test-include-env-variable-workspace",
 			showOpt:     &ShowOption{varFile: "testdata/terraform.tfvars", includeEnv: true, format: "detail"},
