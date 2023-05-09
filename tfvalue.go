@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 
 	tfe "github.com/hashicorp/go-tfe"
@@ -115,4 +116,18 @@ func BuildHCLFile(remoteVars []*tfe.Variable, localFile []byte, filename string)
 	}
 
 	return f, nil
+}
+
+func SortAttributes(attrs hcl.Attributes) []*hcl.Attribute {
+	size := len(attrs)
+	attrSlice := make([]*hcl.Attribute, 0, size)
+	for _, attr := range attrs {
+		attrSlice = append(attrSlice, attr)
+	}
+
+	sort.Slice(attrSlice, func(i, j int) bool {
+		return attrSlice[i].Range.Start.Line < attrSlice[j].Range.Start.Line
+	})
+
+	return attrSlice
 }
