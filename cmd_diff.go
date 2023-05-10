@@ -75,15 +75,27 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 	diffs := dmp.DiffMain(a, b, false)
 	diffs = dmp.DiffCharsToLines(diffs, c)
 	var buf strings.Builder
+	includeDiff := false
 	for _, diff := range diffs {
 		if diff.Type == diffmatchpatch.DiffDelete {
 			buf.WriteString("- " + diff.Text)
+			includeDiff = true
 		} else if diff.Type == diffmatchpatch.DiffInsert {
 			buf.WriteString("+ " + diff.Text)
+			includeDiff = true
+		} else {
+			lines := strings.Split(diff.Text, "\n")
+			for i, line := range lines {
+				if i == len(lines)-1 {
+					break
+				}
+				buf.WriteString("  " + line + "\n")
+			}
 		}
 	}
-
-	fmt.Fprint(w, buf.String())
+	if includeDiff {
+		fmt.Fprint(w, buf.String())
+	}
 
 	return nil
 }
