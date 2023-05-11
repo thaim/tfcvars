@@ -417,6 +417,15 @@ func TestNewShowOption(t *testing.T) {
 				format:     "detail",
 			},
 		},
+		{
+			name: "enable include variable set option",
+			args: []string{"--include-variable-set"},
+			expect: &ShowOption{
+				varFile:            "terraform.tfvars",
+				includeVariableSet: true,
+				format:             "detail",
+			},
+		},
 	}
 
 	for _, tt := range cases {

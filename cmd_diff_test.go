@@ -253,6 +253,14 @@ func TestNewDiffOption(t *testing.T) {
 				includeEnv: true,
 			},
 		},
+		{
+			name: "enable include variable set option",
+			args: []string{"--include-variable-set"},
+			expect: &DiffOption{
+				varFile:            "terraform.tfvars",
+				includeVariableSet: true,
+			},
+		},
 	}
 
 	for _, tt := range cases {

@@ -326,6 +326,15 @@ func TestNewPullOption(t *testing.T) {
 				includeEnv: true,
 			},
 		},
+		{
+			name: "enable include variable set option",
+			args: []string{"--include-variable-set"},
+			expect: &PullOption{
+				varFile:            "terraform.tfvars",
+				overwrite:          false,
+				includeVariableSet: true,
+			},
+		},
 	}
 
 	for _, tt := range cases {
