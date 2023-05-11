@@ -19,11 +19,12 @@ import (
 )
 
 type ShowOption struct {
-	varFile     string
-	variableKey string
-	local       bool
-	includeEnv  bool
-	format      string
+	varFile            string
+	variableKey        string
+	local              bool
+	includeEnv         bool
+	includeVariableSet bool
+	format             string
 }
 
 func NewShowOption(c *cli.Context) *ShowOption {
@@ -33,6 +34,7 @@ func NewShowOption(c *cli.Context) *ShowOption {
 	opt.variableKey = c.String("variable")
 	opt.local = c.Bool("local")
 	opt.includeEnv = c.Bool("include-env")
+	opt.includeVariableSet = c.Bool("include-variable-set")
 	opt.format = c.String("format")
 
 	return opt

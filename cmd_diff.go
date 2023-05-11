@@ -14,8 +14,9 @@ import (
 )
 
 type DiffOption struct {
-	varFile    string
-	includeEnv bool
+	varFile            string
+	includeEnv         bool
+	includeVariableSet bool
 }
 
 func NewDiffOption(c *cli.Context) *DiffOption {
@@ -23,6 +24,7 @@ func NewDiffOption(c *cli.Context) *DiffOption {
 
 	opt.varFile = c.String("var-file")
 	opt.includeEnv = c.Bool("include-env")
+	opt.includeVariableSet = c.Bool("include-variable-set")
 
 	return opt
 }

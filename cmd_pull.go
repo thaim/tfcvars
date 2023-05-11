@@ -14,10 +14,11 @@ import (
 )
 
 type PullOption struct {
-	varFile     string
-	overwrite   bool
-	prevVarfile []byte
-	includeEnv  bool
+	varFile            string
+	overwrite          bool
+	prevVarfile        []byte
+	includeEnv         bool
+	includeVariableSet bool
 }
 
 func NewPullOption(c *cli.Context) *PullOption {
@@ -27,6 +28,7 @@ func NewPullOption(c *cli.Context) *PullOption {
 	opt.overwrite = c.Bool("overwrite") && !c.Bool("merge")
 	opt.prevVarfile = nil
 	opt.includeEnv = c.Bool("include-env")
+	opt.includeVariableSet = c.Bool("include-variable-set")
 
 	return opt
 }
