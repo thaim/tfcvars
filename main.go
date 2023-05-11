@@ -94,6 +94,11 @@ func showFlags() []cli.Flag {
 			Usage: "include env Category variables",
 			Value: false,
 		},
+		&cli.BoolFlag{
+			Name:  "include-variable-set",
+			Usage: "include Variable Set variables",
+			Value: false,
+		},
 		&cli.GenericFlag{
 			Name:  "format",
 			Usage: "format to display variables",
@@ -125,6 +130,11 @@ func pullFlags() []cli.Flag {
 		&cli.BoolFlag{
 			Name:  "include-env",
 			Usage: "include env Category variables",
+			Value: false,
+		},
+		&cli.BoolFlag{
+			Name:  "include-variable-set",
+			Usage: "include Variable Set variables",
 			Value: false,
 		},
 	}
@@ -159,6 +169,11 @@ func diffFlags() []cli.Flag {
 		&cli.BoolFlag{
 			Name:  "include-env",
 			Usage: "include env Category variables",
+			Value: false,
+		},
+		&cli.BoolFlag{
+			Name:  "include-variable-set",
+			Usage: "include Variable Set variables",
 			Value: false,
 		},
 	}
