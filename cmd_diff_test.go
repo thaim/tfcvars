@@ -177,6 +177,92 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
+			name:           "ignore variable set if include-variable-set not specified",
+			workspaceId:    "w-test-ignore-variable-set-workspace",
+			variableSetIds: []string{"varset1"},
+			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars"},
+			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-ignore-variable-set-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:         "environment",
+								Value:       "development",
+								Description: "env",
+							},
+							{
+								Key:      "ENV",
+								Value:    "TEST",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mvsv.EXPECT().
+					List(context.TODO(), "varset1", nil).
+					Return(&tfe.VariableSetVariableList{
+						Items: []*tfe.VariableSetVariable{
+							{
+								Key:   "param1",
+								Value: "value1",
+							},
+							{
+								Key:      "SET_ENV",
+								Value:    "TEST",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect: "",
+		},
+		{
+			name:           "show diff invariable set if include-variable-set specified",
+			workspaceId:    "w-test-variable-set-workspace",
+			variableSetIds: []string{"varset2"},
+			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars", includeVariableSet: true},
+			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-variable-set-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:         "environment",
+								Value:       "development",
+								Description: "env",
+							},
+							{
+								Key:      "ENV",
+								Value:    "TEST",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mvsv.EXPECT().
+					List(context.TODO(), "varset2", nil).
+					Return(&tfe.VariableSetVariableList{
+						Items: []*tfe.VariableSetVariable{
+							{
+								Key:   "param1",
+								Value: "value1",
+							},
+							{
+								Key:      "SET_ENV",
+								Value:    "TEST",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect: `  environment = "development"
+- param1      = "value1"
+`,
+		},
+		{
 			name:           "return error if not able to list variable list",
 			workspaceId:    "w-test-access-error",
 			variableSetIds: []string{},
