@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"reflect"
 	"strings"
 	"testing"
@@ -292,6 +293,27 @@ func TestCmdDiff(t *testing.T) {
 			expect:    "",
 			wantErr:   true,
 			expectErr: "Argument or block definition required",
+		},
+		{
+			name:           "return error if undefined variable set id specified",
+			workspaceId:    "w-test-undefined-variable-set-workspace",
+			variableSetIds: []string{"undefined-variable-set"},
+			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars", includeVariableSet: true},
+			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-undefined-variable-set-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{},
+					}, nil).
+					AnyTimes()
+				mvsv.EXPECT().
+					List(context.TODO(), "undefined-variable-set", nil).
+					Return(nil, errors.New("resource not found")).
+					AnyTimes()
+			},
+			expect:    "",
+			wantErr:   true,
+			expectErr: "resource not found",
 		},
 	}
 
