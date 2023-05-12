@@ -66,15 +66,6 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, v
 		log.Error().Err(err).Msg("failed to list variables")
 		return err
 	}
-	if !diffOpt.includeEnv {
-		filteredVars := []*tfe.Variable{}
-		for _, v := range varsSrc.Items {
-			if v.Category != tfe.CategoryEnv {
-				filteredVars = append(filteredVars, v)
-			}
-		}
-		varsSrc.Items = filteredVars
-	}
 	if diffOpt.includeVariableSet {
 		varSetVariables := []*tfe.Variable{}
 		for _, variableSetId := range variableSetIds {
@@ -99,6 +90,15 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, v
 		}
 
 		varsSrc.Items = append(varsSrc.Items, varSetVariables...)
+	}
+	if !diffOpt.includeEnv {
+		filteredVars := []*tfe.Variable{}
+		for _, v := range varsSrc.Items {
+			if v.Category != tfe.CategoryEnv {
+				filteredVars = append(filteredVars, v)
+			}
+		}
+		varsSrc.Items = filteredVars
 	}
 	vfSrc := NewTfvarsVariable(varsSrc.Items)
 
