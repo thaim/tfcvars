@@ -47,10 +47,20 @@ func Diff(c *cli.Context) error {
 		return err
 	}
 
-	return diff(ctx, w.ID, tfeClient.Variables, diffOpt, os.Stdout)
+	s, err := tfeClient.VariableSets.ListForWorkspace(ctx, w.ID, nil)
+	if err != nil {
+		log.Error().Err(err).Msgf("failed to list variable set in workspace %s", w.ID)
+		return err
+	}
+	variableSetIds := make([]string, 0, 0)
+	for _, set := range s.Items {
+		variableSetIds = append(variableSetIds, set.ID)
+	}
+
+	return diff(ctx, w.ID, tfeClient.Variables, variableSetIds, tfeClient.VariableSetVariables, diffOpt, os.Stdout)
 }
 
-func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, diffOpt *DiffOption, w io.Writer) error {
+func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, variableSetIds []string, tfeVariableSetVariables tfe.VariableSetVariables, diffOpt *DiffOption, w io.Writer) error {
 	varsSrc, err := tfeVariables.List(ctx, workspaceId, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to list variables")
@@ -64,6 +74,31 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, d
 			}
 		}
 		varsSrc.Items = filteredVars
+	}
+	if diffOpt.includeVariableSet {
+		varSetVariables := []*tfe.Variable{}
+		for _, variableSetId := range variableSetIds {
+			variableList, err := tfeVariableSetVariables.List(ctx, variableSetId, nil)
+			if err != nil {
+				log.Error().Err(err).Msgf("failed to list variables in Variable Set %s", variableSetId)
+				return err
+			}
+
+			for _, variableSetVariable := range variableList.Items {
+				variable := &tfe.Variable{}
+				variable.ID = variableSetVariable.ID
+				variable.Key = variableSetVariable.Key
+				variable.Value = variableSetVariable.Value
+				variable.Description = variableSetVariable.Description
+				variable.Category = variableSetVariable.Category
+				variable.HCL = variableSetVariable.HCL
+				variable.Sensitive = variableSetVariable.Sensitive
+
+				varSetVariables = append(varSetVariables, variable)
+			}
+		}
+
+		varsSrc.Items = append(varsSrc.Items, varSetVariables...)
 	}
 	vfSrc := NewTfvarsVariable(varsSrc.Items)
 

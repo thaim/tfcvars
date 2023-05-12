@@ -16,21 +16,24 @@ import (
 func TestCmdDiff(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockVariables := mocks.NewMockVariables(ctrl)
+	mockVariableSetVariables := mocks.NewMockVariableSetVariables(ctrl)
 
 	cases := []struct {
-		name        string
-		workspaceId string
-		diffOpt     *DiffOption
-		setClient   func(*mocks.MockVariables)
-		expect      string
-		wantErr     bool
-		expectErr   string
+		name           string
+		workspaceId    string
+		variableSetIds []string
+		diffOpt        *DiffOption
+		setClient      func(*mocks.MockVariables, *mocks.MockVariableSetVariables)
+		expect         string
+		wantErr        bool
+		expectErr      string
 	}{
 		{
-			name:        "show no diff with empty local variable and empty variable list",
-			workspaceId: "w-test-no-vars-workspace",
-			diffOpt:     &DiffOption{},
-			setClient: func(mc *mocks.MockVariables) {
+			name:           "show no diff with empty local variable and empty variable list",
+			workspaceId:    "w-test-no-vars-workspace",
+			variableSetIds: []string{},
+			diffOpt:        &DiffOption{},
+			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
 					Return(&tfe.VariableList{
@@ -41,10 +44,11 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
-			name:        "show no diff with same variables",
-			workspaceId: "w-test-single-variable-workspace",
-			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars"},
-			setClient: func(mc *mocks.MockVariables) {
+			name:           "show no diff with same variables",
+			workspaceId:    "w-test-single-variable-workspace",
+			variableSetIds: []string{},
+			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars"},
+			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-single-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -61,10 +65,11 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
-			name:        "show no diff with mutiple variables",
-			workspaceId: "w-test-multiple-variables-workspace",
-			diffOpt:     &DiffOption{varFile: "testdata/mixedtypes.tfvars"},
-			setClient: func(mc *mocks.MockVariables) {
+			name:           "show no diff with mutiple variables",
+			workspaceId:    "w-test-multiple-variables-workspace",
+			variableSetIds: []string{},
+			diffOpt:        &DiffOption{varFile: "testdata/mixedtypes.tfvars"},
+			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-multiple-variables-workspace", nil).
 					Return(&tfe.VariableList{
@@ -96,10 +101,11 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
-			name:        "show diff with dirrerent key",
-			workspaceId: "w-test-single-variable-different-key-workspace",
-			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars"},
-			setClient: func(mc *mocks.MockVariables) {
+			name:           "show diff with dirrerent key",
+			workspaceId:    "w-test-single-variable-different-key-workspace",
+			variableSetIds: []string{},
+			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars"},
+			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-single-variable-different-key-workspace", nil).
 					Return(&tfe.VariableList{
@@ -118,10 +124,11 @@ func TestCmdDiff(t *testing.T) {
 `,
 		},
 		{
-			name:        "show no diff include env category with include-env disabled",
-			workspaceId: "w-test-variable-include-env-show-diff-workspace",
-			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
-			setClient: func(mc *mocks.MockVariables) {
+			name:           "show no diff include env category with include-env disabled",
+			workspaceId:    "w-test-variable-include-env-show-diff-workspace",
+			variableSetIds: []string{},
+			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
+			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variable-include-env-show-diff-workspace", nil).
 					Return(&tfe.VariableList{
@@ -144,10 +151,11 @@ func TestCmdDiff(t *testing.T) {
 `,
 		},
 		{
-			name:        "show diff include env category with include-env enabled",
-			workspaceId: "w-test-variable-include-env-show-diff-workspace",
-			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
-			setClient: func(mc *mocks.MockVariables) {
+			name:           "show diff include env category with include-env enabled",
+			workspaceId:    "w-test-variable-include-env-show-diff-workspace",
+			variableSetIds: []string{},
+			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
+			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variable-include-env-show-diff-workspace", nil).
 					Return(&tfe.VariableList{
@@ -169,10 +177,11 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
-			name:        "return error if not able to list variable list",
-			workspaceId: "w-test-access-error",
-			diffOpt:     &DiffOption{},
-			setClient: func(mc *mocks.MockVariables) {
+			name:           "return error if not able to list variable list",
+			workspaceId:    "w-test-access-error",
+			variableSetIds: []string{},
+			diffOpt:        &DiffOption{},
+			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-access-error", nil).
 					Return(nil, tfe.ErrInvalidWorkspaceID)
@@ -182,10 +191,11 @@ func TestCmdDiff(t *testing.T) {
 			expectErr: "invalid value for workspace ID",
 		},
 		{
-			name:        "return error if failed to readvars file",
-			workspaceId: "w-test-no-vars-workspace",
-			diffOpt:     &DiffOption{varFile: "testdata/invalid.tfvars"},
-			setClient: func(mc *mocks.MockVariables) {
+			name:           "return error if failed to readvars file",
+			workspaceId:    "w-test-no-vars-workspace",
+			variableSetIds: []string{},
+			diffOpt:        &DiffOption{varFile: "testdata/invalid.tfvars"},
+			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
 					Return(&tfe.VariableList{
@@ -203,9 +213,9 @@ func TestCmdDiff(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
 			var buf bytes.Buffer
-			tt.setClient(mockVariables)
+			tt.setClient(mockVariables, mockVariableSetVariables)
 
-			err := diff(ctx, tt.workspaceId, mockVariables, tt.diffOpt, &buf)
+			err := diff(ctx, tt.workspaceId, mockVariables, tt.variableSetIds, mockVariableSetVariables, tt.diffOpt, &buf)
 
 			if tt.wantErr {
 				if err == nil {
