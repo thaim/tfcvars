@@ -52,7 +52,7 @@ func Diff(c *cli.Context) error {
 		log.Error().Err(err).Msgf("failed to list variable set in workspace %s", w.ID)
 		return err
 	}
-	variableSetIds := make([]string, 0, 0)
+	variableSetIds := make([]string, 0)
 	for _, set := range s.Items {
 		variableSetIds = append(variableSetIds, set.ID)
 	}
