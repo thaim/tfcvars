@@ -16,7 +16,9 @@ import (
 
 func TestCmdShow(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	mockVariables := mocks.NewMockVariables(ctrl)
+	Variables := mocks.NewMockVariables(ctrl)
+	VariableSets := mocks.NewMockVariableSets(ctrl)
+	VariableSetVariables := mocks.NewMockVariableSetVariables(ctrl)
 
 	cases := []struct {
 		name        string
@@ -344,9 +346,9 @@ tags = {
 			ctx := context.TODO()
 			showOpt := tt.showOpt
 			var buf bytes.Buffer
-			tt.setClient(mockVariables)
+			tt.setClient(Variables)
 
-			err := show(ctx, tt.workspaceId, mockVariables, showOpt, &buf)
+			err := show(ctx, tt.workspaceId, Variables, VariableSets, VariableSetVariables, showOpt, &buf)
 
 			if tt.wantErr {
 				if err == nil {

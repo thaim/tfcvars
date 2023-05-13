@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 
+	tfe "github.com/hashicorp/go-tfe"
 	"github.com/rs/zerolog/log"
 	"github.com/tidwall/gjson"
 )
@@ -33,4 +35,38 @@ func updateTerraformCloudWorkspace(organization string, workspaceName string, wo
 
 	log.Debug().Msgf("retrive from tfstate: org=%s workspace=%s", organization, workspaceName)
 	return organization, workspaceName
+}
+
+func listVariableSetVariables(ctx context.Context, workspaceId string, VariableSets tfe.VariableSets, VariableSetVariables tfe.VariableSetVariables) ([]*tfe.Variable, error){
+	variables := make([]*tfe.Variable, 0)
+	s, err := VariableSets.ListForWorkspace(ctx, workspaceId, nil)
+	if err != nil {
+		log.Error().Err(err).Msgf("failed to list variable set in workspace %s", workspaceId)
+		return nil, err
+	}
+
+	for setIndex := range s.Items {
+		variableList, err := VariableSetVariables.List(ctx, s.Items[setIndex].ID, nil)
+		if err != nil {
+			log.Error().Err(err).Msgf("failed to list VariableSetVariables ID: %s", s.Items[setIndex].ID)
+			return nil, err
+		}
+
+		for variableListIndex := range variableList.Items {
+			variableSetVariable := variableList.Items[variableListIndex]
+			variable := &tfe.Variable{}
+
+			variable.ID = variableSetVariable.ID
+			variable.Key = variableSetVariable.Key
+			variable.Value = variableSetVariable.Value
+			variable.Description = variableSetVariable.Description
+			variable.Category = variableSetVariable.Category
+			variable.HCL = variableSetVariable.HCL
+			variable.Sensitive = variableSetVariable.Sensitive
+
+			variables = append(variables, variable)
+		}
+	}
+
+	return variables, nil
 }
