@@ -37,7 +37,7 @@ func updateTerraformCloudWorkspace(organization string, workspaceName string, wo
 	return organization, workspaceName
 }
 
-func listVariableSetVariables(ctx context.Context, workspaceId string, VariableSets tfe.VariableSets, VariableSetVariables tfe.VariableSetVariables) ([]*tfe.Variable, error){
+func listVariableSetVariables(ctx context.Context, workspaceId string, VariableSets tfe.VariableSets, VariableSetVariables tfe.VariableSetVariables) ([]*tfe.Variable, error) {
 	variables := make([]*tfe.Variable, 0)
 	s, err := VariableSets.ListForWorkspace(ctx, workspaceId, nil)
 	if err != nil {
