@@ -14,10 +14,11 @@ import (
 )
 
 type PullOption struct {
-	varFile     string
-	overwrite   bool
-	prevVarfile []byte
-	includeEnv  bool
+	varFile            string
+	overwrite          bool
+	prevVarfile        []byte
+	includeEnv         bool
+	includeVariableSet bool
 }
 
 func NewPullOption(c *cli.Context) *PullOption {
@@ -27,6 +28,7 @@ func NewPullOption(c *cli.Context) *PullOption {
 	opt.overwrite = c.Bool("overwrite") && !c.Bool("merge")
 	opt.prevVarfile = nil
 	opt.includeEnv = c.Bool("include-env")
+	opt.includeVariableSet = c.Bool("include-variable-set")
 
 	return opt
 }
@@ -60,14 +62,22 @@ func Pull(c *cli.Context) error {
 	}
 	defer f.Close()
 
-	return pull(ctx, w.ID, tfeClient.Variables, pullOpt, f)
+	return pull(ctx, w.ID, tfeClient.Variables, tfeClient.VariableSets, tfeClient.VariableSetVariables, pullOpt, f)
 }
 
-func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, pullOpt *PullOption, w io.Writer) error {
+func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, tfeVariableSets tfe.VariableSets, tfeVariableSetVariables tfe.VariableSetVariables, pullOpt *PullOption, w io.Writer) error {
 	vars, err := tfeVariables.List(ctx, workspaceId, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to list variables")
 		return err
+	}
+	if pullOpt.includeVariableSet {
+		variableSetVariables, err := listVariableSetVariables(ctx, workspaceId, tfeVariableSets, tfeVariableSetVariables)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to list VariableSetVariables")
+			return err
+		}
+		vars.Items = append(vars.Items, variableSetVariables...)
 	}
 	if !pullOpt.includeEnv {
 		filteredVars := []*tfe.Variable{}

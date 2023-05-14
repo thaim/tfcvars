@@ -19,11 +19,12 @@ import (
 )
 
 type ShowOption struct {
-	varFile     string
-	variableKey string
-	local       bool
-	includeEnv  bool
-	format      string
+	varFile            string
+	variableKey        string
+	local              bool
+	includeEnv         bool
+	includeVariableSet bool
+	format             string
 }
 
 func NewShowOption(c *cli.Context) *ShowOption {
@@ -33,6 +34,7 @@ func NewShowOption(c *cli.Context) *ShowOption {
 	opt.variableKey = c.String("variable")
 	opt.local = c.Bool("local")
 	opt.includeEnv = c.Bool("include-env")
+	opt.includeVariableSet = c.Bool("include-variable-set")
 	opt.format = c.String("format")
 
 	return opt
@@ -69,7 +71,9 @@ func Show(c *cli.Context) error {
 
 	showOpt := NewShowOption(c)
 	workspaceId := ""
-	var tfeVariables tfe.Variables
+	var Variables tfe.Variables
+	var VariableSets tfe.VariableSets
+	var VariableSetVariables tfe.VariableSetVariables
 	if requireTfcAccess(showOpt) {
 		tfeClient, err := NewTfeClient(c)
 		if err != nil {
@@ -84,10 +88,12 @@ func Show(c *cli.Context) error {
 		}
 
 		workspaceId = w.ID
-		tfeVariables = tfeClient.Variables
+		Variables = tfeClient.Variables
+		VariableSets = tfeClient.VariableSets
+		VariableSetVariables = tfeClient.VariableSetVariables
 	}
 
-	err := show(ctx, workspaceId, tfeVariables, showOpt, os.Stdout)
+	err := show(ctx, workspaceId, Variables, VariableSets, VariableSetVariables, showOpt, os.Stdout)
 	if err != nil {
 		return err
 	}
@@ -95,7 +101,7 @@ func Show(c *cli.Context) error {
 	return nil
 }
 
-func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, showOpt *ShowOption, w io.Writer) error {
+func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, tfeVariableSets tfe.VariableSets, tfeVariableSetVariables tfe.VariableSetVariables, showOpt *ShowOption, w io.Writer) error {
 	var vars *tfe.VariableList
 	var err error
 
@@ -129,6 +135,14 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, s
 		if err != nil {
 			log.Error().Err(err).Msg("failed to list variables")
 			return err
+		}
+		if showOpt.includeVariableSet {
+			variableSetVariables, err := listVariableSetVariables(ctx, workspaceId, tfeVariableSets, tfeVariableSetVariables)
+			if err != nil {
+				log.Error().Err(err).Msg("failed to list VariableSetVariables")
+				return err
+			}
+			vars.Items = append(vars.Items, variableSetVariables...)
 		}
 	}
 

@@ -14,8 +14,9 @@ import (
 )
 
 type DiffOption struct {
-	varFile    string
-	includeEnv bool
+	varFile            string
+	includeEnv         bool
+	includeVariableSet bool
 }
 
 func NewDiffOption(c *cli.Context) *DiffOption {
@@ -23,6 +24,7 @@ func NewDiffOption(c *cli.Context) *DiffOption {
 
 	opt.varFile = c.String("var-file")
 	opt.includeEnv = c.Bool("include-env")
+	opt.includeVariableSet = c.Bool("include-variable-set")
 
 	return opt
 }
@@ -45,14 +47,22 @@ func Diff(c *cli.Context) error {
 		return err
 	}
 
-	return diff(ctx, w.ID, tfeClient.Variables, diffOpt, os.Stdout)
+	return diff(ctx, w.ID, tfeClient.Variables, tfeClient.VariableSets, tfeClient.VariableSetVariables, diffOpt, os.Stdout)
 }
 
-func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, diffOpt *DiffOption, w io.Writer) error {
+func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, tfeVariableSets tfe.VariableSets, tfeVariableSetVariables tfe.VariableSetVariables, diffOpt *DiffOption, w io.Writer) error {
 	varsSrc, err := tfeVariables.List(ctx, workspaceId, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to list variables")
 		return err
+	}
+	if diffOpt.includeVariableSet {
+		variableSetVariables, err := listVariableSetVariables(ctx, workspaceId, tfeVariableSets, tfeVariableSetVariables)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to list VariableSetVariables")
+			return err
+		}
+		varsSrc.Items = append(varsSrc.Items, variableSetVariables...)
 	}
 	if !diffOpt.includeEnv {
 		filteredVars := []*tfe.Variable{}

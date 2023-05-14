@@ -17,12 +17,14 @@ import (
 func TestCmdPull(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockVariables := mocks.NewMockVariables(ctrl)
+	mockVariableSets := mocks.NewMockVariableSets(ctrl)
+	mockVariableSetVariables := mocks.NewMockVariableSetVariables(ctrl)
 
 	cases := []struct {
 		name        string
 		workspaceId string
 		pullOpt     *PullOption
-		setClient   func(*mocks.MockVariables)
+		setClient   func(*mocks.MockVariables, *mocks.MockVariableSets, *mocks.MockVariableSetVariables)
 		expect      string
 		wantErr     bool
 		expectErr   string
@@ -31,7 +33,7 @@ func TestCmdPull(t *testing.T) {
 			name:        "pull empty variable",
 			workspaceId: "w-test-no-vars-workspace",
 			pullOpt:     &PullOption{},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
 					Return(&tfe.VariableList{
@@ -47,7 +49,7 @@ func TestCmdPull(t *testing.T) {
 			name:        "pull single variable",
 			workspaceId: "w-test-single-variable-workspace",
 			pullOpt:     &PullOption{},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-single-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -69,7 +71,7 @@ func TestCmdPull(t *testing.T) {
 			name:        "pull multiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
 			pullOpt:     &PullOption{},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-multiple-variables-workspace", nil).
 					Return(&tfe.VariableList{
@@ -94,7 +96,7 @@ func TestCmdPull(t *testing.T) {
 			name:        "pull sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
 			pullOpt:     &PullOption{},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-sensitive-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -124,7 +126,7 @@ func TestCmdPull(t *testing.T) {
 			name:        "treat multiple variable types",
 			workspaceId: "w-test-linclude-multiple-variable-types-workspace",
 			pullOpt:     &PullOption{},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				// test for Types
 				// https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables#types
 				mc.EXPECT().
@@ -156,7 +158,7 @@ func TestCmdPull(t *testing.T) {
 			name:        "return error if failed to access terraform cloud",
 			workspaceId: "w-test-access-error",
 			pullOpt:     &PullOption{},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-access-error", nil).
 					Return(nil, tfe.ErrInvalidWorkspaceID)
@@ -169,7 +171,7 @@ func TestCmdPull(t *testing.T) {
 			name:        "pull tuple string",
 			workspaceId: "w-test-variable-tuple",
 			pullOpt:     &PullOption{},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variable-tuple", nil).
 					Return(&tfe.VariableList{
@@ -191,7 +193,7 @@ func TestCmdPull(t *testing.T) {
 			name:        "pull variables include env with include-env option enabled",
 			workspaceId: "w-test-variables-include-env-enabled-workspace",
 			pullOpt:     &PullOption{includeEnv: true},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variables-include-env-enabled-workspace", nil).
 					Return(&tfe.VariableList{
@@ -221,7 +223,7 @@ func TestCmdPull(t *testing.T) {
 			name:        "pull variables include env with include-env option disabled",
 			workspaceId: "w-test-variables-include-env-disabled-workspace",
 			pullOpt:     &PullOption{includeEnv: false},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variables-include-env-disabled-workspace", nil).
 					Return(&tfe.VariableList{
@@ -247,15 +249,67 @@ func TestCmdPull(t *testing.T) {
 			wantErr:   false,
 			expectErr: "",
 		},
+		{
+			name:        "pull variables with include-variable-set option enabled",
+			workspaceId: "w-test-variables-include-variable-set-enabled-workspace",
+			pullOpt:     &PullOption{includeVariableSet: true},
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-variables-include-variable-set-enabled-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "var1",
+								Value: "value1",
+							},
+							{
+								Key:      "var2",
+								Value:    "value2",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mvs.EXPECT().
+					ListForWorkspace(context.TODO(), "w-test-variables-include-variable-set-enabled-workspace", nil).
+					Return(&tfe.VariableSetList{
+						Items: []*tfe.VariableSet{
+							{
+								ID: "variable-set-include-variable-set-variables",
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mvsv.EXPECT().
+					List(context.TODO(), "variable-set-include-variable-set-variables", nil).
+					Return(&tfe.VariableSetVariableList{
+						Items: []*tfe.VariableSetVariable{
+							{
+								Key:   "var3",
+								Value: "value3",
+							},
+							{
+								Key:      "var4",
+								Value:    "value4",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect:    "var1 = \"value1\"\nvar3 = \"value3\"\n",
+			wantErr:   false,
+			expectErr: "",
+		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
-			tt.setClient(mockVariables)
+			tt.setClient(mockVariables, mockVariableSets, mockVariableSetVariables)
 			var buf bytes.Buffer
 
-			err := pull(ctx, tt.workspaceId, mockVariables, tt.pullOpt, &buf)
+			err := pull(ctx, tt.workspaceId, mockVariables, mockVariableSets, mockVariableSetVariables, tt.pullOpt, &buf)
 
 			if tt.wantErr {
 				if err == nil {
@@ -324,6 +378,15 @@ func TestNewPullOption(t *testing.T) {
 				varFile:    "terraform.tfvars",
 				overwrite:  false,
 				includeEnv: true,
+			},
+		},
+		{
+			name: "enable include variable set option",
+			args: []string{"--include-variable-set"},
+			expect: &PullOption{
+				varFile:            "terraform.tfvars",
+				overwrite:          false,
+				includeVariableSet: true,
 			},
 		},
 	}
