@@ -319,6 +319,88 @@ tags = {
 			expectErr: "",
 		},
 		{
+			name:        "show variable include variable set",
+			workspaceId: "w-test-include-variable-set-variables-workspace",
+			showOpt:     &ShowOption{varFile: "testdata/terraform.tfvars", includeVariableSet: true, format: "detail"},
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-include-variable-set-variables-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "var1",
+								Value: "value1",
+							},
+							{
+								Key:      "var2",
+								Value:    "value2",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mvs.EXPECT().
+					ListForWorkspace(context.TODO(), "w-test-include-variable-set-variables-workspace", nil).
+					Return(&tfe.VariableSetList{
+						Items: []*tfe.VariableSet{
+							{
+								ID: "variable-set-include-variable-set-variables",
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mvsv.EXPECT().
+					List(context.TODO(), "variable-set-include-variable-set-variables", nil).
+					Return(&tfe.VariableSetVariableList{
+						Items: []*tfe.VariableSetVariable{
+							{
+								Key:   "var3",
+								Value: "value3",
+							},
+							{
+								Key:      "var4",
+								Value:    "value4",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect:    "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var3\nValue: value3\nDescription: \nSensitive: false\n\n",
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
+			name:        "ignore env variable without include env option",
+			workspaceId: "w-test-ignore-env-variable-workspace",
+			showOpt:     &ShowOption{varFile: "testdata/terraform.tfvars", includeEnv: false, format: "detail"},
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-ignore-env-variable-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "var1",
+								Value: "value1",
+							},
+							{
+								Key:   "var2",
+								Value: "value2",
+							},
+							{
+								Key:      "var3",
+								Value:    "value3",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect:    "Key: var1\nValue: value1\nDescription: \nSensitive: false\n\nKey: var2\nValue: value2\nDescription: \nSensitive: false\n\n",
+			wantErr:   false,
+			expectErr: "",
+		},
+		{
 			name:        "return HCL parse error",
 			workspaceId: "not-used",
 			showOpt:     &ShowOption{local: true, varFile: "testdata/invalid.tfvars", format: "detail"},
