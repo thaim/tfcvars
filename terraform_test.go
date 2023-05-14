@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -286,6 +287,40 @@ func TestListVariableSetVariables(t *testing.T) {
 				},
 			},
 			wantErr: false,
+		},
+		{
+			name:        "error-list-variable-set",
+			workspaceId: "w-test-error-list-variable-set",
+			setClient: func(vs *mocks.MockVariableSets, vsv *mocks.MockVariableSetVariables) {
+				vs.EXPECT().
+					ListForWorkspace(context.TODO(), "w-test-error-list-variable-set", nil).
+					Return(nil, errors.New("failed to list variable set in workspace")).
+					AnyTimes()
+			},
+			wantErr:   true,
+			expectErr: "failed to list variable set in workspace",
+		},
+		{
+			name:        "error-list-variable-set-variables",
+			workspaceId: "w-test-error-list-variable-set-variables",
+			setClient: func(vs *mocks.MockVariableSets, vsv *mocks.MockVariableSetVariables) {
+				vs.EXPECT().
+					ListForWorkspace(context.TODO(), "w-test-error-list-variable-set-variables", nil).
+					Return(&tfe.VariableSetList{
+						Items: []*tfe.VariableSet{
+							{
+								ID: "error-list-variable-set-variables",
+							},
+						},
+					}, nil).
+					AnyTimes()
+				vsv.EXPECT().
+					List(context.TODO(), "error-list-variable-set-variables", nil).
+					Return(nil, errors.New("failed to list VariableSetVariables")).
+					AnyTimes()
+			},
+			wantErr:   true,
+			expectErr: "failed to list VariableSetVariables",
 		},
 	}
 
