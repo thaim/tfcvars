@@ -97,7 +97,7 @@ func TestCmdShow(t *testing.T) {
 			workspaceId: "w-test-sensitive-variable-workspace",
 			showOpt:     &ShowOption{format: "detail"},
 			setClient: func(mc *mocks.MockVariables) {
-				mockVariables.EXPECT().
+				mc.EXPECT().
 					List(context.TODO(), "w-test-sensitive-variable-workspace", nil).
 					Return(&tfe.VariableList{
 						Items: []*tfe.Variable{
