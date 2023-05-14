@@ -421,6 +421,25 @@ tags = {
 			wantErr:   true,
 			expectErr: "failed to list variables",
 		},
+		{
+			name:        "not allowed to list variable set variables",
+			workspaceId: "w-test-not-allowed-to-list-variable-set-variables",
+			showOpt:     &ShowOption{format: "detail", includeVariableSet: true},
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-not-allowed-to-list-variable-set-variables", gomock.Any()).
+					Return(&tfe.VariableList{
+						Items: nil,
+					}, nil).
+					AnyTimes()
+				mvs.EXPECT().
+					ListForWorkspace(context.TODO(), "w-test-not-allowed-to-list-variable-set-variables", nil).
+					Return(nil, errors.New("failed to list variable set in workspace")).
+					AnyTimes()
+			},
+			wantErr:   true,
+			expectErr: "failed to list variable set in workspace",
+		},
 	}
 
 	for _, tt := range cases {
