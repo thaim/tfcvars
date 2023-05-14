@@ -71,6 +71,14 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, t
 		log.Error().Err(err).Msg("failed to list variables")
 		return err
 	}
+	if pullOpt.includeVariableSet {
+		variableSetVariables, err := listVariableSetVariables(ctx, workspaceId, tfeVariableSets, tfeVariableSetVariables)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to list VariableSetVariables")
+			return err
+		}
+		vars.Items = append(vars.Items, variableSetVariables...)
+	}
 	if !pullOpt.includeEnv {
 		filteredVars := []*tfe.Variable{}
 		for _, v := range vars.Items {
