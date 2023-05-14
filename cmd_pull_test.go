@@ -249,6 +249,58 @@ func TestCmdPull(t *testing.T) {
 			wantErr:   false,
 			expectErr: "",
 		},
+		{
+			name:        "pull variables with include-variable-set option enabled",
+			workspaceId: "w-test-variables-include-variable-set-enabled-workspace",
+			pullOpt:     &PullOption{includeVariableSet: true},
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-variables-include-variable-set-enabled-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "var1",
+								Value: "value1",
+							},
+							{
+								Key:      "var2",
+								Value:    "value2",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mvs.EXPECT().
+					ListForWorkspace(context.TODO(), "w-test-variables-include-variable-set-enabled-workspace", nil).
+					Return(&tfe.VariableSetList{
+						Items: []*tfe.VariableSet{
+							{
+								ID: "variable-set-include-variable-set-variables",
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mvsv.EXPECT().
+					List(context.TODO(), "variable-set-include-variable-set-variables", nil).
+					Return(&tfe.VariableSetVariableList{
+						Items: []*tfe.VariableSetVariable{
+							{
+								Key:   "var3",
+								Value: "value3",
+							},
+							{
+								Key:      "var4",
+								Value:    "value4",
+								Category: tfe.CategoryEnv,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect:    "var1 = \"value1\"\nvar3 = \"value3\"\n",
+			wantErr:   false,
+			expectErr: "",
+		},
 	}
 
 	for _, tt := range cases {
