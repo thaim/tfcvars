@@ -62,10 +62,10 @@ func Pull(c *cli.Context) error {
 	}
 	defer f.Close()
 
-	return pull(ctx, w.ID, tfeClient.Variables, pullOpt, f)
+	return pull(ctx, w.ID, tfeClient.Variables, tfeClient.VariableSets, tfeClient.VariableSetVariables, pullOpt, f)
 }
 
-func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, pullOpt *PullOption, w io.Writer) error {
+func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, tfeVariableSets tfe.VariableSets, tfeVariableSetVariables tfe.VariableSetVariables, pullOpt *PullOption, w io.Writer) error {
 	vars, err := tfeVariables.List(ctx, workspaceId, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to list variables")
