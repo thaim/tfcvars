@@ -24,7 +24,7 @@ func TestCmdShow(t *testing.T) {
 		name        string
 		workspaceId string
 		showOpt     *ShowOption
-		setClient   func(*mocks.MockVariables)
+		setClient   func(*mocks.MockVariables, *mocks.MockVariableSets, *mocks.MockVariableSetVariables)
 		expect      string
 		wantErr     bool
 		expectErr   string
@@ -32,7 +32,7 @@ func TestCmdShow(t *testing.T) {
 		{
 			name:        "show empty variable",
 			workspaceId: "w-test-no-vars-workspace",
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
 					Return(&tfe.VariableList{
@@ -49,7 +49,7 @@ func TestCmdShow(t *testing.T) {
 			name:        "show single variable",
 			workspaceId: "w-test-single-variable-workspace",
 			showOpt:     &ShowOption{format: "detail"},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-single-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -71,7 +71,7 @@ func TestCmdShow(t *testing.T) {
 			name:        "show multiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
 			showOpt:     &ShowOption{format: "detail"},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-multiple-variables-workspace", nil).
 					Return(&tfe.VariableList{
@@ -96,7 +96,7 @@ func TestCmdShow(t *testing.T) {
 			name:        "show sensitive variable",
 			workspaceId: "w-test-sensitive-variable-workspace",
 			showOpt:     &ShowOption{format: "detail"},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-sensitive-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -119,7 +119,7 @@ func TestCmdShow(t *testing.T) {
 			name:        "show specified variable",
 			workspaceId: "w-test-multiple-variables-filter-variable-workspace",
 			showOpt:     &ShowOption{variableKey: "var2", format: "detail"},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-multiple-variables-filter-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -144,7 +144,7 @@ func TestCmdShow(t *testing.T) {
 			name:        "show variables with tfvars format",
 			workspaceId: "w-test-variables-tfvars-workspace",
 			showOpt:     &ShowOption{format: "tfvars"},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variables-tfvars-workspace", nil).
 					Return(&tfe.VariableList{
@@ -183,7 +183,7 @@ func TestCmdShow(t *testing.T) {
 			name:        "show variables with table format",
 			workspaceId: "w-test-variables-table-workspace",
 			showOpt:     &ShowOption{format: "table"},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variables-table-workspace", nil).
 					Return(&tfe.VariableList{
@@ -236,7 +236,7 @@ func TestCmdShow(t *testing.T) {
 			name:        "show local variable",
 			workspaceId: "",
 			showOpt:     &ShowOption{local: true, varFile: "testdata/terraform.tfvars", format: "detail"},
-			setClient:   func(mc *mocks.MockVariables) {}, // do nothing
+			setClient:   func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {}, // do nothing
 			expect:      "Key: environment\nValue: development\nDescription: \nSensitive: false\n\n",
 			wantErr:     false,
 			expectErr:   "",
@@ -245,7 +245,7 @@ func TestCmdShow(t *testing.T) {
 			name:        "show local variable include HCL format",
 			workspaceId: "",
 			showOpt:     &ShowOption{local: true, varFile: "testdata/mixedtypes.tfvars", format: "tfvars"},
-			setClient:   func(mc *mocks.MockVariables) {}, // do nothing
+			setClient:   func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {}, // do nothing
 			expect: `environment        = "test"
 port               = "3000"
 terraform          = "true"
@@ -261,7 +261,7 @@ tags = {
 			name:        "show variable include env",
 			workspaceId: "w-test-include-env-variable-workspace",
 			showOpt:     &ShowOption{varFile: "testdata/terraform.tfvars", includeEnv: true, format: "detail"},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-include-env-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -292,7 +292,7 @@ tags = {
 			name:        "ignore env variable without include env option",
 			workspaceId: "w-test-ignore-env-variable-workspace",
 			showOpt:     &ShowOption{varFile: "testdata/terraform.tfvars", includeEnv: false, format: "detail"},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-ignore-env-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -322,7 +322,7 @@ tags = {
 			name:        "return HCL parse error",
 			workspaceId: "not-used",
 			showOpt:     &ShowOption{local: true, varFile: "testdata/invalid.tfvars", format: "detail"},
-			setClient:   func(mc *mocks.MockVariables) {}, // do nothing
+			setClient:   func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {}, // do nothing
 			wantErr:     true,
 			expectErr:   "Argument or block definition required",
 		},
@@ -330,7 +330,7 @@ tags = {
 			name:        "not allowed to list variables",
 			workspaceId: "w-test-not-allowed-to-list-variables",
 			showOpt:     &ShowOption{format: "detail"},
-			setClient: func(mc *mocks.MockVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-not-allowed-to-list-variables", gomock.Any()).
 					Return(nil, errors.New("failed to list variables")).
@@ -346,7 +346,7 @@ tags = {
 			ctx := context.TODO()
 			showOpt := tt.showOpt
 			var buf bytes.Buffer
-			tt.setClient(Variables)
+			tt.setClient(Variables, VariableSets, VariableSetVariables)
 
 			err := show(ctx, tt.workspaceId, Variables, VariableSets, VariableSetVariables, showOpt, &buf)
 
