@@ -17,6 +17,7 @@ import (
 func TestCmdDiff(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockVariables := mocks.NewMockVariables(ctrl)
+	mockVariableSets := mocks.NewMockVariableSets(ctrl)
 	mockVariableSetVariables := mocks.NewMockVariableSetVariables(ctrl)
 
 	cases := []struct {
@@ -24,7 +25,7 @@ func TestCmdDiff(t *testing.T) {
 		workspaceId    string
 		variableSetIds []string
 		diffOpt        *DiffOption
-		setClient      func(*mocks.MockVariables, *mocks.MockVariableSetVariables)
+		setClient      func(*mocks.MockVariables, *mocks.MockVariableSets, *mocks.MockVariableSetVariables)
 		expect         string
 		wantErr        bool
 		expectErr      string
@@ -34,7 +35,7 @@ func TestCmdDiff(t *testing.T) {
 			workspaceId:    "w-test-no-vars-workspace",
 			variableSetIds: []string{},
 			diffOpt:        &DiffOption{},
-			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
 					Return(&tfe.VariableList{
@@ -49,7 +50,7 @@ func TestCmdDiff(t *testing.T) {
 			workspaceId:    "w-test-single-variable-workspace",
 			variableSetIds: []string{},
 			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars"},
-			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-single-variable-workspace", nil).
 					Return(&tfe.VariableList{
@@ -70,7 +71,7 @@ func TestCmdDiff(t *testing.T) {
 			workspaceId:    "w-test-multiple-variables-workspace",
 			variableSetIds: []string{},
 			diffOpt:        &DiffOption{varFile: "testdata/mixedtypes.tfvars"},
-			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-multiple-variables-workspace", nil).
 					Return(&tfe.VariableList{
@@ -106,7 +107,7 @@ func TestCmdDiff(t *testing.T) {
 			workspaceId:    "w-test-single-variable-different-key-workspace",
 			variableSetIds: []string{},
 			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars"},
-			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-single-variable-different-key-workspace", nil).
 					Return(&tfe.VariableList{
@@ -129,7 +130,7 @@ func TestCmdDiff(t *testing.T) {
 			workspaceId:    "w-test-variable-include-env-show-diff-workspace",
 			variableSetIds: []string{},
 			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
-			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variable-include-env-show-diff-workspace", nil).
 					Return(&tfe.VariableList{
@@ -156,7 +157,7 @@ func TestCmdDiff(t *testing.T) {
 			workspaceId:    "w-test-variable-include-env-show-diff-workspace",
 			variableSetIds: []string{},
 			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
-			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variable-include-env-show-diff-workspace", nil).
 					Return(&tfe.VariableList{
@@ -182,7 +183,7 @@ func TestCmdDiff(t *testing.T) {
 			workspaceId:    "w-test-ignore-variable-set-workspace",
 			variableSetIds: []string{"varset1"},
 			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars"},
-			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-ignore-variable-set-workspace", nil).
 					Return(&tfe.VariableList{
@@ -224,7 +225,7 @@ func TestCmdDiff(t *testing.T) {
 			workspaceId:    "w-test-variable-set-workspace",
 			variableSetIds: []string{"varset2"},
 			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars", includeVariableSet: true},
-			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-variable-set-workspace", nil).
 					Return(&tfe.VariableList{
@@ -268,7 +269,7 @@ func TestCmdDiff(t *testing.T) {
 			workspaceId:    "w-test-access-error",
 			variableSetIds: []string{},
 			diffOpt:        &DiffOption{},
-			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-access-error", nil).
 					Return(nil, tfe.ErrInvalidWorkspaceID)
@@ -282,7 +283,7 @@ func TestCmdDiff(t *testing.T) {
 			workspaceId:    "w-test-no-vars-workspace",
 			variableSetIds: []string{},
 			diffOpt:        &DiffOption{varFile: "testdata/invalid.tfvars"},
-			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-no-vars-workspace", nil).
 					Return(&tfe.VariableList{
@@ -299,7 +300,7 @@ func TestCmdDiff(t *testing.T) {
 			workspaceId:    "w-test-undefined-variable-set-workspace",
 			variableSetIds: []string{"undefined-variable-set"},
 			diffOpt:        &DiffOption{varFile: "testdata/terraform.tfvars", includeVariableSet: true},
-			setClient: func(mc *mocks.MockVariables, mvsv *mocks.MockVariableSetVariables) {
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
 					List(context.TODO(), "w-test-undefined-variable-set-workspace", nil).
 					Return(&tfe.VariableList{
@@ -321,9 +322,9 @@ func TestCmdDiff(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
 			var buf bytes.Buffer
-			tt.setClient(mockVariables, mockVariableSetVariables)
+			tt.setClient(mockVariables, mockVariableSets, mockVariableSetVariables)
 
-			err := diff(ctx, tt.workspaceId, mockVariables, tt.variableSetIds, mockVariableSetVariables, tt.diffOpt, &buf)
+			err := diff(ctx, tt.workspaceId, mockVariables, mockVariableSets, mockVariableSetVariables, tt.diffOpt, &buf)
 
 			if tt.wantErr {
 				if err == nil {
