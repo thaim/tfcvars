@@ -71,9 +71,7 @@ func Show(c *cli.Context) error {
 
 	showOpt := NewShowOption(c)
 	workspaceId := ""
-	var Variables tfe.Variables
-	var VariableSets tfe.VariableSets
-	var VariableSetVariables tfe.VariableSetVariables
+	var tfeClient *tfe.Client
 	if requireTfcAccess(showOpt) {
 		tfeClient, err := NewTfeClient(c)
 		if err != nil {
@@ -88,12 +86,9 @@ func Show(c *cli.Context) error {
 		}
 
 		workspaceId = w.ID
-		Variables = tfeClient.Variables
-		VariableSets = tfeClient.VariableSets
-		VariableSetVariables = tfeClient.VariableSetVariables
 	}
 
-	err := show(ctx, workspaceId, Variables, VariableSets, VariableSetVariables, showOpt, os.Stdout)
+	err := show(ctx, workspaceId, tfeClient.Variables, tfeClient.VariableSets, tfeClient.VariableSetVariables, showOpt, os.Stdout)
 	if err != nil {
 		return err
 	}
