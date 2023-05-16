@@ -13,9 +13,10 @@ import (
 
 func TestNewTfvarsVariable(t *testing.T) {
 	cases := []struct {
-		name   string
-		vars   []*tfe.Variable
-		expect *Tfvars
+		name    string
+		vars    []*tfe.Variable
+		expect  *Tfvars
+		wantErr bool
 	}{
 		{
 			name: "empty variable list",
@@ -45,11 +46,27 @@ func TestNewTfvarsVariable(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "return nil if variable is broken",
+			vars: []*tfe.Variable{
+				{
+					Value: "valwithoutkey",
+				},
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			actual := NewTfvarsVariable(tt.vars)
+
+			if tt.wantErr {
+				if actual != nil {
+					t.Errorf("expect to return nil, got valid value '%s'", actual.vardata)
+				}
+				return
+			}
 
 			if tt.expect.filename != actual.filename ||
 				!bytes.Equal(tt.expect.vardata, actual.vardata) ||
