@@ -86,6 +86,9 @@ func (vf *Tfvars) ConvertVarsfile() error {
 	f := hclwrite.NewEmptyFile()
 	rootBody := f.Body()
 	for _, v := range vf.vars {
+		if v.Key == "" {
+			return errors.New("invalid key specified")
+		}
 		if v.Sensitive {
 			rootBody.AppendUnstructuredTokens(generateComment(v.Key))
 			continue
