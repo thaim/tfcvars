@@ -6,32 +6,32 @@ import (
 
 func TestVersionFormatter(t *testing.T) {
 	cases := []struct {
-		name    string
-		version string
+		name     string
+		version  string
 		revision string
 		expected string
 	}{
 		{
-			name: "normal case",
-			version: "1.0.0",
+			name:     "normal case",
+			version:  "1.0.0",
 			revision: "0123456789abcdef",
 			expected: "1.0.0 (rev: 0123456789abcdef)",
 		},
 		{
-			name: "revision not specified",
-			version: "1.0.0",
+			name:     "revision not specified",
+			version:  "1.0.0",
 			revision: "",
 			expected: "1.0.0",
 		},
 		{
-			name: "version not specified",
-			version: "",
+			name:     "version not specified",
+			version:  "",
 			revision: "abcdef",
 			expected: "devel (rev: abcdef)",
 		},
 		{
-			name: "version and revision not specified",
-			version: "",
+			name:     "version and revision not specified",
+			version:  "",
 			revision: "",
 			expected: "devel",
 		},
