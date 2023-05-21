@@ -131,3 +131,15 @@ func SortAttributes(attrs hcl.Attributes) []*hcl.Attribute {
 
 	return attrSlice
 }
+
+func FilterEnv(vars []*tfe.Variable) []*tfe.Variable {
+	filteredVars := []*tfe.Variable{}
+
+	for _, v := range vars {
+		if v.Category != tfe.CategoryEnv {
+			filteredVars = append(filteredVars, v)
+		}
+	}
+
+	return filteredVars
+}

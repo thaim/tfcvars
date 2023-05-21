@@ -80,13 +80,7 @@ func pull(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, t
 		vars.Items = append(vars.Items, variableSetVariables...)
 	}
 	if !pullOpt.includeEnv {
-		filteredVars := []*tfe.Variable{}
-		for _, v := range vars.Items {
-			if v.Category != tfe.CategoryEnv {
-				filteredVars = append(filteredVars, v)
-			}
-		}
-		vars.Items = filteredVars
+		vars.Items = FilterEnv(vars.Items)
 	}
 
 	var base []byte

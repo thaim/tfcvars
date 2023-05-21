@@ -65,13 +65,7 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, t
 		varsSrc.Items = append(varsSrc.Items, variableSetVariables...)
 	}
 	if !diffOpt.includeEnv {
-		filteredVars := []*tfe.Variable{}
-		for _, v := range varsSrc.Items {
-			if v.Category != tfe.CategoryEnv {
-				filteredVars = append(filteredVars, v)
-			}
-		}
-		varsSrc.Items = filteredVars
+		varsSrc.Items = FilterEnv(varsSrc.Items)
 	}
 	vfSrc := NewTfvarsVariable(varsSrc.Items)
 

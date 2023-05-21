@@ -144,14 +144,14 @@ func show(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, t
 			}
 			vars.Items = append(vars.Items, variableSetVariables...)
 		}
+		if !showOpt.includeEnv {
+			vars.Items = FilterEnv(vars.Items)
+		}
 	}
 
 	filteredVars := []*tfe.Variable{}
 	for _, v := range vars.Items {
 		if showOpt.variableKey != "" && showOpt.variableKey != v.Key {
-			continue
-		}
-		if !showOpt.includeEnv && v.Category == tfe.CategoryEnv {
 			continue
 		}
 
