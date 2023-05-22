@@ -99,7 +99,7 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
-			name:        "show diff with dirrerent key",
+			name:        "show diff with different key",
 			workspaceId: "w-test-single-variable-different-key-workspace",
 			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars"},
 			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
