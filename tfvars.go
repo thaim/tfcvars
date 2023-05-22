@@ -16,6 +16,7 @@ type Tfvars struct {
 	vars     []*tfe.Variable
 }
 
+// NewTfvarsVariable create instance from list of tfe.Variable
 func NewTfvarsVariable(vars []*tfe.Variable) *Tfvars {
 	vf := &Tfvars{}
 
@@ -23,7 +24,7 @@ func NewTfvarsVariable(vars []*tfe.Variable) *Tfvars {
 	vf.filename = ""
 	vf.vardata = nil
 
-	err := vf.ConvertVarsfile()
+	err := vf.convertTfeVariables()
 	if err != nil {
 		return nil
 	}
@@ -31,6 +32,7 @@ func NewTfvarsVariable(vars []*tfe.Variable) *Tfvars {
 	return vf
 }
 
+// NewTfvarsFile create instance from file
 func NewTfvarsFile(filename string) (*Tfvars, error) {
 	vf := &Tfvars{}
 	var err error
@@ -47,7 +49,7 @@ func NewTfvarsFile(filename string) (*Tfvars, error) {
 		vf.vardata = []byte("")
 	}
 
-	err = vf.ConvertTfeVariables()
+	err = vf.convertVarsfile()
 	if err != nil {
 		return nil, err
 	}
@@ -55,15 +57,16 @@ func NewTfvarsFile(filename string) (*Tfvars, error) {
 	return vf, nil
 }
 
-// ConvertTfeVariables generate list of tfe.Variable from tfvars file
-func (vf *Tfvars) ConvertTfeVariables() error {
+// convertVarsfile generate list of tfe.Variable from tfvars file
+func (vf *Tfvars) convertVarsfile() error {
 	var f *hclwrite.File
-	var diags hcl.Diagnostics
-	if vf.vardata != nil {
-		f, diags = hclwrite.ParseConfig(vf.vardata, vf.filename, hcl.Pos{Line: 1, Column: 1})
-		if diags.HasErrors() {
-			return errors.New(diags.Error())
-		}
+
+	if vf.vardata == nil {
+		return errors.New("invalid vardata")
+	}
+	f, diags := hclwrite.ParseConfig(vf.vardata, vf.filename, hcl.Pos{Line: 1, Column: 1})
+	if diags.HasErrors() {
+		return errors.New(diags.Error())
 	}
 
 	vf.vars = []*tfe.Variable{}
@@ -77,8 +80,8 @@ func (vf *Tfvars) ConvertTfeVariables() error {
 	return nil
 }
 
-// ConvertVarsfile generate tfvars file from list of tfe.Varialbe
-func (vf *Tfvars) ConvertVarsfile() error {
+// convertTfeVariables generate tfvars file from list of tfe.Varialbe
+func (vf *Tfvars) convertTfeVariables() error {
 	if vf.vars == nil {
 		return errors.New("tfe variable is nil")
 	}
@@ -106,34 +109,17 @@ func (vf *Tfvars) ConvertVarsfile() error {
 	return nil
 }
 
+// BuildHCLFile return hclwrite.File format
 func (vf *Tfvars) BuildHCLFile() (*hclwrite.File, error) {
-	f := hclwrite.NewEmptyFile()
-	var diags hcl.Diagnostics
-	if vf.vardata != nil {
-		f, diags = hclwrite.ParseConfig(vf.vardata, vf.filename, hcl.Pos{Line: 1, Column: 1})
-		if diags.HasErrors() {
-			return nil, errors.New(diags.Error())
-		}
-
-		return f, nil
-	}
-
-	rootBody := f.Body()
-	for _, v := range vf.vars {
-		if v.Sensitive {
-			rootBody.AppendUnstructuredTokens(generateComment(v.Key))
-			continue
-		}
-		if v.HCL {
-			rootBody.SetAttributeValue(v.Key, CtyValue(v.Value))
-		} else {
-			rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
-		}
+	f, diags := hclwrite.ParseConfig(vf.vardata, vf.filename, hcl.Pos{Line: 1, Column: 1})
+	if diags.HasErrors() {
+		return nil, errors.New(diags.Error())
 	}
 
 	return f, nil
 }
 
+// BuildHCLFileString return string of tfvars file contents
 func (vf *Tfvars) BuildHCLFileString() string {
 	file, err := vf.BuildHCLFile()
 	if err != nil {
