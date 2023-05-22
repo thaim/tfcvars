@@ -60,12 +60,13 @@ func NewTfvarsFile(filename string) (*Tfvars, error) {
 // convertVarsfile generate list of tfe.Variable from tfvars file
 func (vf *Tfvars) convertVarsfile() error {
 	var f *hclwrite.File
-	var diags hcl.Diagnostics
-	if vf.vardata != nil {
-		f, diags = hclwrite.ParseConfig(vf.vardata, vf.filename, hcl.Pos{Line: 1, Column: 1})
-		if diags.HasErrors() {
-			return errors.New(diags.Error())
-		}
+
+	if vf.vardata == nil {
+		return errors.New("invalid vardata")
+	}
+	f, diags := hclwrite.ParseConfig(vf.vardata, vf.filename, hcl.Pos{Line: 1, Column: 1})
+	if diags.HasErrors() {
+		return errors.New(diags.Error())
 	}
 
 	vf.vars = []*tfe.Variable{}
