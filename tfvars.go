@@ -24,7 +24,7 @@ func NewTfvarsVariable(vars []*tfe.Variable) *Tfvars {
 	vf.filename = ""
 	vf.vardata = nil
 
-	err := vf.convertVarsfile()
+	err := vf.convertTfeVariables()
 	if err != nil {
 		return nil
 	}
@@ -49,7 +49,7 @@ func NewTfvarsFile(filename string) (*Tfvars, error) {
 		vf.vardata = []byte("")
 	}
 
-	err = vf.convertTfeVariables()
+	err = vf.convertVarsfile()
 	if err != nil {
 		return nil, err
 	}
