@@ -16,6 +16,7 @@ type Tfvars struct {
 	vars     []*tfe.Variable
 }
 
+// NewTfvarsVariable create instance from list of tfe.Variable
 func NewTfvarsVariable(vars []*tfe.Variable) *Tfvars {
 	vf := &Tfvars{}
 
@@ -31,6 +32,7 @@ func NewTfvarsVariable(vars []*tfe.Variable) *Tfvars {
 	return vf
 }
 
+// NewTfvarsFile create instance from file
 func NewTfvarsFile(filename string) (*Tfvars, error) {
 	vf := &Tfvars{}
 	var err error
