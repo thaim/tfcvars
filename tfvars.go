@@ -109,6 +109,7 @@ func (vf *Tfvars) convertTfeVariables() error {
 	return nil
 }
 
+// BuildHCLFile return hclwrite.File format
 func (vf *Tfvars) BuildHCLFile() (*hclwrite.File, error) {
 	f, diags := hclwrite.ParseConfig(vf.vardata, vf.filename, hcl.Pos{Line: 1, Column: 1})
 	if diags.HasErrors() {
@@ -118,6 +119,7 @@ func (vf *Tfvars) BuildHCLFile() (*hclwrite.File, error) {
 	return f, nil
 }
 
+// BuildHCLFileString return string of tfvars file contents
 func (vf *Tfvars) BuildHCLFileString() string {
 	file, err := vf.BuildHCLFile()
 	if err != nil {
