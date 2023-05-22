@@ -110,28 +110,9 @@ func (vf *Tfvars) convertTfeVariables() error {
 }
 
 func (vf *Tfvars) BuildHCLFile() (*hclwrite.File, error) {
-	f := hclwrite.NewEmptyFile()
-	var diags hcl.Diagnostics
-	if vf.vardata != nil {
-		f, diags = hclwrite.ParseConfig(vf.vardata, vf.filename, hcl.Pos{Line: 1, Column: 1})
-		if diags.HasErrors() {
-			return nil, errors.New(diags.Error())
-		}
-
-		return f, nil
-	}
-
-	rootBody := f.Body()
-	for _, v := range vf.vars {
-		if v.Sensitive {
-			rootBody.AppendUnstructuredTokens(generateComment(v.Key))
-			continue
-		}
-		if v.HCL {
-			rootBody.SetAttributeValue(v.Key, CtyValue(v.Value))
-		} else {
-			rootBody.SetAttributeValue(v.Key, cty.StringVal(v.Value))
-		}
+	f, diags := hclwrite.ParseConfig(vf.vardata, vf.filename, hcl.Pos{Line: 1, Column: 1})
+	if diags.HasErrors() {
+		return nil, errors.New(diags.Error())
 	}
 
 	return f, nil
