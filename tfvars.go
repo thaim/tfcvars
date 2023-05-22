@@ -55,8 +55,8 @@ func NewTfvarsFile(filename string) (*Tfvars, error) {
 	return vf, nil
 }
 
-// convertTfeVariables generate list of tfe.Variable from tfvars file
-func (vf *Tfvars) convertTfeVariables() error {
+// convertVarsfile generate list of tfe.Variable from tfvars file
+func (vf *Tfvars) convertVarsfile() error {
 	var f *hclwrite.File
 	var diags hcl.Diagnostics
 	if vf.vardata != nil {
@@ -77,8 +77,8 @@ func (vf *Tfvars) convertTfeVariables() error {
 	return nil
 }
 
-// convertVarsfile generate tfvars file from list of tfe.Varialbe
-func (vf *Tfvars) convertVarsfile() error {
+// convertTfeVariables generate tfvars file from list of tfe.Varialbe
+func (vf *Tfvars) convertTfeVariables() error {
 	if vf.vars == nil {
 		return errors.New("tfe variable is nil")
 	}
