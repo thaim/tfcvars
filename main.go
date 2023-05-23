@@ -44,26 +44,31 @@ func main() {
 		Commands: []*cli.Command{
 			{
 				Name: "help",
+				Usage: "Show this help",
 			},
 			{
 				Name:   "show",
 				Action: Show,
 				Flags:  showFlags(),
+				Usage: "Show variables on Terraform Cloud",
 			},
 			{
 				Name:   "diff",
 				Action: Diff,
 				Flags:  diffFlags(),
+				Usage: "Show difference of variables between local tfvars and Terraform Cloud variables",
 			},
 			{
 				Name:   "pull",
 				Action: Pull,
 				Flags:  pullFlags(),
+				Usage: "update local tfvars with Terraform Cloud variables",
 			},
 			{
 				Name:   "push",
 				Action: Push,
 				Flags:  pushFlags(),
+				Usage: "update Terraform Cloud variables with local tfvars",
 			},
 		},
 		Version: versionFormatter(getVersion(), getRevision()),
