@@ -74,12 +74,23 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, t
 		return err
 	}
 
+	includeDiff, diffString := fileDiff(vfSrc.BuildHCLFileString(), vfDest.BuildHCLFileString())
+	if includeDiff {
+		fmt.Fprint(w, diffString)
+	}
+
+	return nil
+}
+
+func fileDiff(srcText, destText string) (bool, string) {
+	includeDiff := false
+
 	dmp := diffmatchpatch.New()
-	a, b, c := dmp.DiffLinesToChars(vfSrc.BuildHCLFileString(), vfDest.BuildHCLFileString())
+	a, b, c := dmp.DiffLinesToChars(srcText, destText)
 	diffs := dmp.DiffMain(a, b, false)
 	diffs = dmp.DiffCharsToLines(diffs, c)
 	var buf strings.Builder
-	includeDiff := false
+
 	for _, diff := range diffs {
 		if diff.Type == diffmatchpatch.DiffDelete {
 			includeDiff = true
@@ -110,9 +121,6 @@ func diff(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, t
 			}
 		}
 	}
-	if includeDiff {
-		fmt.Fprint(w, buf.String())
-	}
 
-	return nil
+	return includeDiff, buf.String()
 }
