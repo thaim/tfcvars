@@ -92,33 +92,21 @@ func fileDiff(srcText, destText string) (bool, string) {
 	var buf strings.Builder
 
 	for _, diff := range diffs {
+		prefix := "  "
 		if diff.Type == diffmatchpatch.DiffDelete {
 			includeDiff = true
-
-			lines := strings.Split(diff.Text, "\n")
-			for i, line := range lines {
-				if i == len(lines)-1 {
-					break
-				}
-				buf.WriteString("- " + line + "\n")
-			}
+			prefix = "- "
 		} else if diff.Type == diffmatchpatch.DiffInsert {
 			includeDiff = true
-			lines := strings.Split(diff.Text, "\n")
-			for i, line := range lines {
-				if i == len(lines)-1 {
-					break
-				}
-				buf.WriteString("+ " + line + "\n")
+			prefix = "+ "
+		}
+
+		lines := strings.Split(diff.Text, "\n")
+		for i, line := range lines {
+			if i == len(lines)-1 {
+				continue
 			}
-		} else {
-			lines := strings.Split(diff.Text, "\n")
-			for i, line := range lines {
-				if i == len(lines)-1 {
-					break
-				}
-				buf.WriteString("  " + line + "\n")
-			}
+			buf.WriteString(prefix + line + "\n")
 		}
 	}
 
