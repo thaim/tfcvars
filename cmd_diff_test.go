@@ -147,6 +147,57 @@ func TestCmdDiff(t *testing.T) {
 `,
 		},
 		{
+			name:        "show diff include consecutive multiple insert lines and delete lines",
+			workspaceId: "w-test-variable-consecutive-multiple-lines-workspace",
+			diffOpt:     &DiffOption{varFile: "testdata/mixedtypes.tfvars"},
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-variable-consecutive-multiple-lines-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "delete1",
+								Value: "value1",
+							},
+							{
+								Key:   "delete2",
+								Value: "value2",
+							},
+							{
+								Key:   "environment",
+								Value: "test",
+							},
+							{
+								Key:   "port",
+								Value: "3000",
+								HCL:   true,
+							},
+							{
+								Key:   "terraform",
+								Value: "true",
+								HCL:   true,
+							},
+							{
+								Key:   "availability_zones",
+								Value: "[\"ap-northeast-1a\", \"ap-northeast-1c\", \"ap-northeast-1d\"]",
+								HCL:   true,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect: `- delete1            = "value1"
+- delete2            = "value2"
+  environment        = "test"
+  port               = 3000
+  terraform          = true
+  availability_zones = ["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]
++ tags = {
++   repo = "github.com/thaim/tfcvars"
++ }
+`,
+		},
+		{
 			name:        "show diff include env category with include-env enabled",
 			workspaceId: "w-test-variable-include-env-show-diff-workspace",
 			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
