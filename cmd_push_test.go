@@ -320,6 +320,14 @@ func TestNewPushOption(t *testing.T) {
 				delete:  true,
 			},
 		},
+		{
+			name: "auto-approve option enabled",
+			args: []string{"--auto-approve"},
+			expect: &PushOption{
+				varFile:     "terraform.tfvars",
+				autoApprove: true,
+			},
+		},
 	}
 
 	for _, tt := range cases {

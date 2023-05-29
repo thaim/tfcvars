@@ -166,6 +166,11 @@ func pushFlags() []cli.Flag {
 			Usage: "delete variables not defined in local",
 			Value: false,
 		},
+		&cli.BoolFlag{
+			Name:  "auto-approve",
+			Usage: "Skip approve",
+			Value: false,
+		},
 	}
 }
 

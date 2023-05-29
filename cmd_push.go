@@ -18,6 +18,7 @@ type PushOption struct {
 	variableKey   string
 	variableValue string
 	delete        bool
+	autoApprove   bool
 }
 
 func NewPushOption(c *cli.Context) *PushOption {
@@ -32,6 +33,7 @@ func NewPushOption(c *cli.Context) *PushOption {
 	}
 
 	opt.delete = c.Bool("delete")
+	opt.autoApprove = c.Bool("auto-approve")
 
 	return opt
 }
