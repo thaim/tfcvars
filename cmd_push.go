@@ -80,6 +80,19 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		return err
 	}
 
+	if !pushOpt.autoApprove {
+		diff(ctx, workspaceId, tfeVariables, nil, nil, &DiffOption{}, os.Stdout)
+
+		fmt.Printf("confirm?")
+		res, err := confirm(os.Stdin)
+		if err != nil {
+			return err
+		}
+		if !res {
+			return nil
+		}
+	}
+
 	countUpdate := 0
 	countCreate := 0
 	countDelete := 0
