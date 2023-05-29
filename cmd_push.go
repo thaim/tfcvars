@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
+	"strconv"
 	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
@@ -179,4 +182,20 @@ func variableEqual(updateOpt tfe.VariableUpdateOptions, targetVariable *tfe.Vari
 	}
 
 	return true
+}
+
+func confirm(in io.Reader) (bool, error) {
+	r := bufio.NewReader(os.Stdin)
+
+	input, err := r.ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
+	switch strings.ToLower(strconv.Quote(input)) {
+	case "y", "yes":
+		return true, nil
+	}
+
+	return false, nil
 }
