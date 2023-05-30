@@ -37,7 +37,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "push no variable",
 			workspaceId: "w-test-no-vars-workspace",
-			pushOpt:     &PushOption{},
+			pushOpt:     &PushOption{autoApprove: true}, // TODO do not require confirm if no changes
 			vars:        &tfe.VariableList{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
@@ -56,7 +56,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "create one variable",
 			workspaceId: "w-test-no-vars-workspace",
-			pushOpt:     &PushOption{},
+			pushOpt:     &PushOption{autoApprove: true},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -91,7 +91,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "update one variable",
 			workspaceId: "w-test-one-var-workspace",
-			pushOpt:     &PushOption{},
+			pushOpt:     &PushOption{autoApprove: true},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -143,7 +143,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "update one variable with exact same value",
 			workspaceId: "w-test-one-var-workspace",
-			pushOpt:     &PushOption{},
+			pushOpt:     &PushOption{autoApprove: true},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -195,7 +195,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "delete one variable",
 			workspaceId: "w-test-delete-one-var-workspace",
-			pushOpt:     &PushOption{delete: true},
+			pushOpt:     &PushOption{delete: true, autoApprove: true},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
