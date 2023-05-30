@@ -22,6 +22,8 @@ type PushOption struct {
 	variableValue string
 	delete        bool
 	autoApprove   bool
+	in            io.Reader
+	out           io.Writer
 }
 
 func NewPushOption(c *cli.Context) *PushOption {
@@ -37,6 +39,9 @@ func NewPushOption(c *cli.Context) *PushOption {
 
 	opt.delete = c.Bool("delete")
 	opt.autoApprove = c.Bool("auto-approve")
+
+	opt.in = os.Stdin
+	opt.out = os.Stdout
 
 	return opt
 }
@@ -81,10 +86,10 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	}
 
 	if !pushOpt.autoApprove {
-		diff(ctx, workspaceId, tfeVariables, nil, nil, &DiffOption{}, os.Stdout)
+		diff(ctx, workspaceId, tfeVariables, nil, nil, &DiffOption{}, pushOpt.out)
 
 		fmt.Printf("confirm?")
-		res, err := confirm(os.Stdin)
+		res, err := confirm(pushOpt.in)
 		if err != nil {
 			return err
 		}
