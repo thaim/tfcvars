@@ -605,3 +605,75 @@ func TestVariableEqual(t *testing.T) {
 		})
 	}
 }
+
+func TestConfirm(t *testing.T) {
+	cases := []struct {
+		name       string
+		input      string
+		expectBool bool
+		expectErr  string
+		wantErr    bool
+	}{
+		{
+			name:       "return true from y",
+			input:      "y\n",
+			expectBool: true,
+			expectErr:  "",
+			wantErr:    false,
+		},
+		{
+			name:       "return true from yes",
+			input:      "yes\n",
+			expectBool: true,
+			expectErr:  "",
+			wantErr:    false,
+		},
+		{
+			name:       "return true from upper yes",
+			input:      "YES\n",
+			expectBool: true,
+			expectErr:  "",
+			wantErr:    false,
+		},
+		{
+			name:       "return false from no",
+			input:      "no\n",
+			expectBool: false,
+			expectErr:  "",
+			wantErr:    false,
+		},
+		{
+			name:       "return error without newline",
+			input:      "yes",
+			expectBool: false,
+			expectErr:  "EOF",
+			wantErr:    true,
+		},
+		{
+			name:       "return error if no input specified",
+			expectBool: false,
+			expectErr:  "EOF",
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range cases {
+		in := strings.NewReader(tt.input)
+		result, err := confirm(in)
+
+		if tt.wantErr {
+			if err == nil {
+				t.Errorf("expect error '%s', got no error", tt.expectErr)
+			} else if !strings.Contains(err.Error(), tt.expectErr) {
+				t.Errorf("expect error '%s', got '%v'", tt.expectErr, err)
+			}
+			return
+		}
+		if err != nil {
+			t.Errorf("expect no error, got error '%v'", err)
+		}
+		if tt.expectBool != result {
+			t.Errorf("expect result '%t', got '%t'", tt.expectBool, result)
+		}
+	}
+}
