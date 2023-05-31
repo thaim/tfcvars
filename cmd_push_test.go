@@ -241,14 +241,14 @@ func TestCmdPush(t *testing.T) {
 			expectErr: "",
 		},
 		{
-			name: "require confirm and update variable after confirmed",
+			name:        "require confirm and update variable after confirmed",
 			workspaceId: "w-test-require-confirm-variable",
-			pushOpt: &PushOption{},
+			pushOpt:     &PushOption{},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
-						ID: "variable-id-confirm",
-						Key: "environment",
+						ID:    "variable-id-confirm",
+						Key:   "environment",
 						Value: "test",
 					},
 				},
@@ -259,8 +259,8 @@ func TestCmdPush(t *testing.T) {
 					Return(&tfe.VariableList{
 						Items: []*tfe.Variable{
 							{
-								ID: "variable-id-confirm",
-								Key: "environment",
+								ID:    "variable-id-confirm",
+								Key:   "environment",
 								Value: "development",
 							},
 						},
@@ -334,8 +334,8 @@ func TestNewPushOption(t *testing.T) {
 			args: []string{},
 			expect: &PushOption{
 				varFile: "terraform.tfvars",
-				in: os.Stdin,
-				out: os.Stdout,
+				in:      os.Stdin,
+				out:     os.Stdout,
 			},
 		},
 		{
@@ -343,8 +343,8 @@ func TestNewPushOption(t *testing.T) {
 			args: []string{"--var-file", "custom.tfvars"},
 			expect: &PushOption{
 				varFile: "custom.tfvars",
-				in: os.Stdin,
-				out: os.Stdout,
+				in:      os.Stdin,
+				out:     os.Stdout,
 			},
 		},
 		{
@@ -354,8 +354,8 @@ func TestNewPushOption(t *testing.T) {
 				varFile:       "terraform.tfvars",
 				variableKey:   "key",
 				variableValue: "value",
-				in: os.Stdin,
-				out: os.Stdout,
+				in:            os.Stdin,
+				out:           os.Stdout,
 			},
 		},
 		{
@@ -365,8 +365,8 @@ func TestNewPushOption(t *testing.T) {
 				varFile:       "terraform.tfvars",
 				variableKey:   "key",
 				variableValue: "value=10",
-				in: os.Stdin,
-				out: os.Stdout,
+				in:            os.Stdin,
+				out:           os.Stdout,
 			},
 		},
 		{
@@ -375,8 +375,8 @@ func TestNewPushOption(t *testing.T) {
 			expect: &PushOption{
 				varFile: "terraform.tfvars",
 				delete:  true,
-				in: os.Stdin,
-				out: os.Stdout,
+				in:      os.Stdin,
+				out:     os.Stdout,
 			},
 		},
 		{
@@ -385,8 +385,8 @@ func TestNewPushOption(t *testing.T) {
 			expect: &PushOption{
 				varFile:     "terraform.tfvars",
 				autoApprove: true,
-				in: os.Stdin,
-				out: os.Stdout,
+				in:          os.Stdin,
+				out:         os.Stdout,
 			},
 		},
 	}
