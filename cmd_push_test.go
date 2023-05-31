@@ -316,7 +316,7 @@ func TestCmdPush(t *testing.T) {
 			if err != nil {
 				t.Errorf("expect no error, got error: %v", err)
 			}
-			if tt.expect != "" && bytes.Compare(outBuf.Bytes(), []byte(tt.expect)) != 0 {
+			if tt.expect != "" && !bytes.Equal(outBuf.Bytes(), []byte(tt.expect)) {
 				t.Errorf("expect '%s', got '%s'", tt.expect, outBuf.Bytes())
 			}
 		})
