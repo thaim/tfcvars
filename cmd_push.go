@@ -203,7 +203,7 @@ func variableEqual(updateOpt tfe.VariableUpdateOptions, targetVariable *tfe.Vari
 }
 
 func confirm(in io.Reader) (bool, error) {
-	r := bufio.NewReader(os.Stdin)
+	r := bufio.NewReader(in)
 
 	input, err := r.ReadString('\n')
 	if err != nil {
