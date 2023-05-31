@@ -281,6 +281,35 @@ func TestCmdPush(t *testing.T) {
 			input: "yes\n",
 		},
 		{
+			name:        "abort push variables with confirm reject",
+			workspaceId: "w-test-abort-confirm",
+			pushOpt:     &PushOption{},
+			vars: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						ID:    "variable-id-abort",
+						Key:   "environment",
+						Value: "test",
+					},
+				},
+			},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-abort-confirm", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								ID:    "variable-id-abort",
+								Key:   "environment",
+								Value: "development",
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			input: "no\n",
+		},
+		{
 			name:        "return error if failed to access terraform cloud",
 			workspaceId: "w-test-access-error",
 			pushOpt:     &PushOption{},
