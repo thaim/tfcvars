@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
@@ -210,7 +209,7 @@ func confirm(in io.Reader) (bool, error) {
 		return false, err
 	}
 
-	switch strings.ToLower(strconv.Quote(input)) {
+	switch strings.ToLower(strings.TrimRight(input, "\n")) {
 	case "y", "yes":
 		return true, nil
 	}
