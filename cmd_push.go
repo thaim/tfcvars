@@ -85,7 +85,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	}
 
 	if !pushOpt.autoApprove {
-		diff(ctx, workspaceId, tfeVariables, nil, nil, &DiffOption{}, pushOpt.out)
+		diff(ctx, workspaceId, tfeVariables, nil, nil, &DiffOption{varFile: pushOpt.varFile}, pushOpt.out)
 
 		fmt.Printf("confirm?")
 		res, err := confirm(pushOpt.in)
