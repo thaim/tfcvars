@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -30,6 +32,7 @@ func TestCmdPush(t *testing.T) {
 		pushOpt     *PushOption
 		vars        *tfe.VariableList
 		setClient   func(*mocks.MockVariables)
+		input       string
 		expect      string
 		wantErr     bool
 		expectErr   string
@@ -238,6 +241,46 @@ func TestCmdPush(t *testing.T) {
 			expectErr: "",
 		},
 		{
+			name: "require confirm and update variable after confirmed",
+			workspaceId: "w-test-require-confirm-variable",
+			pushOpt: &PushOption{},
+			vars: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						ID: "variable-id-confirm",
+						Key: "environment",
+						Value: "test",
+					},
+				},
+			},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-require-confirm-variable", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								ID: "variable-id-confirm",
+								Key: "environment",
+								Value: "development",
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mc.EXPECT().
+					Update(context.TODO(), "w-test-require-confirm-variable", "variable-id-confirm", gomock.Any()).
+					Return(&tfe.Variable{
+						ID:        "variable-id-confirm",
+						Key:       "environment",
+						Value:     "test",
+						Category:  tfe.CategoryTerraform,
+						HCL:       false,
+						Sensitive: false,
+					}, nil).
+					Times(0)
+			},
+			input: "yes\n",
+		},
+		{
 			name:        "return error if failed to access terraform cloud",
 			workspaceId: "w-test-access-error",
 			pushOpt:     &PushOption{},
@@ -256,6 +299,9 @@ func TestCmdPush(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
 			tt.setClient(mockVariables)
+			tt.pushOpt.in = strings.NewReader(tt.input)
+			outBuf := new(bytes.Buffer)
+			tt.pushOpt.out = outBuf
 
 			err := push(ctx, tt.workspaceId, mockVariables, tt.pushOpt, tt.vars)
 
@@ -269,6 +315,9 @@ func TestCmdPush(t *testing.T) {
 			}
 			if err != nil {
 				t.Errorf("expect no error, got error: %v", err)
+			}
+			if tt.expect != "" && bytes.Compare(outBuf.Bytes(), []byte(tt.expect)) != 0 {
+				t.Errorf("expect '%s', got '%s'", tt.expect, outBuf.Bytes())
 			}
 		})
 	}
@@ -285,6 +334,8 @@ func TestNewPushOption(t *testing.T) {
 			args: []string{},
 			expect: &PushOption{
 				varFile: "terraform.tfvars",
+				in: os.Stdin,
+				out: os.Stdout,
 			},
 		},
 		{
@@ -292,6 +343,8 @@ func TestNewPushOption(t *testing.T) {
 			args: []string{"--var-file", "custom.tfvars"},
 			expect: &PushOption{
 				varFile: "custom.tfvars",
+				in: os.Stdin,
+				out: os.Stdout,
 			},
 		},
 		{
@@ -301,6 +354,8 @@ func TestNewPushOption(t *testing.T) {
 				varFile:       "terraform.tfvars",
 				variableKey:   "key",
 				variableValue: "value",
+				in: os.Stdin,
+				out: os.Stdout,
 			},
 		},
 		{
@@ -310,6 +365,8 @@ func TestNewPushOption(t *testing.T) {
 				varFile:       "terraform.tfvars",
 				variableKey:   "key",
 				variableValue: "value=10",
+				in: os.Stdin,
+				out: os.Stdout,
 			},
 		},
 		{
@@ -318,6 +375,8 @@ func TestNewPushOption(t *testing.T) {
 			expect: &PushOption{
 				varFile: "terraform.tfvars",
 				delete:  true,
+				in: os.Stdin,
+				out: os.Stdout,
 			},
 		},
 		{
@@ -326,6 +385,8 @@ func TestNewPushOption(t *testing.T) {
 			expect: &PushOption{
 				varFile:     "terraform.tfvars",
 				autoApprove: true,
+				in: os.Stdin,
+				out: os.Stdout,
 			},
 		},
 	}
