@@ -276,7 +276,7 @@ func TestCmdPush(t *testing.T) {
 						HCL:       false,
 						Sensitive: false,
 					}, nil).
-					Times(0)
+					Times(1)
 			},
 			input: "yes\n",
 		},
