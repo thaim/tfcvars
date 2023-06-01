@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -30,6 +32,7 @@ func TestCmdPush(t *testing.T) {
 		pushOpt     *PushOption
 		vars        *tfe.VariableList
 		setClient   func(*mocks.MockVariables)
+		input       string
 		expect      string
 		wantErr     bool
 		expectErr   string
@@ -37,7 +40,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "push no variable",
 			workspaceId: "w-test-no-vars-workspace",
-			pushOpt:     &PushOption{},
+			pushOpt:     &PushOption{autoApprove: true}, // TODO do not require confirm if no changes
 			vars:        &tfe.VariableList{},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().
@@ -56,7 +59,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "create one variable",
 			workspaceId: "w-test-no-vars-workspace",
-			pushOpt:     &PushOption{},
+			pushOpt:     &PushOption{autoApprove: true},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -91,7 +94,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "update one variable",
 			workspaceId: "w-test-one-var-workspace",
-			pushOpt:     &PushOption{},
+			pushOpt:     &PushOption{autoApprove: true},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -143,7 +146,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "update one variable with exact same value",
 			workspaceId: "w-test-one-var-workspace",
-			pushOpt:     &PushOption{},
+			pushOpt:     &PushOption{autoApprove: true},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -195,7 +198,7 @@ func TestCmdPush(t *testing.T) {
 		{
 			name:        "delete one variable",
 			workspaceId: "w-test-delete-one-var-workspace",
-			pushOpt:     &PushOption{delete: true},
+			pushOpt:     &PushOption{delete: true, autoApprove: true},
 			vars: &tfe.VariableList{
 				Items: []*tfe.Variable{
 					{
@@ -238,6 +241,106 @@ func TestCmdPush(t *testing.T) {
 			expectErr: "",
 		},
 		{
+			name:        "require confirm and update variable after confirmed",
+			workspaceId: "w-test-require-confirm-variable",
+			pushOpt:     &PushOption{},
+			vars: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						ID:    "variable-id-confirm",
+						Key:   "environment",
+						Value: "test",
+					},
+				},
+			},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-require-confirm-variable", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								ID:    "variable-id-confirm",
+								Key:   "environment",
+								Value: "development",
+							},
+						},
+					}, nil).
+					AnyTimes()
+				mc.EXPECT().
+					Update(context.TODO(), "w-test-require-confirm-variable", "variable-id-confirm", gomock.Any()).
+					Return(&tfe.Variable{
+						ID:        "variable-id-confirm",
+						Key:       "environment",
+						Value:     "test",
+						Category:  tfe.CategoryTerraform,
+						HCL:       false,
+						Sensitive: false,
+					}, nil).
+					Times(1)
+			},
+			input: "yes\n",
+		},
+		{
+			name:        "abort push variables with confirm reject",
+			workspaceId: "w-test-abort-confirm",
+			pushOpt:     &PushOption{},
+			vars: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						ID:    "variable-id-abort",
+						Key:   "environment",
+						Value: "test",
+					},
+				},
+			},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-abort-confirm", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								ID:    "variable-id-abort",
+								Key:   "environment",
+								Value: "development",
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			input: "no\n",
+		},
+		{
+			name:        "abort push variables with no confirm input",
+			workspaceId: "w-test-abort-confirm-no-input",
+			pushOpt:     &PushOption{},
+			vars: &tfe.VariableList{
+				Items: []*tfe.Variable{
+					{
+						ID:    "variable-id-abort-no-input",
+						Key:   "environment",
+						Value: "test",
+					},
+				},
+			},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-abort-confirm-no-input", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								ID:    "variable-id-abort-no-input",
+								Key:   "environment",
+								Value: "development",
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			input:     "",
+			wantErr:   true,
+			expectErr: "EOF",
+		},
+		{
 			name:        "return error if failed to access terraform cloud",
 			workspaceId: "w-test-access-error",
 			pushOpt:     &PushOption{},
@@ -256,6 +359,9 @@ func TestCmdPush(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.TODO()
 			tt.setClient(mockVariables)
+			tt.pushOpt.in = strings.NewReader(tt.input)
+			outBuf := new(bytes.Buffer)
+			tt.pushOpt.out = outBuf
 
 			err := push(ctx, tt.workspaceId, mockVariables, tt.pushOpt, tt.vars)
 
@@ -269,6 +375,9 @@ func TestCmdPush(t *testing.T) {
 			}
 			if err != nil {
 				t.Errorf("expect no error, got error: %v", err)
+			}
+			if tt.expect != "" && !bytes.Equal(outBuf.Bytes(), []byte(tt.expect)) {
+				t.Errorf("expect '%s', got '%s'", tt.expect, outBuf.Bytes())
 			}
 		})
 	}
@@ -285,6 +394,8 @@ func TestNewPushOption(t *testing.T) {
 			args: []string{},
 			expect: &PushOption{
 				varFile: "terraform.tfvars",
+				in:      os.Stdin,
+				out:     os.Stdout,
 			},
 		},
 		{
@@ -292,6 +403,8 @@ func TestNewPushOption(t *testing.T) {
 			args: []string{"--var-file", "custom.tfvars"},
 			expect: &PushOption{
 				varFile: "custom.tfvars",
+				in:      os.Stdin,
+				out:     os.Stdout,
 			},
 		},
 		{
@@ -301,6 +414,8 @@ func TestNewPushOption(t *testing.T) {
 				varFile:       "terraform.tfvars",
 				variableKey:   "key",
 				variableValue: "value",
+				in:            os.Stdin,
+				out:           os.Stdout,
 			},
 		},
 		{
@@ -310,6 +425,8 @@ func TestNewPushOption(t *testing.T) {
 				varFile:       "terraform.tfvars",
 				variableKey:   "key",
 				variableValue: "value=10",
+				in:            os.Stdin,
+				out:           os.Stdout,
 			},
 		},
 		{
@@ -318,6 +435,18 @@ func TestNewPushOption(t *testing.T) {
 			expect: &PushOption{
 				varFile: "terraform.tfvars",
 				delete:  true,
+				in:      os.Stdin,
+				out:     os.Stdout,
+			},
+		},
+		{
+			name: "auto-approve option enabled",
+			args: []string{"--auto-approve"},
+			expect: &PushOption{
+				varFile:     "terraform.tfvars",
+				autoApprove: true,
+				in:          os.Stdin,
+				out:         os.Stdout,
 			},
 		},
 	}
@@ -534,5 +663,77 @@ func TestVariableEqual(t *testing.T) {
 				t.Errorf("expect '%t', got '%t'", tt.expect, actual)
 			}
 		})
+	}
+}
+
+func TestConfirm(t *testing.T) {
+	cases := []struct {
+		name       string
+		input      string
+		expectBool bool
+		expectErr  string
+		wantErr    bool
+	}{
+		{
+			name:       "return true from y",
+			input:      "y\n",
+			expectBool: true,
+			expectErr:  "",
+			wantErr:    false,
+		},
+		{
+			name:       "return true from yes",
+			input:      "yes\n",
+			expectBool: true,
+			expectErr:  "",
+			wantErr:    false,
+		},
+		{
+			name:       "return true from upper yes",
+			input:      "YES\n",
+			expectBool: true,
+			expectErr:  "",
+			wantErr:    false,
+		},
+		{
+			name:       "return false from no",
+			input:      "no\n",
+			expectBool: false,
+			expectErr:  "",
+			wantErr:    false,
+		},
+		{
+			name:       "return error without newline",
+			input:      "yes",
+			expectBool: false,
+			expectErr:  "EOF",
+			wantErr:    true,
+		},
+		{
+			name:       "return error if no input specified",
+			expectBool: false,
+			expectErr:  "EOF",
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range cases {
+		in := strings.NewReader(tt.input)
+		result, err := confirm(in)
+
+		if tt.wantErr {
+			if err == nil {
+				t.Errorf("expect error '%s', got no error", tt.expectErr)
+			} else if !strings.Contains(err.Error(), tt.expectErr) {
+				t.Errorf("expect error '%s', got '%v'", tt.expectErr, err)
+			}
+			return
+		}
+		if err != nil {
+			t.Errorf("expect no error, got error '%v'", err)
+		}
+		if tt.expectBool != result {
+			t.Errorf("expect result '%t', got '%t'", tt.expectBool, result)
+		}
 	}
 }

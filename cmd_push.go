@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -18,6 +20,9 @@ type PushOption struct {
 	variableKey   string
 	variableValue string
 	delete        bool
+	autoApprove   bool
+	in            io.Reader
+	out           io.Writer
 }
 
 func NewPushOption(c *cli.Context) *PushOption {
@@ -32,6 +37,10 @@ func NewPushOption(c *cli.Context) *PushOption {
 	}
 
 	opt.delete = c.Bool("delete")
+	opt.autoApprove = c.Bool("auto-approve")
+
+	opt.in = os.Stdin
+	opt.out = os.Stdout
 
 	return opt
 }
@@ -73,6 +82,19 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	if err != nil {
 		log.Error().Err(err).Msg("failed to list variables")
 		return err
+	}
+
+	if !pushOpt.autoApprove {
+		diff(ctx, workspaceId, tfeVariables, nil, nil, &DiffOption{varFile: pushOpt.varFile}, pushOpt.out)
+
+		fmt.Printf("confirm?")
+		res, err := confirm(pushOpt.in)
+		if err != nil {
+			return err
+		}
+		if !res {
+			return nil
+		}
 	}
 
 	countUpdate := 0
@@ -177,4 +199,20 @@ func variableEqual(updateOpt tfe.VariableUpdateOptions, targetVariable *tfe.Vari
 	}
 
 	return true
+}
+
+func confirm(in io.Reader) (bool, error) {
+	r := bufio.NewReader(in)
+
+	input, err := r.ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
+	switch strings.ToLower(strings.TrimRight(input, "\n")) {
+	case "y", "yes":
+		return true, nil
+	}
+
+	return false, nil
 }
