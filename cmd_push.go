@@ -45,6 +45,13 @@ func NewPushOption(c *cli.Context) *PushOption {
 	return opt
 }
 
+type PushVariable struct {
+	operation    string
+	id           string
+	createOption tfe.VariableCreateOptions
+	updateOption tfe.VariableUpdateOptions
+}
+
 func Push(c *cli.Context) error {
 	ctx := context.Background()
 	log.Debug().Msg("push command")
@@ -84,6 +91,63 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		return err
 	}
 
+	variables := []*PushVariable{}
+
+	for _, variable := range vars.Items {
+		pushed := false
+
+		for _, targetVar := range previousVars.Items {
+			if targetVar.Key == variable.Key {
+				updateOpt := tfe.VariableUpdateOptions{
+					Key:         tfe.String(variable.Key),
+					Value:       tfe.String(variable.Value),
+					Description: tfe.String(targetVar.Description),
+					Category:    tfe.Category(targetVar.Category),
+					HCL:         tfe.Bool(targetVar.HCL),
+					Sensitive:   tfe.Bool(targetVar.Sensitive),
+				}
+				if !variableEqual(updateOpt, targetVar) {
+					variables = append(variables, &PushVariable{
+						operation:    "update",
+						id:           targetVar.ID,
+						updateOption: updateOpt,
+					})
+				}
+				pushed = true
+			}
+		}
+
+		if !pushed {
+			createOpt := tfe.VariableCreateOptions{
+				Key:       tfe.String(variable.Key),
+				Value:     tfe.String(variable.Value),
+				Category:  tfe.Category(tfe.CategoryTerraform),
+				HCL:       tfe.Bool(false),
+				Sensitive: tfe.Bool(false),
+			}
+			variables = append(variables, &PushVariable{
+				operation:    "create",
+				createOption: createOpt,
+			})
+		}
+	}
+
+	if pushOpt.delete {
+		for _, targetVar := range previousVars.Items {
+			for _, localVar := range vars.Items {
+				if targetVar.Key == localVar.Key {
+					continue
+				}
+
+				// variable that are defined in remote but not in local
+				variables = append(variables, &PushVariable{
+					operation: "delete",
+					id:        targetVar.ID,
+				})
+			}
+		}
+	}
+
 	if !pushOpt.autoApprove {
 		diff(ctx, workspaceId, tfeVariables, nil, nil, &DiffOption{varFile: pushOpt.varFile}, pushOpt.out)
 
@@ -100,59 +164,19 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	countUpdate := 0
 	countCreate := 0
 	countDelete := 0
-
-	for _, variable := range vars.Items {
-		pushed := false
-
-		for _, targetVar := range previousVars.Items {
-			if targetVar.Key == variable.Key {
-				updateOpt := tfe.VariableUpdateOptions{
-					Key:         tfe.String(variable.Key),
-					Value:       tfe.String(variable.Value),
-					Description: tfe.String(targetVar.Description),
-					Category:    tfe.Category(targetVar.Category),
-					HCL:         tfe.Bool(targetVar.HCL),
-					Sensitive:   tfe.Bool(targetVar.Sensitive),
-				}
-				if !variableEqual(updateOpt, targetVar) {
-					tfeVariables.Update(ctx, workspaceId, targetVar.ID, updateOpt)
-					fmt.Printf("update: %s\n", variable.Key)
-					countUpdate++
-				}
-				pushed = true
-				break
-			}
-		}
-
-		if !pushed {
-			createOpt := tfe.VariableCreateOptions{
-				Key:       tfe.String(variable.Key),
-				Value:     tfe.String(variable.Value),
-				Category:  tfe.Category(tfe.CategoryTerraform),
-				HCL:       tfe.Bool(false),
-				Sensitive: tfe.Bool(false),
-			}
-			tfeVariables.Create(ctx, workspaceId, createOpt)
-			fmt.Printf("create: %s\n", variable.Key)
+	for _, variable := range variables {
+		switch variable.operation {
+		case "create":
+			tfeVariables.Create(ctx, workspaceId, variable.createOption)
 			countCreate++
+		case "update":
+			tfeVariables.Update(ctx, workspaceId, variable.id, variable.updateOption)
+			countUpdate++
+		case "delete":
+			tfeVariables.Delete(ctx, workspaceId, variable.id)
+			countDelete++
 		}
 	}
-
-	if pushOpt.delete {
-		for _, targetVar := range previousVars.Items {
-			for _, localVar := range vars.Items {
-				if targetVar.Key == localVar.Key {
-					continue
-				}
-
-				// variable that are defined in remote but not in local
-				tfeVariables.Delete(ctx, workspaceId, targetVar.ID)
-				fmt.Printf("delete: %s\n", targetVar.Key)
-				countDelete++
-			}
-		}
-	}
-
 	log.Info().Msgf("create: %d, update: %d, delete: %d", countCreate, countUpdate, countDelete)
 
 	return nil
