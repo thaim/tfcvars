@@ -45,6 +45,12 @@ func NewPushOption(c *cli.Context) *PushOption {
 	return opt
 }
 
+const (
+	PUSH_OPERATION_CREATE = "create"
+	PUSH_OPERATION_UPDATE = "update"
+	PUSH_OPERATION_DELETE = "delete"
+)
+
 type PushVariable struct {
 	operation    string
 	id           string
@@ -108,7 +114,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 				}
 				if !variableEqual(updateOpt, targetVar) {
 					variables = append(variables, &PushVariable{
-						operation:    "update",
+						operation:    PUSH_OPERATION_UPDATE,
 						id:           targetVar.ID,
 						updateOption: updateOpt,
 					})
@@ -126,7 +132,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 				Sensitive: tfe.Bool(false),
 			}
 			variables = append(variables, &PushVariable{
-				operation:    "create",
+				operation:    PUSH_OPERATION_CREATE,
 				createOption: createOpt,
 			})
 		}
@@ -141,7 +147,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 
 				// variable that are defined in remote but not in local
 				variables = append(variables, &PushVariable{
-					operation: "delete",
+					operation: PUSH_OPERATION_DELETE,
 					id:        targetVar.ID,
 				})
 			}
@@ -166,15 +172,17 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	countDelete := 0
 	for _, variable := range variables {
 		switch variable.operation {
-		case "create":
+		case PUSH_OPERATION_CREATE:
 			tfeVariables.Create(ctx, workspaceId, variable.createOption)
 			countCreate++
-		case "update":
+		case PUSH_OPERATION_UPDATE:
 			tfeVariables.Update(ctx, workspaceId, variable.id, variable.updateOption)
 			countUpdate++
-		case "delete":
+		case PUSH_OPERATION_DELETE:
 			tfeVariables.Delete(ctx, workspaceId, variable.id)
 			countDelete++
+		default:
+			return fmt.Errorf("unknown operation '%s'", variable.operation)
 		}
 	}
 	log.Info().Msgf("create: %d, update: %d, delete: %d", countCreate, countUpdate, countDelete)
