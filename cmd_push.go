@@ -156,8 +156,8 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	}
 
 	if !pushOpt.autoApprove {
-		vfSrc := NewTfvarsVariable(vars.Items)
-		vfDest := NewTfvarsVariable(previousVars.Items)
+		vfSrc := NewTfvarsVariable(previousVars.Items)
+		vfDest := NewTfvarsVariable(vars.Items)
 		includeDiff, diffString := fileDiff(vfSrc.BuildHCLFileString(), vfDest.BuildHCLFileString())
 		if !includeDiff {
 			return nil
