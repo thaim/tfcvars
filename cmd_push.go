@@ -96,6 +96,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		log.Error().Err(err).Msg("failed to list variables")
 		return err
 	}
+	previousVars.Items = FilterEnv(previousVars.Items)
 
 	variables := []*PushVariable{}
 
