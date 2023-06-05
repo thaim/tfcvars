@@ -155,7 +155,13 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	}
 
 	if !pushOpt.autoApprove {
-		diff(ctx, workspaceId, tfeVariables, nil, nil, &DiffOption{varFile: pushOpt.varFile}, pushOpt.out)
+		vfSrc := NewTfvarsVariable(vars.Items)
+		vfDest := NewTfvarsVariable(previousVars.Items)
+		includeDiff, diffString := fileDiff(vfSrc.BuildHCLFileString(), vfDest.BuildHCLFileString())
+		if !includeDiff {
+			return nil
+		}
+		fmt.Fprintf(pushOpt.out, diffString)
 
 		fmt.Printf("confirm?")
 		res, err := confirm(pushOpt.in)
