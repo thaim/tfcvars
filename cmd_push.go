@@ -3,14 +3,12 @@ package main
 import (
 	"bufio"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
-	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
@@ -45,6 +43,19 @@ func NewPushOption(c *cli.Context) *PushOption {
 	return opt
 }
 
+const (
+	PUSH_OPERATION_CREATE = "create"
+	PUSH_OPERATION_UPDATE = "update"
+	PUSH_OPERATION_DELETE = "delete"
+)
+
+type PushVariable struct {
+	operation    string
+	id           string
+	createOption tfe.VariableCreateOptions
+	updateOption tfe.VariableUpdateOptions
+}
+
 func Push(c *cli.Context) error {
 	ctx := context.Background()
 	log.Debug().Msg("push command")
@@ -64,9 +75,14 @@ func Push(c *cli.Context) error {
 	pushOpt := NewPushOption(c)
 	log.Debug().Msgf("pushOption: %+v", pushOpt)
 
-	var vars *tfe.VariableList
+	vars := &tfe.VariableList{}
 	if pushOpt.variableKey == "" {
-		vars, err = variableFile(pushOpt.varFile, true)
+		vf, err := NewTfvarsFile(pushOpt.varFile)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to parse tfvars file")
+			return err
+		}
+		vars.Items = vf.vars
 	} else {
 		vars = BuildVariableList(pushOpt.variableKey, pushOpt.variableValue)
 	}
@@ -83,23 +99,9 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		log.Error().Err(err).Msg("failed to list variables")
 		return err
 	}
+	previousVars.Items = FilterEnv(previousVars.Items)
 
-	if !pushOpt.autoApprove {
-		diff(ctx, workspaceId, tfeVariables, nil, nil, &DiffOption{varFile: pushOpt.varFile}, pushOpt.out)
-
-		fmt.Printf("confirm?")
-		res, err := confirm(pushOpt.in)
-		if err != nil {
-			return err
-		}
-		if !res {
-			return nil
-		}
-	}
-
-	countUpdate := 0
-	countCreate := 0
-	countDelete := 0
+	variables := []*PushVariable{}
 
 	for _, variable := range vars.Items {
 		pushed := false
@@ -115,12 +117,13 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 					Sensitive:   tfe.Bool(targetVar.Sensitive),
 				}
 				if !variableEqual(updateOpt, targetVar) {
-					tfeVariables.Update(ctx, workspaceId, targetVar.ID, updateOpt)
-					fmt.Printf("update: %s\n", variable.Key)
-					countUpdate++
+					variables = append(variables, &PushVariable{
+						operation:    PUSH_OPERATION_UPDATE,
+						id:           targetVar.ID,
+						updateOption: updateOpt,
+					})
 				}
 				pushed = true
-				break
 			}
 		}
 
@@ -132,9 +135,10 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 				HCL:       tfe.Bool(false),
 				Sensitive: tfe.Bool(false),
 			}
-			tfeVariables.Create(ctx, workspaceId, createOpt)
-			fmt.Printf("create: %s\n", variable.Key)
-			countCreate++
+			variables = append(variables, &PushVariable{
+				operation:    PUSH_OPERATION_CREATE,
+				createOption: createOpt,
+			})
 		}
 	}
 
@@ -146,46 +150,54 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 				}
 
 				// variable that are defined in remote but not in local
-				tfeVariables.Delete(ctx, workspaceId, targetVar.ID)
-				fmt.Printf("delete: %s\n", targetVar.Key)
-				countDelete++
+				variables = append(variables, &PushVariable{
+					operation: PUSH_OPERATION_DELETE,
+					id:        targetVar.ID,
+				})
 			}
 		}
 	}
 
+	if !pushOpt.autoApprove {
+		vfSrc := NewTfvarsVariable(previousVars.Items)
+		vfDest := NewTfvarsVariable(vars.Items)
+		includeDiff, diffString := fileDiff(vfSrc.BuildHCLFileString(), vfDest.BuildHCLFileString())
+		if !includeDiff {
+			return nil
+		}
+		fmt.Fprint(pushOpt.out, diffString)
+
+		fmt.Printf("confirm?")
+		res, err := confirm(pushOpt.in)
+		if err != nil {
+			return err
+		}
+		if !res {
+			return nil
+		}
+	}
+
+	countUpdate := 0
+	countCreate := 0
+	countDelete := 0
+	for _, variable := range variables {
+		switch variable.operation {
+		case PUSH_OPERATION_CREATE:
+			tfeVariables.Create(ctx, workspaceId, variable.createOption)
+			countCreate++
+		case PUSH_OPERATION_UPDATE:
+			tfeVariables.Update(ctx, workspaceId, variable.id, variable.updateOption)
+			countUpdate++
+		case PUSH_OPERATION_DELETE:
+			tfeVariables.Delete(ctx, workspaceId, variable.id)
+			countDelete++
+		default:
+			return fmt.Errorf("unknown operation '%s'", variable.operation)
+		}
+	}
 	log.Info().Msgf("create: %d, update: %d, delete: %d", countCreate, countUpdate, countDelete)
 
 	return nil
-}
-
-func variableFile(varfile string, required bool) (*tfe.VariableList, error) {
-	vars := &tfe.VariableList{}
-
-	if _, err := os.Stat(varfile); os.IsNotExist(err) {
-		if required {
-			return nil, err
-		}
-		vars.Items = []*tfe.Variable{{}}
-		return vars, nil
-	}
-
-	p := hclparse.NewParser()
-	file, diags := p.ParseHCLFile(varfile)
-	if diags.HasErrors() {
-		return nil, errors.New(diags.Error())
-	}
-	attrs, _ := file.Body.JustAttributes()
-	for attrKey, attrValue := range attrs {
-		val, _ := attrValue.Expr.Value(nil)
-
-		vars.Items = append(vars.Items, &tfe.Variable{
-			Key:   attrKey,
-			Value: String(val),
-			HCL:   !IsPrimitive(val),
-		})
-	}
-
-	return vars, nil
 }
 
 func variableEqual(updateOpt tfe.VariableUpdateOptions, targetVariable *tfe.Variable) bool {
