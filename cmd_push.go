@@ -165,7 +165,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		if !includeDiff {
 			return nil
 		}
-		fmt.Fprintf(pushOpt.out, diffString)
+		fmt.Fprint(pushOpt.out, diffString)
 
 		fmt.Printf("confirm?")
 		res, err := confirm(pushOpt.in)
