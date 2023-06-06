@@ -72,10 +72,10 @@ func (vf *Tfvars) convertVarsfile() error {
 
 	vf.vars = []*tfe.Variable{}
 	attrs, _ := f.Body.JustAttributes()
-	for k, v := range attrs {
-		val, _ := v.Expr.Value(nil)
+	for _, attr := range SortAttributes(attrs) {
+		val, _ := attr.Expr.Value(nil)
 		vf.vars = append(vf.vars, &tfe.Variable{
-			Key:   k,
+			Key:   attr.Name,
 			Value: String(val),
 			HCL:   !IsPrimitive(val),
 		})
