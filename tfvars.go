@@ -6,6 +6,7 @@ import (
 
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/zclconf/go-cty/cty"
 )
@@ -59,21 +60,24 @@ func NewTfvarsFile(filename string) (*Tfvars, error) {
 
 // convertVarsfile generate list of tfe.Variable from tfvars file
 func (vf *Tfvars) convertVarsfile() error {
-	var f *hclwrite.File
 
 	if vf.vardata == nil {
 		return errors.New("invalid vardata")
 	}
-	f, diags := hclwrite.ParseConfig(vf.vardata, vf.filename, hcl.Pos{Line: 1, Column: 1})
+	p := hclparse.NewParser()
+	f, diags := p.ParseHCL(vf.vardata, vf.filename)
 	if diags.HasErrors() {
 		return errors.New(diags.Error())
 	}
 
 	vf.vars = []*tfe.Variable{}
-	for k, v := range f.Body().Attributes() {
+	attrs, _ := f.Body.JustAttributes()
+	for k, v := range attrs {
+		val, _ := v.Expr.Value(nil)
 		vf.vars = append(vf.vars, &tfe.Variable{
 			Key:   k,
-			Value: string(v.Expr().BuildTokens(nil).Bytes()),
+			Value: String(val),
+			HCL:   !IsPrimitive(val),
 		})
 	}
 
