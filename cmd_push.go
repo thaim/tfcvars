@@ -3,14 +3,12 @@ package main
 import (
 	"bufio"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
-	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
@@ -77,9 +75,14 @@ func Push(c *cli.Context) error {
 	pushOpt := NewPushOption(c)
 	log.Debug().Msgf("pushOption: %+v", pushOpt)
 
-	var vars *tfe.VariableList
+	vars := &tfe.VariableList{}
 	if pushOpt.variableKey == "" {
-		vars, err = variableFile(pushOpt.varFile, true)
+		vf, err := NewTfvarsFile(pushOpt.varFile)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to parse tfvars file")
+			return err
+		}
+		vars.Items = vf.vars
 	} else {
 		vars = BuildVariableList(pushOpt.variableKey, pushOpt.variableValue)
 	}
@@ -195,36 +198,6 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 	log.Info().Msgf("create: %d, update: %d, delete: %d", countCreate, countUpdate, countDelete)
 
 	return nil
-}
-
-func variableFile(varfile string, required bool) (*tfe.VariableList, error) {
-	vars := &tfe.VariableList{}
-
-	if _, err := os.Stat(varfile); os.IsNotExist(err) {
-		if required {
-			return nil, err
-		}
-		vars.Items = []*tfe.Variable{{}}
-		return vars, nil
-	}
-
-	p := hclparse.NewParser()
-	file, diags := p.ParseHCLFile(varfile)
-	if diags.HasErrors() {
-		return nil, errors.New(diags.Error())
-	}
-	attrs, _ := file.Body.JustAttributes()
-	for attrKey, attrValue := range attrs {
-		val, _ := attrValue.Expr.Value(nil)
-
-		vars.Items = append(vars.Items, &tfe.Variable{
-			Key:   attrKey,
-			Value: String(val),
-			HCL:   !IsPrimitive(val),
-		})
-	}
-
-	return vars, nil
 }
 
 func variableEqual(updateOpt tfe.VariableUpdateOptions, targetVariable *tfe.Variable) bool {

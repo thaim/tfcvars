@@ -11,7 +11,6 @@ import (
 	"github.com/golang/mock/gomock"
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/go-tfe/mocks"
-	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 )
 
@@ -463,106 +462,6 @@ func TestNewPushOption(t *testing.T) {
 			if !reflect.DeepEqual(tt.expect, sut) {
 				t.Errorf("expect '%v', got '%v'", tt.expect, sut)
 			}
-		})
-	}
-}
-
-func TestVariableFile(t *testing.T) {
-	cases := []struct {
-		name      string
-		varfile   string
-		required  bool
-		expect    *tfe.VariableList
-		wantErr   bool
-		expectErr string
-	}{
-		{
-			name:     "default value",
-			varfile:  "testdata/terraform.tfvars",
-			required: true,
-			expect: &tfe.VariableList{
-				Items: []*tfe.Variable{
-					{
-						Key:   "environment",
-						Value: "development",
-						HCL:   false,
-					},
-				},
-			},
-		},
-		{
-			name:     "mixed type value",
-			varfile:  "testdata/mixedtypes.tfvars",
-			required: true,
-			expect: &tfe.VariableList{
-				Items: []*tfe.Variable{
-					{
-						Key:   "environment",
-						Value: "test",
-					},
-					{
-						Key:   "port",
-						Value: "3000",
-					},
-					{
-						Key:   "terraform",
-						Value: "true",
-					},
-					{
-						Key:   "availability_zones",
-						Value: `["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]`,
-						HCL:   true,
-					},
-					{
-						Key:   "tags",
-						Value: `{repo = "github.com/thaim/tfcvars"}`,
-						HCL:   true,
-					},
-				},
-			},
-		},
-		{
-			name:      "invalid vars file",
-			varfile:   "testdata/invalid.tfvars",
-			required:  true,
-			wantErr:   true,
-			expectErr: "Argument or block definition required",
-		},
-		{
-			name:     "vars file not exist without required option",
-			varfile:  "terraform.tfvars",
-			required: false,
-			expect: &tfe.VariableList{
-				Items: []*tfe.Variable{{}},
-			},
-		},
-		{
-			name:      "vars file not exist with required option",
-			varfile:   "terraform.tfvars",
-			required:  true,
-			wantErr:   true,
-			expectErr: "no such file or directory",
-		},
-	}
-
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			actual, err := variableFile(tt.varfile, tt.required)
-
-			if tt.wantErr {
-				if err == nil {
-					t.Errorf("expect '%s' error, got no error", tt.expectErr)
-				} else if !strings.Contains(err.Error(), tt.expectErr) {
-					t.Errorf("expect '%s' error, got '%s'", tt.expectErr, err.Error())
-				}
-				return
-			}
-
-			if err != nil {
-				t.Errorf("expect no error, got error: %v", err)
-			}
-
-			assert.ElementsMatch(t, tt.expect.Items, actual.Items)
 		})
 	}
 }
