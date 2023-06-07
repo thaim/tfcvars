@@ -6,7 +6,7 @@ require (
 	github.com/antonholmquist/jason v1.0.0
 	github.com/golang/mock v1.6.0
 	github.com/hashicorp/go-tfe v1.26.0
-	github.com/hashicorp/hcl/v2 v2.16.2
+	github.com/hashicorp/hcl/v2 v2.17.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rs/zerolog v1.29.1
 	github.com/sergi/go-diff v1.3.1
