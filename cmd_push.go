@@ -167,7 +167,7 @@ func push(ctx context.Context, workspaceId string, tfeVariables tfe.Variables, p
 		}
 		fmt.Fprint(pushOpt.out, diffString)
 
-		fmt.Printf("confirm?")
+		fmt.Print("Are you sure you want to change variables in Terraform Cloud? [y/n]: ")
 		res, err := confirm(pushOpt.in)
 		if err != nil {
 			return err
