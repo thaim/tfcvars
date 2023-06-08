@@ -70,6 +70,12 @@ func main() {
 				Flags:  pushFlags(),
 				Usage:  "update Terraform Cloud variables with local tfvars",
 			},
+			{
+				Name:   "rm",
+				Action: Remove,
+				Flags:  removeFlags(),
+				Usage:  "remove Terraform Cloud variables",
+			},
 		},
 		Version: versionFormatter(getVersion(), getRevision()),
 	}
@@ -189,6 +195,20 @@ func diffFlags() []cli.Flag {
 		&cli.BoolFlag{
 			Name:  "include-variable-set",
 			Usage: "include Variable Set variables",
+			Value: false,
+		},
+	}
+}
+
+func removeFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:  "variable",
+			Usage: "Remove specified variable",
+		},
+		&cli.BoolFlag{
+			Name:  "auto-approve",
+			Usage: "Skip approve",
 			Value: false,
 		},
 	}
