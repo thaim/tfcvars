@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 
 	tfe "github.com/hashicorp/go-tfe"
 	"github.com/rs/zerolog/log"
@@ -13,14 +14,21 @@ import (
 type RemoveOption struct {
 	variableKey string
 	autoApprove bool
-	in io.Reader
-	out io.Writer
+	in          io.Reader
+	out         io.Writer
 }
 
 func NewRemoveOption(c *cli.Context) *RemoveOption {
 	var opt = &RemoveOption{}
 	opt.variableKey = c.String("variable")
+	if opt.variableKey == "" {
+		return nil
+	}
+
 	opt.autoApprove = c.Bool("auto-approve")
+
+	opt.in = os.Stdin
+	opt.out = os.Stdout
 
 	return opt
 }
