@@ -1,12 +1,82 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp/go-tfe/mocks"
 	"github.com/urfave/cli/v2"
 )
+
+func TestCmdRemove(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockVariables := mocks.NewMockVariables(ctrl)
+
+	cases := []struct {
+		name        string
+		workspaceId string
+		removeOpt   *RemoveOption
+		vars        *tfe.VariableList
+		setClient   func(*mocks.MockVariables)
+		input       string
+		expect      string
+		wantErr     bool
+		expectErr   string
+	}{
+		{
+			name: "remove variable",
+			workspaceId: "ws-remove-variable",
+			removeOpt: &RemoveOption{variableKey: "environment", autoApprove: true},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().List(gomock.Any(), "ws-remove-variable", nil).Return(&tfe.VariableList{
+					Items: []*tfe.Variable{
+						{
+							ID: "v-environment",
+							Key: "environment",
+							Value: "test",
+						},
+					},
+				}, nil)
+				mc.EXPECT().Delete(gomock.Any(), "ws-remove-variable", "v-environment").Return(nil)
+			},
+			expect: "",
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.TODO()
+			tt.setClient(mockVariables)
+			tt.removeOpt.in = strings.NewReader(tt.input)
+			outBuf := new(bytes.Buffer)
+			tt.removeOpt.out = outBuf
+
+			err := remove(ctx, tt.workspaceId, mockVariables, tt.removeOpt)
+
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("expect '%s' error, got no error", tt.expectErr)
+				} else if !strings.Contains(err.Error(), tt.expectErr) {
+					t.Errorf("expect %s error, got %T", tt.expectErr, err)
+				}
+				return
+			}
+			if err != nil {
+				t.Errorf("expect no error, got error: %v", err)
+			}
+			if tt.expect != "" && !bytes.Equal(outBuf.Bytes(), []byte(tt.expect)) {
+				t.Errorf("expect '%s', got '%s'", tt.expect, outBuf.Bytes())
+			}
+		})
+	}
+}
 
 func TestNewRemoveOption(t *testing.T) {
 	cases := []struct {
