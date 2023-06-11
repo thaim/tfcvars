@@ -77,7 +77,9 @@ func remove(ctx context.Context, workspaceId string, tfeVariables tfe.Variables,
 	}
 
 	if targetVariable == nil {
-		return nil
+		msg := fmt.Sprintf("variable '%s' not found", rmOpt.variableKey)
+		log.Error().Msg(msg)
+		return fmt.Errorf(msg)
 	}
 	if !rmOpt.autoApprove {
 		fmt.Fprintf(rmOpt.out, "delete variable %s", targetVariable.Key)

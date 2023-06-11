@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"os"
 	"reflect"
 	"strings"
@@ -45,8 +46,55 @@ func TestCmdRemove(t *testing.T) {
 				}, nil)
 				mc.EXPECT().Delete(gomock.Any(), "ws-remove-variable", "v-environment").Return(nil)
 			},
+		},
+		{
+			name: "return error if variable not exist",
+			workspaceId: "ws-specified-variable-not-exist",
+			removeOpt: &RemoveOption{variableKey: "environment", autoApprove: true},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().List(gomock.Any(), "ws-specified-variable-not-exist", nil).Return(&tfe.VariableList{
+					Items: []*tfe.Variable{
+						{
+							ID: "v-terraform",
+							Key: "terraform",
+							Value: "true",
+						},
+						{
+							ID: "v-aws_region",
+							Key: "aws_region",
+							Value: "ap-northeast-1",
+						},
+					},
+				}, nil)
+			},
 			expect: "",
-			wantErr: false,
+			wantErr: true,
+			expectErr: "variable 'environment' not found",
+		},
+		{
+			name: "return error if delete variable in tfc failed",
+			workspaceId: "ws-error-raised-in-tfc",
+			removeOpt: &RemoveOption{variableKey: "environment", autoApprove: true},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().List(gomock.Any(), "ws-error-raised-in-tfc", nil).Return(&tfe.VariableList{
+					Items: []*tfe.Variable{
+						{
+							ID: "v-environment",
+							Key: "environment",
+							Value: "test",
+						},
+						{
+							ID: "v-aws_region",
+							Key: "aws_region",
+							Value: "ap-northeast-1",
+						},
+					},
+				}, nil)
+				mc.EXPECT().Delete(gomock.Any(), "ws-error-raised-in-tfc", "v-environment").Return(errors.New("failed to delete variable"))
+			},
+			expect: "",
+			wantErr: true,
+			expectErr: "failed to delete variable",
 		},
 	}
 
