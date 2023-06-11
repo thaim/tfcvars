@@ -146,6 +146,31 @@ func TestCmdRemove(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:        "do nothing if approve not input",
+			workspaceId: "w-noinput-approve",
+			removeOpt:   &RemoveOption{variableKey: "environment", autoApprove: false},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().List(gomock.Any(), "w-noinput-approve", nil).Return(&tfe.VariableList{
+					Items: []*tfe.Variable{
+						{
+							ID:    "v-environment",
+							Key:   "environment",
+							Value: "test",
+						},
+						{
+							ID:    "v-aws_region",
+							Key:   "aws_region",
+							Value: "ap-northeast-1",
+						},
+					},
+				}, nil)
+			},
+			input:     "",
+			expect:    "delete variable: environment",
+			wantErr:   true,
+			expectErr: "EOF",
+		},
+		{
 			name:        "return error if failed to list variables",
 			workspaceId: "w-error-list-variable",
 			removeOpt:   &RemoveOption{variableKey: "environment", autoApprove: false},
