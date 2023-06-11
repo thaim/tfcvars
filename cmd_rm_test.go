@@ -145,6 +145,16 @@ func TestCmdRemove(t *testing.T) {
 			expect:  "delete variable: environment",
 			wantErr: false,
 		},
+		{
+			name:        "return error if failed to list variables",
+			workspaceId: "w-error-list-variable",
+			removeOpt:   &RemoveOption{variableKey: "environment", autoApprove: false},
+			setClient: func(mc *mocks.MockVariables) {
+				mc.EXPECT().List(gomock.Any(), "w-error-list-variable", nil).Return(nil, errors.New("failed to list variables"))
+			},
+			wantErr:   true,
+			expectErr: "failed to list variables",
+		},
 	}
 
 	for _, tt := range cases {
