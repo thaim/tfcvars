@@ -99,7 +99,7 @@ func TestCmdRemove(t *testing.T) {
 		{
 			name:        "require approve if auto-approve is not specified",
 			workspaceId: "w-require-approve",
-			removeOpt: &RemoveOption{variableKey: "environment", autoApprove: false},
+			removeOpt:   &RemoveOption{variableKey: "environment", autoApprove: false},
 			setClient: func(mc *mocks.MockVariables) {
 				mc.EXPECT().List(gomock.Any(), "w-require-approve", nil).Return(&tfe.VariableList{
 					Items: []*tfe.Variable{
@@ -117,8 +117,8 @@ func TestCmdRemove(t *testing.T) {
 				}, nil)
 				mc.EXPECT().Delete(gomock.Any(), "w-require-approve", "v-environment").Return(nil)
 			},
-			input: "yes\n",
-			expect:    "delete variable: environment",
+			input:   "yes\n",
+			expect:  "delete variable: environment",
 			wantErr: false,
 		},
 	}
