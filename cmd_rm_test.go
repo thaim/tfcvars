@@ -167,7 +167,7 @@ func TestNewRemoveOption(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			app := cli.NewApp()
-			set := flagSet(pushFlags())
+			set := flagSet(removeFlags())
 			set.Parse(tt.args)
 			ctx := cli.NewContext(app, set, nil)
 
