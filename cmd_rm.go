@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -51,6 +52,10 @@ func Remove(c *cli.Context) error {
 	}
 
 	rmOpt := NewRemoveOption(c)
+	if rmOpt == nil {
+		log.Error().Msg("failed to parse options")
+		return errors.New("failed to parse options")
+	}
 	log.Debug().Msgf("rmOpt: %+v", rmOpt)
 
 	return remove(ctx, workspace.ID, tfeClient.Variables, rmOpt)
