@@ -80,6 +80,9 @@ pull command download Terraform Cloud variables and save as local terraform.tfva
 ### Push command
 push command update Terraform Cloud variables with local terraform.tfvars file.
 
+### Rm command
+rm command remove Terraform Cloud variable specified with `--variable` flag.
+
 
 ## Limitation
 ### Sensitive Data
