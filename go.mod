@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/antonholmquist/jason v1.0.0
 	github.com/golang/mock v1.6.0
-	github.com/hashicorp/go-tfe v1.26.0
+	github.com/hashicorp/go-tfe v1.27.0
 	github.com/hashicorp/hcl/v2 v2.17.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rs/zerolog v1.29.1
@@ -32,7 +32,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
