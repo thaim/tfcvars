@@ -72,7 +72,7 @@ func CtyValue(value string) cty.Value {
 	if diag.HasErrors() {
 		file, _ = p.ParseHCL([]byte(fmt.Sprintf(`key = "%s"`, value)), "file")
 	}
-	attr := file.AttributeAtPos(hcl.Pos{Line: 1, Column: 1})
+	attr := file.AttributeAtPos(hcl.InitialPos)
 	val, diag := attr.Expr.Value(nil)
 	if diag.HasErrors() {
 		fmt.Printf("error: %s\n", value)
@@ -96,7 +96,7 @@ func BuildVariableList(key string, value string) *tfe.VariableList {
 }
 
 func BuildHCLFile(remoteVars []*tfe.Variable, localFile []byte, filename string) (*hclwrite.File, error) {
-	f, diags := hclwrite.ParseConfig(localFile, filename, hcl.Pos{Line: 1, Column: 1})
+	f, diags := hclwrite.ParseConfig(localFile, filename, hcl.InitialPos)
 	if diags.HasErrors() {
 		log.Error().Msgf("failed to parse existing varfile: %s", diags.Error())
 		return nil, errors.New(diags.Error())
