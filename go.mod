@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/antonholmquist/jason v1.0.0
 	github.com/golang/mock v1.6.0
-	github.com/hashicorp/go-tfe v1.29.0
+	github.com/hashicorp/go-tfe v1.30.0
 	github.com/hashicorp/hcl/v2 v2.17.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rs/zerolog v1.29.1
