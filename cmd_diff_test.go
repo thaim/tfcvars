@@ -93,7 +93,7 @@ func TestCmdDiff(t *testing.T) {
 							},
 							{
 								Key:   "tags",
-								Value: `{reop = "github.com/thaim/tfcvars"}`,
+								Value: `{repo = "github.com/thaim/tfcvars"}`,
 								HCL: true,
 							},
 						},
