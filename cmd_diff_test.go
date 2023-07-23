@@ -384,15 +384,15 @@ func TestCmdDiff(t *testing.T) {
 				if err == nil {
 					t.Errorf("expect '%s' error, got no error", tt.expectErr)
 				} else if !strings.Contains(err.Error(), tt.expectErr) {
-					t.Errorf("expect '%s' error, got %s", tt.expectErr, err.Error())
+					t.Errorf("expect '%s' error, got '%s'", tt.expectErr, err.Error())
 				}
 				return
 			}
 			if err != nil {
-				t.Errorf("expect no error, got error: %v", err)
+				t.Errorf("expect no error, got error: '%v'", err)
 			}
 			if bufString := replaceNBSPWithSpace(buf.String()); bufString != tt.expect {
-				t.Errorf("expect: %s, got: %s", tt.expect, bufString)
+				t.Errorf("expect: '%s', got: '%s'", tt.expect, bufString)
 			}
 		})
 	}
