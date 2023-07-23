@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"reflect"
 	"strings"
@@ -256,4 +257,129 @@ func TestBuildHCLFile(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFilterEnv(t *testing.T) {
+	cases := []struct {
+		name string
+		input []*tfe.Variable
+		expect []*tfe.Variable
+	}{
+		{
+			name: "do not change terraform variables",
+			input: []*tfe.Variable{
+				{
+					Key:   "key1",
+					Value: "value1",
+					Category: tfe.CategoryTerraform,
+				},
+				{
+					Key:   "key2",
+					Value: "value2",
+					Category: tfe.CategoryTerraform,
+				},
+				{
+					Key:   "key3",
+					Value: "value3",
+					Category: tfe.CategoryTerraform,
+				},
+			},
+			expect: []*tfe.Variable{
+				{
+					Key:   "key1",
+					Value: "value1",
+					Category: tfe.CategoryTerraform,
+				},
+				{
+					Key:   "key2",
+					Value: "value2",
+					Category: tfe.CategoryTerraform,
+				},
+				{
+					Key:   "key3",
+					Value: "value3",
+					Category: tfe.CategoryTerraform,
+				},
+			},
+		},
+		{
+			name: "remove all env varibles",
+			input: []*tfe.Variable{
+				{
+					Key:   "key1",
+					Value: "value1",
+					Category: tfe.CategoryEnv,
+				},
+				{
+					Key:   "key2",
+					Value: "value2",
+					Category: tfe.CategoryEnv,
+				},
+				{
+					Key:   "key3",
+					Value: "value3",
+					Category: tfe.CategoryEnv,
+				},
+			},
+			expect: []*tfe.Variable{},
+		},
+		{
+			name: "remove env varibles from mixed list",
+			input: []*tfe.Variable{
+				{
+					Key:   "key1",
+					Value: "value1",
+					Category: tfe.CategoryTerraform,
+				},
+				{
+					Key:   "key2",
+					Value: "value2",
+					Category: tfe.CategoryEnv,
+				},
+				{
+					Key:   "key3",
+					Value: "value3",
+					Category: tfe.CategoryTerraform,
+				},
+				{
+					Key:   "key4",
+					Value: "value4",
+					Category: tfe.CategoryEnv,
+				},
+			},
+			expect: []*tfe.Variable{
+				{
+					Key:   "key1",
+					Value: "value1",
+					Category: tfe.CategoryTerraform,
+				},
+				{
+					Key:   "key3",
+					Value: "value3",
+					Category: tfe.CategoryTerraform,
+				},
+			},
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := FilterEnv(tt.input)
+
+			if !reflect.DeepEqual(tt.expect, actual) {
+				t.Errorf("expect '%s', got '%s'", toString(tt.expect), toString(actual))
+			}
+		})
+	}
+}
+
+func toString(vars []*tfe.Variable) string {
+	result := "{"
+	for i, v := range vars {
+		if i != 0 {
+			result += ", "
+		}
+		result += fmt.Sprintf("%+v", v)
+	}
+	return result + "}"
 }
