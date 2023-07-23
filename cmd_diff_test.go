@@ -386,7 +386,7 @@ func TestCmdDiff(t *testing.T) {
 			if err != nil {
 				t.Errorf("expect no error, got error: %v", err)
 			}
-			if bufString := replaceNBSPWithSpace(buf.String()); !strings.Contains(bufString, tt.expect) {
+			if bufString := replaceNBSPWithSpace(buf.String()); bufString != tt.expect {
 				t.Errorf("expect: %s, got: %s", tt.expect, bufString)
 			}
 		})
