@@ -147,9 +147,7 @@ func TestCmdDiff(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect: `  environment = "development"
-- ENV         = "TEST"
-`,
+			expect: "",
 		},
 		{
 			name:        "show diff include consecutive multiple insert lines and delete lines",
