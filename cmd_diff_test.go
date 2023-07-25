@@ -126,11 +126,11 @@ func TestCmdDiff(t *testing.T) {
 		},
 		{
 			name:        "show no diff include env category with include-env disabled",
-			workspaceId: "w-test-variable-include-env-show-diff-workspace",
+			workspaceId: "w-test-variable-include-env-not-show-diff-workspace",
 			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: false},
 			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
-					List(context.TODO(), "w-test-variable-include-env-show-diff-workspace", nil).
+					List(context.TODO(), "w-test-variable-include-env-not-show-diff-workspace", nil).
 					Return(&tfe.VariableList{
 						Items: []*tfe.Variable{
 							{
