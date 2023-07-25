@@ -79,22 +79,22 @@ func TestCmdDiff(t *testing.T) {
 							{
 								Key:   "port",
 								Value: "3000",
-								HCL: true,
+								HCL:   true,
 							},
 							{
 								Key:   "terraform",
 								Value: "true",
-								HCL: true,
+								HCL:   true,
 							},
 							{
 								Key:   "availability_zones",
 								Value: `["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]`,
-								HCL: true,
+								HCL:   true,
 							},
 							{
 								Key:   "tags",
 								Value: `{repo = "github.com/thaim/tfcvars"}`,
-								HCL: true,
+								HCL:   true,
 							},
 						},
 					}, nil).

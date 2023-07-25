@@ -261,43 +261,43 @@ func TestBuildHCLFile(t *testing.T) {
 
 func TestFilterEnv(t *testing.T) {
 	cases := []struct {
-		name string
-		input []*tfe.Variable
+		name   string
+		input  []*tfe.Variable
 		expect []*tfe.Variable
 	}{
 		{
 			name: "do not change terraform variables",
 			input: []*tfe.Variable{
 				{
-					Key:   "key1",
-					Value: "value1",
+					Key:      "key1",
+					Value:    "value1",
 					Category: tfe.CategoryTerraform,
 				},
 				{
-					Key:   "key2",
-					Value: "value2",
+					Key:      "key2",
+					Value:    "value2",
 					Category: tfe.CategoryTerraform,
 				},
 				{
-					Key:   "key3",
-					Value: "value3",
+					Key:      "key3",
+					Value:    "value3",
 					Category: tfe.CategoryTerraform,
 				},
 			},
 			expect: []*tfe.Variable{
 				{
-					Key:   "key1",
-					Value: "value1",
+					Key:      "key1",
+					Value:    "value1",
 					Category: tfe.CategoryTerraform,
 				},
 				{
-					Key:   "key2",
-					Value: "value2",
+					Key:      "key2",
+					Value:    "value2",
 					Category: tfe.CategoryTerraform,
 				},
 				{
-					Key:   "key3",
-					Value: "value3",
+					Key:      "key3",
+					Value:    "value3",
 					Category: tfe.CategoryTerraform,
 				},
 			},
@@ -306,18 +306,18 @@ func TestFilterEnv(t *testing.T) {
 			name: "remove all env varibles",
 			input: []*tfe.Variable{
 				{
-					Key:   "key1",
-					Value: "value1",
+					Key:      "key1",
+					Value:    "value1",
 					Category: tfe.CategoryEnv,
 				},
 				{
-					Key:   "key2",
-					Value: "value2",
+					Key:      "key2",
+					Value:    "value2",
 					Category: tfe.CategoryEnv,
 				},
 				{
-					Key:   "key3",
-					Value: "value3",
+					Key:      "key3",
+					Value:    "value3",
 					Category: tfe.CategoryEnv,
 				},
 			},
@@ -327,35 +327,35 @@ func TestFilterEnv(t *testing.T) {
 			name: "remove env varibles from mixed list",
 			input: []*tfe.Variable{
 				{
-					Key:   "key1",
-					Value: "value1",
+					Key:      "key1",
+					Value:    "value1",
 					Category: tfe.CategoryTerraform,
 				},
 				{
-					Key:   "key2",
-					Value: "value2",
+					Key:      "key2",
+					Value:    "value2",
 					Category: tfe.CategoryEnv,
 				},
 				{
-					Key:   "key3",
-					Value: "value3",
+					Key:      "key3",
+					Value:    "value3",
 					Category: tfe.CategoryTerraform,
 				},
 				{
-					Key:   "key4",
-					Value: "value4",
+					Key:      "key4",
+					Value:    "value4",
 					Category: tfe.CategoryEnv,
 				},
 			},
 			expect: []*tfe.Variable{
 				{
-					Key:   "key1",
-					Value: "value1",
+					Key:      "key1",
+					Value:    "value1",
 					Category: tfe.CategoryTerraform,
 				},
 				{
-					Key:   "key3",
-					Value: "value3",
+					Key:      "key3",
+					Value:    "value3",
 					Category: tfe.CategoryTerraform,
 				},
 			},
