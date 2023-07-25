@@ -223,7 +223,9 @@ func TestCmdDiff(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect: "",
+			expect: `  environment = "development"
+- ENV         = "TEST"
+`,
 		},
 		{
 			name:        "ignore variable set if include-variable-set not specified",
