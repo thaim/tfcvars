@@ -79,18 +79,22 @@ func TestCmdDiff(t *testing.T) {
 							{
 								Key:   "port",
 								Value: "3000",
+								HCL:   true,
 							},
 							{
 								Key:   "terraform",
 								Value: "true",
+								HCL:   true,
 							},
 							{
 								Key:   "availability_zones",
 								Value: `["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]`,
+								HCL:   true,
 							},
 							{
 								Key:   "tags",
-								Value: `{reop = "github.com/thaim/tfcvars"}`,
+								Value: `{repo = "github.com/thaim/tfcvars"}`,
+								HCL:   true,
 							},
 						},
 					}, nil).
@@ -122,11 +126,11 @@ func TestCmdDiff(t *testing.T) {
 		},
 		{
 			name:        "show no diff include env category with include-env disabled",
-			workspaceId: "w-test-variable-include-env-show-diff-workspace",
-			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: true},
+			workspaceId: "w-test-variable-include-env-not-show-diff-workspace",
+			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars", includeEnv: false},
 			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
 				mc.EXPECT().
-					List(context.TODO(), "w-test-variable-include-env-show-diff-workspace", nil).
+					List(context.TODO(), "w-test-variable-include-env-not-show-diff-workspace", nil).
 					Return(&tfe.VariableList{
 						Items: []*tfe.Variable{
 							{
@@ -143,8 +147,7 @@ func TestCmdDiff(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect: `- ENV         = "TEST"
-`,
+			expect: "",
 		},
 		{
 			name:        "show diff include consecutive multiple insert lines and delete lines",
@@ -220,7 +223,9 @@ func TestCmdDiff(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect: "",
+			expect: `  environment = "development"
+- ENV         = "TEST"
+`,
 		},
 		{
 			name:        "ignore variable set if include-variable-set not specified",
@@ -379,15 +384,15 @@ func TestCmdDiff(t *testing.T) {
 				if err == nil {
 					t.Errorf("expect '%s' error, got no error", tt.expectErr)
 				} else if !strings.Contains(err.Error(), tt.expectErr) {
-					t.Errorf("expect '%s' error, got %s", tt.expectErr, err.Error())
+					t.Errorf("expect '%s' error, got '%s'", tt.expectErr, err.Error())
 				}
 				return
 			}
 			if err != nil {
-				t.Errorf("expect no error, got error: %v", err)
+				t.Errorf("expect no error, got error: '%v'", err)
 			}
-			if bufString := replaceNBSPWithSpace(buf.String()); !strings.Contains(bufString, tt.expect) {
-				t.Errorf("expect: %s, got: %s", tt.expect, bufString)
+			if bufString := replaceNBSPWithSpace(buf.String()); bufString != tt.expect {
+				t.Errorf("expect: '%s', got: '%s'", tt.expect, bufString)
 			}
 		})
 	}
