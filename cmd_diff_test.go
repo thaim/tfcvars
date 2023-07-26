@@ -64,6 +64,35 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
+			name:        "show no diff compare with tfvars include comments",
+			workspaceId: "w-test-vars-with-comment-workspace",
+			diffOpt:     &DiffOption{varFile: "testdata/withcomment.tfvars"},
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-vars-with-comment-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "environment",
+								Value: "test",
+							},
+							{
+								Key:   "port",
+								Value: "3000",
+								HCL:   true,
+							},
+							{
+								Key:   "terraform",
+								Value: "true",
+								HCL:   true,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect: "",
+		},
+		{
 			name:        "show no diff with mutiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
 			diffOpt:     &DiffOption{varFile: "testdata/mixedtypes.tfvars"},
