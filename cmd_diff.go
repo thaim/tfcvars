@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -111,4 +112,19 @@ func fileDiff(srcText, destText string) (bool, string) {
 	}
 
 	return includeDiff, buf.String()
+}
+
+func removeLine(src []byte, removeStart, removeEnd int) []byte {
+	var buf bytes.Buffer
+	lines := bytes.Split(src, []byte("\n"))
+	for i, line := range lines {
+		if i >= removeStart && i <= removeEnd {
+			continue
+		}
+		if buf.Len() > 0 {
+			buf.WriteString("\n")
+		}
+		buf.Write(line)
+	}
+	return buf.Bytes()
 }
