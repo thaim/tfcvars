@@ -481,48 +481,6 @@ func TestNewDiffOption(t *testing.T) {
 	}
 }
 
-func TestRemoveLine(t *testing.T) {
-	cases := []struct {
-		name string
-		input []byte
-		start int
-		end int
-		expect []byte
-	}{
-		{
-			name: "remove line",
-			input: []byte("line0\nline1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\n"),
-			start: 1,
-			end: 4,
-			expect: []byte("line0\nline5\nline6\nline7\nline8\nline9\n"),
-		},
-		{
-			name: "remove line from start",
-			input: []byte("line0\nline1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\n"),
-			start: 0,
-			end: 3,
-			expect: []byte("line4\nline5\nline6\nline7\nline8\nline9\n"),
-		},
-		{
-			name: "remove line from end",
-			input: []byte("line0\nline1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\n"),
-			start: 6,
-			end: 9,
-			expect: []byte("line0\nline1\nline2\nline3\nline4\nline5\n"),
-		},
-	}
-
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			actual := removeLine(tt.input, tt.start, tt.end)
-
-			if !reflect.DeepEqual(tt.expect, actual) {
-				t.Errorf("expect '%v', got '%v'", string(tt.expect), string(actual))
-			}
-		})
-	}
-}
-
 func replaceNBSPWithSpace(s string) string {
 	return strings.Map(func(r rune) rune {
 		if r == '\u00A0' {
