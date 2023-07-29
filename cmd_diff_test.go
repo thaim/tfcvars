@@ -64,6 +64,35 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
+			name:        "show no diff compare with tfvars include comments",
+			workspaceId: "w-test-vars-with-comment-workspace",
+			diffOpt:     &DiffOption{varFile: "testdata/withcomment.tfvars"},
+			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
+				mc.EXPECT().
+					List(context.TODO(), "w-test-vars-with-comment-workspace", nil).
+					Return(&tfe.VariableList{
+						Items: []*tfe.Variable{
+							{
+								Key:   "environment",
+								Value: "test",
+							},
+							{
+								Key:   "port",
+								Value: "3000",
+								HCL:   true,
+							},
+							{
+								Key:   "terraform",
+								Value: "true",
+								HCL:   true,
+							},
+						},
+					}, nil).
+					AnyTimes()
+			},
+			expect: "",
+		},
+		{
 			name:        "show no diff with mutiple variables",
 			workspaceId: "w-test-multiple-variables-workspace",
 			diffOpt:     &DiffOption{varFile: "testdata/mixedtypes.tfvars"},
@@ -189,12 +218,12 @@ func TestCmdDiff(t *testing.T) {
 					}, nil).
 					AnyTimes()
 			},
-			expect: `- delete1            = "value1"
-- delete2            = "value2"
-  environment        = "test"
+			expect: `  environment        = "test"
   port               = 3000
   terraform          = true
   availability_zones = ["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]
+- delete1            = "value1"
+- delete2            = "value2"
 + tags = {
 +   repo = "github.com/thaim/tfcvars"
 + }
@@ -269,7 +298,7 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
-			name:        "show diff invariable set if include-variable-set specified",
+			name:        "show diff in variable set if include-variable-set specified",
 			workspaceId: "w-test-variable-set-workspace",
 			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars", includeVariableSet: true},
 			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {

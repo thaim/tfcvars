@@ -66,6 +66,7 @@ func IsPrimitive(value cty.Value) bool {
 	return false
 }
 
+// CtyValue convert string to cty.Value
 func CtyValue(value string) cty.Value {
 	p := hclparse.NewParser()
 	file, diag := p.ParseHCL([]byte(fmt.Sprintf("key = %s", value)), "file")
@@ -75,7 +76,7 @@ func CtyValue(value string) cty.Value {
 	attr := file.AttributeAtPos(hcl.InitialPos)
 	val, diag := attr.Expr.Value(nil)
 	if diag.HasErrors() {
-		fmt.Printf("error: %s\n", value)
+		fmt.Printf("cannot convert to cty.Value (%s): %s\n", value, diag.Error())
 		return cty.StringVal("")
 	}
 
