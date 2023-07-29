@@ -148,7 +148,7 @@ func destBasedDiff(srcVariable *Tfvars, destText *Tfvars) (bool, string) {
 	// どちらのvariableに含まれているものを、src varaibleの値で書き換える
 	// これは、src variableの値をdest variableに上書きすることで実現可能
 	for _, v := range srcVariable.vars {
-		log.Info().Msgf("update %s as %s", v.Key, v.Value)
+		// log.Info().Msgf("update %s as %s", v.Key, v.Value)
 
 		// TODO cty依存はCtyValue関数で吸収したい
 		var ctyValue cty.Value
