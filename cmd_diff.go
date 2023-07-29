@@ -121,7 +121,6 @@ func destBasedDiff(srcVariable *Tfvars, destText *Tfvars) (bool, string) {
 	// srcText := srcVariable.BuildHCLFileString()
 	srcTextBytes := destText.vardata
 
-
 	w, diag := hclwrite.ParseConfig(srcTextBytes, srcVariable.filename, hcl.InitialPos)
 	if diag.HasErrors() {
 		log.Error().Msg("failed to parse src file")
@@ -133,7 +132,7 @@ func destBasedDiff(srcVariable *Tfvars, destText *Tfvars) (bool, string) {
 	// diffは比較から実現可能。
 	// これがファイルのどの行にあたるのかを特定するのは難しい
 	// JustAttributeして返るhcl.AttributeにはRangeがあるので、これで対象行数を削除すればよい
-	destVariableLoop:
+destVariableLoop:
 	for _, vDest := range destText.vars {
 		for _, vSrc := range srcVariable.vars {
 			if vDest.Key == vSrc.Key {
