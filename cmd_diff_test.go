@@ -298,7 +298,7 @@ func TestCmdDiff(t *testing.T) {
 			expect: "",
 		},
 		{
-			name:        "show diff invariable set if include-variable-set specified",
+			name:        "show diff in variable set if include-variable-set specified",
 			workspaceId: "w-test-variable-set-workspace",
 			diffOpt:     &DiffOption{varFile: "testdata/terraform.tfvars", includeVariableSet: true},
 			setClient: func(mc *mocks.MockVariables, mvs *mocks.MockVariableSets, mvsv *mocks.MockVariableSetVariables) {
