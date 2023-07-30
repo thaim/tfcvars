@@ -118,10 +118,7 @@ func fileDiff(srcText, destText string) (bool, string) {
 
 // destBasedDiff creates a diff based on destination file format(includeing comments and variable order)
 func destBasedDiff(srcVariable *Tfvars, destText *Tfvars) (bool, string) {
-	// srcText := srcVariable.BuildHCLFileString()
-	srcTextBytes := destText.vardata
-
-	w, diag := hclwrite.ParseConfig(srcTextBytes, srcVariable.filename, hcl.InitialPos)
+	w, diag := hclwrite.ParseConfig(destText.vardata, srcVariable.filename, hcl.InitialPos)
 	if diag.HasErrors() {
 		log.Error().Msg("failed to parse src file")
 		return false, ""
