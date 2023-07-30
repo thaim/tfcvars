@@ -71,8 +71,7 @@ func CtyValue(value string) cty.Value {
 	p := hclparse.NewParser()
 	file, diag := p.ParseHCL([]byte(fmt.Sprintf("key = %s", value)), "file")
 	if diag.HasErrors() {
-		fmt.Printf("faile to parse value as HCL file (%s): %s\n", value, diag.Error())
-		return cty.NullVal(cty.String)
+		return cty.StringVal(value)
 	}
 	attr := file.AttributeAtPos(hcl.InitialPos)
 	val, diag := attr.Expr.Value(nil)
