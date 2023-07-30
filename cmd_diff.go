@@ -13,7 +13,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/urfave/cli/v2"
-	"github.com/zclconf/go-cty/cty"
 )
 
 type DiffOption struct {
@@ -138,14 +137,7 @@ destVariableLoop:
 
 	// add or update attributes defined in srcVariable
 	for _, v := range srcVariable.vars {
-		// TODO cty依存はCtyValue関数で吸収したい
-		var ctyValue cty.Value
-		if v.HCL {
-			ctyValue = CtyValue(v.Value)
-		} else {
-			ctyValue = cty.StringVal(v.Value)
-		}
-		w.Body().SetAttributeValue(v.Key, ctyValue)
+		w.Body().SetAttributeValue(v.Key, CtyValue(v.Value))
 	}
 
 	return fileDiff(string(w.Bytes()), destText.BuildHCLFileString())
