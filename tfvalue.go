@@ -71,13 +71,12 @@ func CtyValue(value string) cty.Value {
 	p := hclparse.NewParser()
 	file, diag := p.ParseHCL([]byte(fmt.Sprintf("key = %s", value)), "file")
 	if diag.HasErrors() {
-		file, _ = p.ParseHCL([]byte(fmt.Sprintf(`key = "%s"`, value)), "file")
+		return cty.StringVal(value)
 	}
 	attr := file.AttributeAtPos(hcl.InitialPos)
 	val, diag := attr.Expr.Value(nil)
 	if diag.HasErrors() {
-		fmt.Printf("cannot convert to cty.Value (%s): %s\n", value, diag.Error())
-		return cty.StringVal("")
+		return cty.StringVal(value)
 	}
 
 	return val

@@ -13,7 +13,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/urfave/cli/v2"
-	"github.com/zclconf/go-cty/cty"
 )
 
 type DiffOption struct {
@@ -118,20 +117,13 @@ func fileDiff(srcText, destText string) (bool, string) {
 
 // destBasedDiff creates a diff based on destination file format(includeing comments and variable order)
 func destBasedDiff(srcVariable *Tfvars, destText *Tfvars) (bool, string) {
-	// srcText := srcVariable.BuildHCLFileString()
-	srcTextBytes := destText.vardata
-
-	w, diag := hclwrite.ParseConfig(srcTextBytes, srcVariable.filename, hcl.InitialPos)
+	w, diag := hclwrite.ParseConfig(destText.vardata, srcVariable.filename, hcl.InitialPos)
 	if diag.HasErrors() {
 		log.Error().Msg("failed to parse src file")
 		return false, ""
 	}
-	// srcおよびdestから variable 一覧を抽出する→これは Tfvars.vars で実現可能
 
-	// 抽出したdest variable一覧に含まれていて、src varaible一覧に含まれていないものを削除する
-	// diffは比較から実現可能。
-	// これがファイルのどの行にあたるのかを特定するのは難しい
-	// JustAttributeして返るhcl.AttributeにはRangeがあるので、これで対象行数を削除すればよい
+	// remove attributes defined in destText but not in srcVariable
 destVariableLoop:
 	for _, vDest := range destText.vars {
 		for _, vSrc := range srcVariable.vars {
@@ -140,23 +132,12 @@ destVariableLoop:
 			}
 		}
 
-		// vDest.Keyはdestにしかないので削除する
 		w.Body().RemoveAttribute(vDest.Key)
 	}
 
-	// どちらのvariableに含まれているものを、src varaibleの値で書き換える
-	// これは、src variableの値をdest variableに上書きすることで実現可能
+	// add or update attributes defined in srcVariable
 	for _, v := range srcVariable.vars {
-		// log.Info().Msgf("update %s as %s", v.Key, v.Value)
-
-		// TODO cty依存はCtyValue関数で吸収したい
-		var ctyValue cty.Value
-		if v.HCL {
-			ctyValue = CtyValue(v.Value)
-		} else {
-			ctyValue = cty.StringVal(v.Value)
-		}
-		w.Body().SetAttributeValue(v.Key, ctyValue)
+		w.Body().SetAttributeValue(v.Key, CtyValue(v.Value))
 	}
 
 	return fileDiff(string(w.Bytes()), destText.BuildHCLFileString())
