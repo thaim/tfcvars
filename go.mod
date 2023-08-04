@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/go-tfe v1.31.0
 	github.com/hashicorp/hcl/v2 v2.17.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/rs/zerolog v1.29.1
+	github.com/rs/zerolog v1.30.0
 	github.com/sergi/go-diff v1.1.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/urfave/cli/v2 v2.25.7
