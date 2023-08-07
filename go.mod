@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.17.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rs/zerolog v1.30.0
-	github.com/sergi/go-diff v1.1.0
+	github.com/sergi/go-diff v1.2.0
 	github.com/tidwall/gjson v1.15.0
 	github.com/urfave/cli/v2 v2.25.7
 	github.com/zclconf/go-cty v1.13.2
