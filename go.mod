@@ -10,7 +10,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rs/zerolog v1.30.0
 	github.com/sergi/go-diff v1.1.0
-	github.com/tidwall/gjson v1.15.0
+	github.com/tidwall/gjson v1.16.0
 	github.com/urfave/cli/v2 v2.25.7
 	github.com/zclconf/go-cty v1.13.2
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
