@@ -1,5 +1,5 @@
 # env
 environment = "test"
 # port
-port      = 3000
-terraform = true
+port      = "3000"
+terraform = "true"
