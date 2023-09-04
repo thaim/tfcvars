@@ -1,6 +1,6 @@
 module github.com/thaim/tfcvars
 
-go 1.20
+go 1.21
 
 require (
 	github.com/antonholmquist/jason v1.0.0
