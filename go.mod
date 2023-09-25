@@ -10,7 +10,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rs/zerolog v1.30.0
 	github.com/sergi/go-diff v1.1.0
-	github.com/tidwall/gjson v1.16.0
+	github.com/tidwall/gjson v1.17.0
 	github.com/urfave/cli/v2 v2.25.7
 	github.com/zclconf/go-cty v1.14.0
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
@@ -18,7 +18,6 @@ require (
 
 require (
 	github.com/agext/levenshtein v1.2.1 // indirect
-	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
