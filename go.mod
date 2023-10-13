@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/go-tfe v1.34.0
 	github.com/hashicorp/hcl/v2 v2.18.1
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/rs/zerolog v1.30.0
+	github.com/rs/zerolog v1.31.0
 	github.com/sergi/go-diff v1.1.0
 	github.com/tidwall/gjson v1.17.0
 	github.com/urfave/cli/v2 v2.25.7
@@ -28,7 +28,7 @@ require (
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/jsonapi v0.0.0-20210826224640-ee7dae0fb22d // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
@@ -36,7 +36,7 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 )
