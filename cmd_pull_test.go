@@ -340,7 +340,7 @@ func TestNewPullOption(t *testing.T) {
 			args: []string{},
 			expect: &PullOption{
 				varFile:     "terraform.tfvars",
-				overwrite:   false,
+				overwrite:   true,
 				prevVarfile: nil,
 			},
 		},
@@ -349,7 +349,7 @@ func TestNewPullOption(t *testing.T) {
 			args: []string{"--var-file", "custom.tfvars"},
 			expect: &PullOption{
 				varFile:     "custom.tfvars",
-				overwrite:   false,
+				overwrite:   true,
 				prevVarfile: nil,
 			},
 		},
@@ -359,6 +359,15 @@ func TestNewPullOption(t *testing.T) {
 			expect: &PullOption{
 				varFile:     "terraform.tfvars",
 				overwrite:   true,
+				prevVarfile: nil,
+			},
+		},
+		{
+			name: "enable merge option",
+			args: []string{"--merge"},
+			expect: &PullOption{
+				varFile:     "terraform.tfvars",
+				overwrite:   false,
 				prevVarfile: nil,
 			},
 		},
@@ -376,7 +385,7 @@ func TestNewPullOption(t *testing.T) {
 			args: []string{"--include-env"},
 			expect: &PullOption{
 				varFile:    "terraform.tfvars",
-				overwrite:  false,
+				overwrite:  true,
 				includeEnv: true,
 			},
 		},
@@ -385,7 +394,7 @@ func TestNewPullOption(t *testing.T) {
 			args: []string{"--include-variable-set"},
 			expect: &PullOption{
 				varFile:            "terraform.tfvars",
-				overwrite:          false,
+				overwrite:          true,
 				includeVariableSet: true,
 			},
 		},
