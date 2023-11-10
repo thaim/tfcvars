@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/antonholmquist/jason v1.0.0
 	github.com/golang/mock v1.6.0
-	github.com/hashicorp/go-tfe v1.37.0
+	github.com/hashicorp/go-tfe v1.38.0
 	github.com/hashicorp/hcl/v2 v2.19.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rs/zerolog v1.31.0
