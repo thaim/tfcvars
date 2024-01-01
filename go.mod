@@ -11,7 +11,7 @@ require (
 	github.com/rs/zerolog v1.31.0
 	github.com/sergi/go-diff v1.1.0
 	github.com/tidwall/gjson v1.17.0
-	github.com/urfave/cli/v2 v2.26.0
+	github.com/urfave/cli/v2 v2.27.1
 	github.com/zclconf/go-cty v1.14.1
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 )
