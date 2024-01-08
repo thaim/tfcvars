@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/antonholmquist/jason v1.0.0
 	github.com/golang/mock v1.6.0
-	github.com/hashicorp/go-tfe v1.41.0
+	github.com/hashicorp/go-tfe v1.42.0
 	github.com/hashicorp/hcl/v2 v2.19.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rs/zerolog v1.31.0
@@ -26,7 +26,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.5 // indirect
 	github.com/hashicorp/go-slug v0.13.3 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
-	github.com/hashicorp/jsonapi v0.0.0-20210826224640-ee7dae0fb22d // indirect
+	github.com/hashicorp/jsonapi v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
