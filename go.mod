@@ -12,7 +12,7 @@ require (
 	github.com/sergi/go-diff v1.1.0
 	github.com/tidwall/gjson v1.17.0
 	github.com/urfave/cli/v2 v2.27.1
-	github.com/zclconf/go-cty v1.14.1
+	github.com/zclconf/go-cty v1.14.2
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 )
 
