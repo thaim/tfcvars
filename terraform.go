@@ -19,8 +19,8 @@ func updateTerraformCloudWorkspace(organization string, workspaceName string, wo
 	src := string(srcByte)
 
 	backendType := gjson.Get(src, "backend.type").String()
-	if backendType != "remote" {
-		log.Warn().Msg("backend for this workspace is not a remote")
+	if backendType != "remote" && backendType != "cloud" {
+		log.Warn().Msgf("the backend for this workspace is '%s', but need to be 'cloud' or 'remote'", backendType)
 		return organization, workspaceName
 	}
 

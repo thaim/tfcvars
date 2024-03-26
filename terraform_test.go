@@ -39,6 +39,14 @@ func TestUpdateTerraformCloudWorkspace(t *testing.T) {
 			expectedWorkspaceName: "test-ws",
 		},
 		{
+			name:                  "cloud backend",
+			tfstate:               `{"backend": {"type": "cloud", "config": {"organization": "test-organization", "workspaces": {"name": "test-workspace"}}}}`,
+			defaultOrganization:   "test-org",
+			defaultWorkspaceName:  "test-ws",
+			expectedOrganization:  "test-organization",
+			expectedWorkspaceName: "test-workspace",
+		},
+		{
 			name:                  "workspace with name",
 			tfstate:               `{"backend": {"type": "remote", "config": {"organization": "test-organization", "workspaces": {"name": "test-workspace"}}}}`,
 			defaultOrganization:   "test-org",
